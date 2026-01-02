@@ -1,0 +1,61 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
+
+import Login from "./pages/auth/Login";
+import NotFound from "./pages/NotFound";
+
+import TeacherRoutes from "./pages/teacher";
+import AdminRoutes from "./pages/admin";
+import PrintingRoutes from "./pages/printing";
+
+const App = () => {
+  const { user, loading } = useContext(AuthContext);
+
+  // ⛔ Prevent white screen while auth is loading
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Home / Auth */}
+        <Route
+          path="/"
+          element={!user ? <Login /> : <Navigate to="/dashboard" />}
+        />
+
+        {/* Role-based redirect */}
+        <Route
+          path="/dashboard"
+          element={
+            user?.role === "TEACHER" ? (
+              <Navigate to="/teacher" />
+            ) : user?.role === "ADMIN" ? (
+              <Navigate to="/admin" />
+            ) : user?.role === "PRINTING" ? (
+              <Navigate to="/printing" />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        {/* Dashboards */}
+        <Route path="/teacher/*" element={<TeacherRoutes />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="/printing/*" element={<PrintingRoutes />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
