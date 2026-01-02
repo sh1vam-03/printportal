@@ -12,7 +12,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Uploaded files (documents)
-uploads/
 
 # OS generated files
 .DS_Store
