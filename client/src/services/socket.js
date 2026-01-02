@@ -6,17 +6,17 @@ let socket;
 export const initSocketConnection = () => {
     if (socket) return socket;
 
-    socket = io("http://localhost:5000", {
+    socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
         transports: ["websocket"],
         reconnection: true,
     });
 
     socket.on("connect", () => {
-        console.log("🟢 Connected to Socket.io server", socket.id);
+        console.log("Connected to Socket.io server", socket.id);
     });
 
     socket.on("disconnect", () => {
-        console.log("🔴 Disconnected from Socket.io server");
+        console.log("Disconnected from Socket.io server");
     });
 
     return socket;
