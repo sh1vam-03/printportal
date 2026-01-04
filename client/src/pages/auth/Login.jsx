@@ -55,9 +55,9 @@ const Login = () => {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-indigo-200">
+                <div className="flex items-center gap-4 text-sm text-indigo-200 hover:text-indigo-100 transition-colors">
                     <span>
-                        &copy; {new Date().getFullYear()} Obzen Technolabs
+                        &copy; {new Date().getFullYear()} <a href="https://github.com/sh1vam-03" target="_blank" rel="noopener noreferrer">sh1vam-03</a>
                     </span>
                     <span>•</span>
                     <span>Privacy Policy</span>
