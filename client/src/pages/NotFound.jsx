@@ -46,7 +46,7 @@ const NotFound = () => {
                 </div>
             </div>
 
-            <div className="mt-12 text-sm text-gray-400 hover:text-gray-200">
+            <div className="mt-12 text-sm text-gray-400 hover:text-indigo-600 transition-colors">
                 &copy; {new Date().getFullYear()} <a href="https://github.com/sh1vam-03" target="_blank" rel="noopener noreferrer">sh1vam-03</a>
             </div>
         </div>
