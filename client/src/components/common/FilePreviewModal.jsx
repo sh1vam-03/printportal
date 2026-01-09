@@ -153,19 +153,18 @@ const FilePreviewModal = ({
 
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900 leading-tight mb-1">{requestData?.title || "Untitled Job"}</h2>
-                                <div className="flex items-center gap-2 text-sm text-gray-500">
-                                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                                        <span className="text-xs uppercase tracking-wide font-medium text-gray-400">Requested by</span>
-                                        <span className="flex items-center gap-1 font-semibold text-brand-600 bg-brand-50 px-3 py-1 rounded-full text-xs border border-brand-100">
-                                            {requestData?.teacher?.name || "Unknown Teacher"}
-                                        </span>
-                                    </div>
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-2xl font-bold text-gray-900 leading-tight">{requestData?.title || "Untitled Job"}</h2>
+
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
+                                    {requestData?.teacher?.name?.charAt(0) || "?"}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-gray-900">{requestData?.teacher?.name || "Unknown User"}</p>
+                                    <p className="text-xs text-gray-500 font-medium">Request Owner</p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
