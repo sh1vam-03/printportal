@@ -365,7 +365,15 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                 isOpen={!!previewFile}
                 onClose={() => setPreviewFile(null)}
                 fileUrl={previewFile ? `/print-requests/${previewFile._id}/preview` : ""}
-                fileType={previewFile?.fileType || "application/octet-stream"}
+                fileType={previewFile?.fileType || (() => {
+                    if (!previewFile?.fileUrl) return "application/octet-stream";
+                    const ext = previewFile.fileUrl.split('.').pop().toLowerCase();
+                    if (ext === "pdf") return "application/pdf";
+                    if (["jpg", "jpeg"].includes(ext)) return "image/jpeg";
+                    if (ext === "png") return "image/png";
+                    if (ext === "txt") return "text/plain";
+                    return "application/octet-stream";
+                })()}
                 originalName={previewFile?.originalName || previewFile?.fileUrl.split('/').pop()}
                 canDownload={role === "ADMIN" || role === "PRINTING"}
                 canPrint={role === "PRINTING"}

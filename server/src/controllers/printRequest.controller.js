@@ -50,6 +50,20 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
 /* ----------------------------------------
    GET PRINT FILE PREVIEW (Secure)
 ----------------------------------------- */
+import path from "path";
+
+const getMimeType = (filename) => {
+    const ext = path.extname(filename).toLowerCase();
+    switch (ext) {
+        case ".pdf": return "application/pdf";
+        case ".jpg":
+        case ".jpeg": return "image/jpeg";
+        case ".png": return "image/png";
+        case ".txt": return "text/plain";
+        default: return "application/octet-stream";
+    }
+};
+
 export const getPrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { role, _id: userId } = req.user; // Securely get from token
@@ -79,8 +93,12 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     // Serve file inline for preview
     const filePath = `./src${request.fileUrl}`;
 
-    res.setHeader('Content-Type', request.fileType);
-    res.setHeader('Content-Disposition', `inline; filename="${request.originalName}"`);
+    // Fallback for old files without metadata
+    const contentType = request.fileType || getMimeType(request.fileUrl);
+    const downloadName = request.originalName || path.basename(request.fileUrl);
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
 
     res.sendFile(filePath, { root: "." });
 });
