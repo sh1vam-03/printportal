@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 export const requireRole = (roles) => {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
@@ -18,20 +19,18 @@ export const requireRole = (roles) => {
             }
 
             // Verify session against DB
-            import("../models/User.js").then(async ({ default: User }) => {
-                const user = await User.findById(decoded.userId);
+            const user = await User.findById(decoded.userId);
 
-                if (!user || !user.isActive) {
-                    return res.status(401).json({ message: "Session expired or account disabled" });
-                }
+            if (!user || !user.isActive) {
+                return res.status(401).json({ message: "Session expired or account disabled" });
+            }
 
-                if (decoded.tokenVersion !== user.tokenVersion) {
-                    return res.status(401).json({ message: "Session terminated. Please login again." });
-                }
+            if (decoded.tokenVersion !== user.tokenVersion) {
+                return res.status(401).json({ message: "Session terminated. Please login again." });
+            }
 
-                req.user = decoded; // { userId, role, tokenVersion }
-                next();
-            }).catch(next);
+            req.user = decoded; // { userId, role, tokenVersion }
+            next();
 
         } catch (err) {
             return res.status(401).json({ message: "Invalid token" });

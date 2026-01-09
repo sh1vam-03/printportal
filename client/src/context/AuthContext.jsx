@@ -32,7 +32,8 @@ export const AuthProvider = ({ children }) => {
 
         if (token && role) {
             const decoded = parseToken(token);
-            setUser({ role, name, userId: decoded?._id });
+            // Payload uses 'userId' key
+            setUser({ role, name, userId: decoded?.userId || decoded?._id });
         }
 
         setLoading(false);
@@ -45,17 +46,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("name", res.data.name);
 
         const decoded = parseToken(res.data.token);
-        setUser({ role: res.data.role, name: res.data.name, userId: decoded?._id });
+        setUser({ role: res.data.role, name: res.data.name, userId: decoded?.userId || decoded?._id });
     };
 
     const signup = async (data) => {
-        const res = await api.post("/auth/register", data);
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("role", res.data.role);
-        localStorage.setItem("name", res.data.name);
-
-        const decoded = parseToken(res.data.token);
-        setUser({ role: res.data.role, name: res.data.name, userId: decoded?._id });
+        // Signup is disabled but keeping function for context compatibility
+        throw new Error("Signup disabled");
     };
 
     const logout = () => {

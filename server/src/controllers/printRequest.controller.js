@@ -181,7 +181,11 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
    GET PRINT REQUESTS (Role-based)
 ----------------------------------------- */
 export const getPrintRequests = asyncHandler(async (req, res) => {
-    const { role, userId } = req.query;
+    // Securely get role and userId from token (req.user is set by auth middleware)
+    const { role, userId } = req.user;
+
+    // Optional query overrides ONLY for Admin
+    // const { role: queryRole, userId: queryUserId } = req.query;
 
     let filter = {};
 
@@ -192,6 +196,8 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
     if (role === "PRINTING") {
         filter.status = "APPROVED";
     }
+
+    // Admins see all by default, or can filter if needed (future feature)
 
     const requests = await PrintRequest.find(filter)
         .populate("teacher", "name email")
