@@ -17,8 +17,22 @@ export const requireRole = (roles) => {
                 return res.status(403).json({ message: "Access denied" });
             }
 
-            req.user = decoded; // { userId, role }
-            next();
+            // Verify session against DB
+            import("../models/User.js").then(async ({ default: User }) => {
+                const user = await User.findById(decoded.userId);
+
+                if (!user || !user.isActive) {
+                    return res.status(401).json({ message: "Session expired or account disabled" });
+                }
+
+                if (decoded.tokenVersion !== user.tokenVersion) {
+                    return res.status(401).json({ message: "Session terminated. Please login again." });
+                }
+
+                req.user = decoded; // { userId, role, tokenVersion }
+                next();
+            }).catch(next);
+
         } catch (err) {
             return res.status(401).json({ message: "Invalid token" });
         }

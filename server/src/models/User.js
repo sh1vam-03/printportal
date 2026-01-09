@@ -26,6 +26,20 @@ const userSchema = new mongoose.Schema(
             enum: ["TEACHER", "ADMIN", "PRINTING"],
             required: true,
         },
+
+        tokenVersion: {
+            type: Number,
+            default: 0,
+        },
+
+        lastLogin: {
+            type: Date,
+        },
+
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     },
     { timestamps: true }
 );

@@ -3,8 +3,8 @@ import * as authController from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-// Teacher only register
-router.post("/register", authController.teacherRegister);
+// Teacher register REMOVED (Admin only creation now)
+// router.post("/register", authController.teacherRegister);
 
 // Login for all roles
 router.post("/login", authController.login);
