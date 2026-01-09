@@ -67,18 +67,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title Section */}
-            <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">Document Title</label>
-                <input
-                    name="title"
-                    type="text"
-                    placeholder="e.g. Math Exam - Grade 10"
-                    required
-                    maxLength={100}
-                    className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-                />
-            </div>
+
 
             {/* File Upload Section */}
             <div>
@@ -122,200 +111,133 @@ const CreatePrintRequest = ({ onSuccess }) => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {/* Copies */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">Number of Copies</label>
-                    <input
-                        name="copies"
-                        type="number"
-                        min="1"
-                        defaultValue="1"
-                        required
-                        className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-                    />
-                </div>
 
-                {/* Print Type */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">Print Type</label>
-                    <div className="relative">
-                        <select
-                            name="printType"
-                            className="w-full appearance-none rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-                        >
-                            <option value="SINGLE_SIDE">Single Sided</option>
-                            <option value="DOUBLE_SIDE">Double Sided</option>
-                        </select>
-                        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+            <div className="h-px bg-gray-100 w-full"></div>
+
+            {/* Document Details */}
+            <div className="space-y-6">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <span className="h-6 w-1 bg-brand-500 rounded-full"></span>
+                    Details & Configuration
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Document Title</label>
+                        <input
+                            name="title"
+                            type="text"
+                            placeholder="e.g. Final Semester Exam"
+                            required
+                            maxLength={100}
+                            className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Number of Copies</label>
+                        <input
+                            name="copies"
+                            type="number"
+                            min="1"
+                            defaultValue="1"
+                            required
+                            className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Print Type</label>
+                        <div className="relative">
+                            <select
+                                name="printType"
+                                className="w-full appearance-none rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
+                            >
+                                <option value="SINGLE_SIDE">Single Sided</option>
+                                <option value="DOUBLE_SIDE">Double Sided</option>
+                            </select>
+                            <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Required By</label>
+                        <input
+                            name="dueDateTime"
+                            type="datetime-local"
+                            required
+                            className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
+                        />
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {/* Delivery Type */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">Delivery Method</label>
-                    <div className="relative">
-                        <select
-                            name="deliveryType"
-                            value={deliveryType}
-                            onChange={(e) => setDeliveryType(e.target.value)}
-                            className="w-full appearance-none rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-                        >
-                            <option value="PICKUP">Pickup at Printing Dept</option>
-                            <option value="ROOM_DELIVERY">Deliver to Room</option>
-                        </select>
-                        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="h-px bg-gray-100 w-full"></div>
+
+            {/* Delivery Section */}
+            <div className="space-y-6">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <span className="h-6 w-1 bg-brand-500 rounded-full"></span>
+                    Delivery Preferences
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Delivery Method</label>
+                        <div className="relative">
+                            <select
+                                name="deliveryType"
+                                value={deliveryType}
+                                onChange={(e) => setDeliveryType(e.target.value)}
+                                className="w-full appearance-none rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
+                            >
+                                <option value="PICKUP">Pickup at Printing Dept</option>
+                                <option value="ROOM_DELIVERY">Deliver to Room</option>
+                            </select>
+                            <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                     </div>
-                </div>
 
-                {/* Room Number (Conditional) */}
-                {deliveryType === "ROOM_DELIVERY" && (
-                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                        <label className="text-sm font-semibold text-gray-700">Room Number</label>
-                        <input
-                            name="deliveryRoom"
-                            placeholder="e.g. 104-B"
-                            required
-                            className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
-                        />
-                    </div>
-                )}
-
-                <div className="h-px bg-gray-100 w-full"></div>
-
-                {/* Document Details */}
-                <div className="space-y-6">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span className="h-6 w-1 bg-brand-500 rounded-full"></span>
-                        Details & Configuration
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Document Title</label>
+                    {deliveryType === "ROOM_DELIVERY" && (
+                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                            <label className="text-sm font-semibold text-gray-700">Room Number</label>
                             <input
-                                name="title"
-                                type="text"
-                                placeholder="e.g. Final Semester Exam"
+                                name="deliveryRoom"
+                                placeholder="e.g. 104-B"
                                 required
-                                maxLength={100}
                                 className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
                             />
                         </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Number of Copies</label>
-                            <input
-                                name="copies"
-                                type="number"
-                                min="1"
-                                defaultValue="1"
-                                required
-                                className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Print Type</label>
-                            <div className="relative">
-                                <select
-                                    name="printType"
-                                    className="w-full appearance-none rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
-                                >
-                                    <option value="SINGLE_SIDE">Single Sided</option>
-                                    <option value="DOUBLE_SIDE">Double Sided</option>
-                                </select>
-                                <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Required By</label>
-                            <input
-                                name="dueDateTime"
-                                type="datetime-local"
-                                required
-                                className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
-                            />
-                        </div>
-                    </div>
+                    )}
                 </div>
+            </div>
 
-                <div className="h-px bg-gray-100 w-full"></div>
-
-                {/* Delivery Section */}
-                <div className="space-y-6">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span className="h-6 w-1 bg-brand-500 rounded-full"></span>
-                        Delivery Preferences
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Delivery Method</label>
-                            <div className="relative">
-                                <select
-                                    name="deliveryType"
-                                    value={deliveryType}
-                                    onChange={(e) => setDeliveryType(e.target.value)}
-                                    className="w-full appearance-none rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
-                                >
-                                    <option value="PICKUP">Pickup at Printing Dept</option>
-                                    <option value="ROOM_DELIVERY">Deliver to Room</option>
-                                </select>
-                                <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        {deliveryType === "ROOM_DELIVERY" && (
-                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                                <label className="text-sm font-semibold text-gray-700">Room Number</label>
-                                <input
-                                    name="deliveryRoom"
-                                    placeholder="e.g. 104-B"
-                                    required
-                                    className="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all outline-none"
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="pt-6">
-                    <Button
-                        className="w-full py-4 text-base font-bold shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                        disabled={loading}
-                        size="lg"
-                    >
-                        {loading ? (
-                            <span className="flex items-center gap-2">
-                                <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Sending Request...
-                            </span>
-                        ) : (
-                            "Submit Print Request"
-                        )}
-                    </Button>
-                </div>
+            <div className="pt-6">
+                <Button
+                    className="w-full py-4 text-base font-bold shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                    disabled={loading}
+                    size="lg"
+                >
+                    {loading ? (
+                        <span className="flex items-center gap-2">
+                            <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Sending Request...
+                        </span>
+                    ) : (
+                        "Submit Print Request"
+                    )}
+                </Button>
+            </div>
         </form>
-        </div >
+
     );
 };
 
