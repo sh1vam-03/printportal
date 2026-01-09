@@ -6,6 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ToastContext } from "../context/ToastContext";
 
 import FilePreviewModal from "./common/FilePreviewModal";
+import ConfirmationModal from "./ui/ConfirmationModal";
 
 const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus }) => {
     const { user } = useContext(AuthContext);
@@ -107,14 +108,22 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
     };
 
 
-    const deleteRequest = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this print request?")) return;
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
+
+    const openDeleteModal = (id) => {
+        setConfirmModal({ isOpen: true, id });
+    };
+
+    const confirmDelete = async () => {
+        if (!confirmModal.id) return;
         try {
-            await api.delete(`/print-requests/${id}`);
+            await api.delete(`/print-requests/${confirmModal.id}`);
             showToast("Print request deleted successfully", "success");
-            fetchRequests(); // Refresh list
+            fetchRequests();
         } catch {
             showToast("Failed to delete request", "error");
+        } finally {
+            setConfirmModal({ isOpen: false, id: null });
         }
     };
 
@@ -210,7 +219,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                                 <Button
                                                     size="sm"
                                                     variant="danger"
-                                                    onClick={() => deleteRequest(req._id)}
+                                                    onClick={() => openDeleteModal(req._id)}
                                                     className="w-full justify-center bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200 order-last"
                                                 >
                                                     Delete
@@ -340,7 +349,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                                 {((role === "TEACHER" && ["PENDING", "REJECTED", "COMPLETED"].includes(req.status)) ||
                                                     (role === "ADMIN" && req.status !== "PENDING")) && (
                                                         <button
-                                                            onClick={() => deleteRequest(req._id)}
+                                                            onClick={() => openDeleteModal(req._id)}
                                                             className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50"
                                                             title="Delete Request"
                                                         >
@@ -441,6 +450,16 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                     }
                     return null;
                 })()}
+            />
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmDelete}
+                title="Delete Request?"
+                message="This action cannot be undone. Are you sure you want to permanently delete this print request?"
+                confirmText="Delete Relationship"
+                variant="danger"
             />
         </div>
     );
