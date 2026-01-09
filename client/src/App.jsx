@@ -8,6 +8,8 @@ import NotFound from "./pages/NotFound";
 import TeacherRoutes from "./pages/teacher";
 import AdminRoutes from "./pages/admin";
 import PrintingRoutes from "./pages/printing";
+import HelpCenter from "./pages/public/HelpCenter";
+import Privacy from "./pages/public/Privacy";
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
@@ -50,6 +52,10 @@ const App = () => {
         <Route path="/teacher/*" element={<TeacherRoutes />} />
         <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/printing/*" element={<PrintingRoutes />} />
+
+        {/* Public Pages */}
+        <Route path="/help" element={<HelpCenter />} />
+        <Route path="/privacy" element={<Privacy />} />
 
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />

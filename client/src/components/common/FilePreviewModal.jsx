@@ -86,6 +86,7 @@ const FilePreviewModal = ({
             title={null} // Custom header
             maxWidth="max-w-7xl" // Extra wide for better split
             padding="p-0" // Remove default padding for full control
+            hideHeader={true}
         >
             <div
                 className="flex flex-col lg:flex-row h-[100dvh] lg:h-[700px] w-full bg-white lg:rounded-2xl overflow-hidden"
