@@ -183,7 +183,7 @@ const FilePreviewModal = ({
                         </button>
 
                         <div className="flex flex-col gap-4">
-                            <h2 className="text-2xl font-bold text-gray-900 leading-tight truncate">{requestData?.title || "Untitled Job"}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 leading-tight break-words">{requestData?.title || "Untitled Job"}</h2>
 
                             <div className="flex flex-row items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 min-w-0">

@@ -154,7 +154,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                         </div>
                                         <div className="overflow-hidden">
                                             <div className="font-bold text-gray-900 truncate" title={req.title}>
-                                                {req.title && req.title.length > 30 ? `${req.title.substring(0, 30)}...` : (req.title || "Untitled")}
+                                                {req.title && req.title.length > 15 ? `${req.title.substring(0, 15)}...` : (req.title || "Untitled")}
                                             </div>
                                             <div className="text-xs text-gray-500">{new Date(req.createdAt).toLocaleDateString()}</div>
                                         </div>
@@ -206,7 +206,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                     <td className="px-6 py-4 align-middle">
                                         <div className="flex flex-col gap-0.5">
                                             <span className="font-semibold text-gray-900 group-hover:text-brand-600 transition-colors" title={req.title}>
-                                                {req.title && req.title.length > 43 ? `${req.title.substring(0, 43)}...` : (req.title || "Untitled Job")}
+                                                {req.title && req.title.length > 40 ? `${req.title.substring(0, 40)}...` : (req.title || "Untitled Job")}
                                             </span>
                                             <span className="flex items-center gap-1.5 text-xs text-gray-500">
                                                 <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
