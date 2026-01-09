@@ -440,6 +440,22 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                 originalName={previewFile?.originalName || previewFile?.fileUrl.split('/').pop()}
                 canDownload={role === "ADMIN" || role === "PRINTING"}
                 canPrint={role === "PRINTING"}
+
+                // Navigation Props
+                onNext={(() => {
+                    const currentIndex = requests.findIndex(r => r._id === previewFile?._id);
+                    if (currentIndex >= 0 && currentIndex < requests.length - 1) {
+                        return () => setPreviewFile(requests[currentIndex + 1]);
+                    }
+                    return null;
+                })()}
+                onPrev={(() => {
+                    const currentIndex = requests.findIndex(r => r._id === previewFile?._id);
+                    if (currentIndex > 0) {
+                        return () => setPreviewFile(requests[currentIndex - 1]);
+                    }
+                    return null;
+                })()}
             />
         </div>
     );

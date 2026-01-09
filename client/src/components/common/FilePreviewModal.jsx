@@ -10,6 +10,8 @@ const FilePreviewModal = ({
     originalName,
     canDownload = false,
     canPrint = false,
+    onNext = null,
+    onPrev = null,
 }) => {
     const [blobUrl, setBlobUrl] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -91,12 +93,40 @@ const FilePreviewModal = ({
             onClose={onClose}
             title={originalName || "File Preview"}
         >
-            <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center justify-center min-h-[400px] relative">
                 {loading && (
                     <div className="flex flex-col items-center justify-center py-12">
                         <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600"></div>
                         <span className="mt-4 text-sm font-medium text-gray-500">Loading document preview...</span>
                     </div>
+                )}
+
+                {/* Navigation Buttons (Floating) */}
+                {!loading && !error && (
+                    <>
+                        {onPrev && (
+                            <button
+                                onClick={onPrev}
+                                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/80 shadow-md text-gray-600 hover:bg-white hover:text-brand-600 transition-all border border-gray-200"
+                                title="Previous File"
+                            >
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        )}
+                        {onNext && (
+                            <button
+                                onClick={onNext}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/80 shadow-md text-gray-600 hover:bg-white hover:text-brand-600 transition-all border border-gray-200"
+                                title="Next File"
+                            >
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        )}
+                    </>
                 )}
 
                 {error && (
