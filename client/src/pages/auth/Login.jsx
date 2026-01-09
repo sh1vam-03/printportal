@@ -75,6 +75,16 @@ const Login = () => {
                 <div className="absolute top-0 right-0 h-64 w-64 bg-brand-50 rounded-full blur-3xl opacity-50 -mr-32 -mt-32 lg:hidden"></div>
 
                 <div className="mx-auto w-full max-w-md relative z-10 animate-fade-in">
+                    {/* Mobile Branding */}
+                    <div className="flex lg:hidden items-center gap-3 mb-8">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 shadow-lg shadow-brand-500/20">
+                            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <span className="text-xl font-bold tracking-tight text-gray-900">Print<span className="text-brand-600 font-light">Portal</span></span>
+                    </div>
+
                     <div className="mb-10 text-center lg:text-left">
                         <h2 className="text-4xl font-bold text-gray-900 tracking-tight mb-3">
                             Welcome Back
@@ -175,6 +185,14 @@ const Login = () => {
                             </Button>
                         </div>
                     </form>
+
+                    {/* Mobile Footer Links */}
+                    <div className="mt-12 lg:hidden flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-gray-400">
+                        <span>&copy; {new Date().getFullYear()} <Link to="https://github.com/sh1vam-03" className="hover:text-brand-600 transition-colors" target="_blank">PrintPortal</Link></span>
+                        <a href="/help" className="hover:text-brand-600 transition-colors">Help Center</a>
+                        <a href="/privacy" className="hover:text-brand-600 transition-colors">Privacy</a>
+                        <a href="/terms" className="hover:text-brand-600 transition-colors">Terms</a>
+                    </div>
                 </div>
             </div>
         </div>
