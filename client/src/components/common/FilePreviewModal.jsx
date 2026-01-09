@@ -87,23 +87,26 @@ const FilePreviewModal = ({
             maxWidth="max-w-7xl" // Extra wide for better split
             padding="p-0" // Remove default padding for full control
         >
-            <div className="flex flex-col lg:flex-row h-[85vh] lg:h-[750px] overflow-hidden bg-white rounded-2xl">
-
-                {/* LEFT: File Preview Area (Dark/Neutral Background) */}
-                <div className="flex-1 bg-gray-100 relative flex flex-col group overflow-hidden">
-                    {/* Header Overlay (Mobile Only or Minimal) */}
-                    <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent z-20 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
-                        <h3 className="text-white font-medium text-lg drop-shadow-md truncate pr-12">
-                            {originalName || "Document Preview"}
-                        </h3>
-                    </div>
-
+            <div
+                className="flex flex-col lg:flex-row h-[100dvh] lg:h-[700px] w-full bg-white lg:rounded-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* LEFT: File Preview Area */}
+                <div className="flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200">
                     {loading && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 z-10">
-                            <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600"></div>
-                            <span className="mt-4 text-sm font-semibold text-gray-500 animate-pulse">Loading Document...</span>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
+                            <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-brand-200 border-t-brand-600"></div>
+                            <span className="mt-4 text-sm font-semibold text-gray-600 tracking-wide animate-pulse">Loading preview...</span>
                         </div>
                     )}
+
+                    {/* Mobile Header (Only visible on mobile) */}
+                    <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shadow-sm z-20">
+                        <h3 className="font-bold text-gray-900 truncate pr-4">{originalName || "File Preview"}</h3>
+                        <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
 
                     {error && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 p-8 text-center text-red-500">

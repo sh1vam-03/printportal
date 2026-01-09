@@ -29,40 +29,39 @@ const ApproveRequests = () => {
     // For better sync, RequestTable could accept a callback 'onDataChange' to trigger this check.
 
     return (
-        <Card
-            title={view === "ALL" ? "Overall Print Job Monitor" : "Pending Approvals"}
-            action={
-                <div className="flex h-10 w-10 items-center justify-center">
-                    {view === "PENDING" ? (
-                        <button
-                            onClick={() => setView("ALL")}
-                            className="group rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                            title="Back to All Jobs"
-                        >
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => setView("PENDING")}
-                            className={`group relative rounded-full p-2 transition-all hover:bg-gray-100 ${hasPending ? "text-indigo-600" : "text-gray-400"}`}
-                            title="View Pending Approvals"
-                        >
-                            <svg className={`h-6 w-6 ${hasPending ? "animate-pulse" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900">Printing Management</h2>
+                    <p className="text-sm text-gray-500 mt-1">Review and approve print requests</p>
+                </div>
+
+                <div className="flex p-1 bg-gray-100 rounded-xl">
+                    <button
+                        onClick={() => setView("PENDING")}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${view === "PENDING" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        <div className="relative">
+                            Pending
                             {hasPending && (
-                                <span className="absolute right-2 top-2 flex h-3 w-3">
-                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                <span className="absolute -top-1 -right-2 flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                                 </span>
                             )}
-                        </button>
-                    )}
+                        </div>
+                    </button>
+                    <button
+                        onClick={() => setView("ALL")}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${view === "ALL" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        All History
+                    </button>
                 </div>
-            }
-        >
+            </div>
+
             <RequestTable
                 role="ADMIN"
                 fetchQueryRole=""
@@ -73,7 +72,7 @@ const ApproveRequests = () => {
                 hideStatus={view === "PENDING"}
                 key={view}
             />
-        </Card>
+        </div>
     );
 };
 
