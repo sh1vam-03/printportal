@@ -141,7 +141,7 @@ const PublicLayout = ({ children }) => {
                     </div>
 
                     <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-                        <p>&copy; {new Date().getFullYear()} <a ref="https://github.com/sh1vam-03" target="_blank" className="hover:text-brand-600 transition-colors">PrintPortal</a>. All rights reserved.</p>
+                        <p>&copy; {new Date().getFullYear()} <a ref="https://github.com/sh1vam-03" className="hover:text-brand-600 transition-colors">PrintPortal</a>. All rights reserved.</p>
                         <div className="flex gap-4">
                             <span>v1.0.0</span>
                             <span className="hidden md:inline">&bull;</span>
