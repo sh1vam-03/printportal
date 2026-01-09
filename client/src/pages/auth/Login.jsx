@@ -38,11 +38,11 @@ const Login = () => {
                 <div className="relative z-10">
                     <div className="flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md shadow-glow ring-1 ring-white/20">
-                            <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
-                        <span className="text-2xl font-bold tracking-tight">SchoolPrint <span className="text-brand-300 font-light">Portal</span></span>
+                        <span className="text-2xl font-bold tracking-tight">PrintPortal <span className="text-brand-300 font-light">Portal</span></span>
                     </div>
                 </div>
 
@@ -58,7 +58,7 @@ const Login = () => {
                 </div>
 
                 <div className="relative z-10 flex items-center gap-6 text-sm font-medium text-brand-200/60">
-                    <span>&copy; {new Date().getFullYear()} SchoolPrint</span>
+                    <span>&copy; {new Date().getFullYear()} PrintPortal</span>
                     <span className="h-1 w-1 rounded-full bg-brand-500"></span>
                     <a href="/help" className="hover:text-white transition-colors">Help Center</a>
                     <span className="h-1 w-1 rounded-full bg-brand-500"></span>
