@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import Link from "react-router-dom";
 
 const Login = () => {
     const { login } = useContext(AuthContext);
@@ -58,7 +59,7 @@ const Login = () => {
                 </div>
 
                 <div className="relative z-10 flex items-center gap-6 text-sm font-medium text-brand-200/60">
-                    <span>&copy; {new Date().getFullYear()} PrintPortal</span>
+                    <span>&copy; {new Date().getFullYear()} <Link to="https://github.com/sh1vam-03" className="hover:text-white transition-colors" target="_blank">PrintPortal</Link></span>
                     <span className="h-1 w-1 rounded-full bg-brand-500"></span>
                     <a href="/help" className="hover:text-white transition-colors">Help Center</a>
                     <span className="h-1 w-1 rounded-full bg-brand-500"></span>
