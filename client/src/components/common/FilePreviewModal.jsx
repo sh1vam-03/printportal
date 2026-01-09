@@ -115,7 +115,7 @@ const FilePreviewModal = ({
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* LEFT: File Preview Area */}
-                <div className="flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200">
+                <div className="flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 pt-14 lg:pt-0">
                     {loading && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
                             <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-brand-200 border-t-brand-600"></div>
@@ -124,8 +124,8 @@ const FilePreviewModal = ({
                     )}
 
                     {/* Mobile Header (Close Button Only) */}
-                    <div className="lg:hidden flex items-center justify-end px-4 py-2 bg-transparent absolute top-0 right-0 z-30">
-                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-700 bg-white/50 backdrop-blur-md rounded-full shadow-sm">
+                    <div className="lg:hidden flex items-center justify-end px-4 py-3 bg-transparent absolute top-0 right-0 z-30 w-full bg-gradient-to-b from-black/10 to-transparent">
+                        <button onClick={onClose} className="p-2 text-white hover:text-gray-200 bg-black/20 backdrop-blur-md rounded-full shadow-sm transition-all active:scale-95">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
@@ -140,13 +140,13 @@ const FilePreviewModal = ({
                     )}
 
                     {!loading && !error && blobUrl && (
-                        <div className="w-full h-full overflow-auto flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm">
+                        <div className="w-full h-full overflow-auto flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
                             {fileType === "application/pdf" ? (
-                                <iframe src={blobUrl} className="w-full h-full shadow-inner" title="PDF Preview" />
+                                <iframe src={blobUrl} className="w-full h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
                             ) : fileType?.startsWith("image/") ? (
-                                <img src={blobUrl} alt="Preview" className="max-w-full max-h-full object-contain p-2 shadow-xl" />
+                                <img src={blobUrl} alt="Preview" className="max-w-full max-h-full object-contain shadow-xl rounded-lg" />
                             ) : fileType === "text/plain" ? (
-                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-full overflow-auto text-gray-800 bg-white">{textContent}</pre>
+                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-full overflow-auto text-gray-800 bg-white rounded-lg shadow-sm">{textContent}</pre>
                             ) : (
                                 <div className="text-gray-400 flex flex-col items-center">
                                     <svg className="w-16 h-16 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -158,39 +158,38 @@ const FilePreviewModal = ({
 
                     {/* Navigation Buttons (Glassmorphism) */}
                     {onPrev && (
-                        <button onClick={onPrev} className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/20 hover:bg-white/40 backdrop-blur-md shadow-lg rounded-full text-gray-800 transition-all hover:scale-110 z-20 group-hover:block border border-white/50">
+                        <button onClick={onPrev} className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/20 hover:bg-white/40 backdrop-blur-md shadow-lg rounded-full text-gray-800 transition-all hover:scale-110 z-20 group-hover:block border border-white/50 hidden lg:flex">
                             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                         </button>
                     )}
                     {onNext && (
-                        <button onClick={onNext} className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/20 hover:bg-white/40 backdrop-blur-md shadow-lg rounded-full text-gray-800 transition-all hover:scale-110 z-20 group-hover:block border border-white/50">
+                        <button onClick={onNext} className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/20 hover:bg-white/40 backdrop-blur-md shadow-lg rounded-full text-gray-800 transition-all hover:scale-110 z-20 group-hover:block border border-white/50 hidden lg:flex">
                             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                         </button>
                     )}
                 </div>
 
                 {/* RIGHT: Details & Actions Panel */}
-                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.02)] z-10">
-
+                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.02)] z-10 h-[45vh] lg:h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100">
                         <div className="flex flex-col gap-4">
-                            <h2 className="text-2xl font-bold text-gray-900 leading-tight">{requestData?.title || "Untitled Job"}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 leading-tight truncate">{requestData?.title || "Untitled Job"}</h2>
 
                             <div className="flex flex-row items-center justify-between gap-4">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
                                     <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
                                         {requestData?.teacher?.name?.charAt(0) || "?"}
                                     </div>
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[120px] sm:max-w-none">{requestData?.teacher?.name || "Unknown"}</p>
+                                    <div className="flex flex-col min-w-0">
+                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[140px]">{requestData?.teacher?.name || "Unknown"}</p>
                                         <p className="text-xs text-gray-500 font-medium truncate">Request Owner</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-end gap-1 shrink-0">
+                                <div className="flex flex-col items-end justify-center shrink-0">
                                     <StatusBadge status={requestData?.status} />
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-xs text-gray-400 mt-1 font-medium text-right">
                                         {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
