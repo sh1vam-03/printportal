@@ -107,6 +107,17 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
     };
 
 
+    const deleteRequest = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this print request?")) return;
+        try {
+            await api.delete(`/print-requests/${id}`);
+            showToast("Print request deleted successfully", "success");
+            fetchRequests(); // Refresh list
+        } catch {
+            showToast("Failed to delete request", "error");
+        }
+    };
+
     if (loading) return (
         <div className="flex justify-center p-8">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
@@ -140,6 +151,9 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                 {/* Body: Details Grid */}
                                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                                     <div className="col-span-2">
+                                        {/* Title Display */}
+                                        <div className="mb-1 font-semibold text-gray-900">{req.title || "Untitled Document"}</div>
+
                                         <span className="block text-xs font-semibold text-gray-400 uppercase">File</span>
                                         <button
                                             onClick={() => setPreviewFile(req)}
@@ -178,7 +192,19 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
 
                                 {/* Actions */}
                                 {!hideActions && (
-                                    <div className="pt-2 border-t border-gray-100 flex gap-2 justify-end">
+                                    <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-2 justify-end">
+                                        {/* Delete Button (Admin or Owner) */}
+                                        {(role === "ADMIN" || role === "TEACHER") && (
+                                            <Button
+                                                size="sm"
+                                                variant="danger"
+                                                onClick={() => deleteRequest(req._id)}
+                                                className="w-full justify-center bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200"
+                                            >
+                                                Delete
+                                            </Button>
+                                        )}
+
                                         {role === "ADMIN" && req.status === "PENDING" && (
                                             <>
                                                 <Button size="sm" onClick={() => approve(req._id)} className="w-full justify-center">Approve</Button>
@@ -242,9 +268,12 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col gap-1 items-start">
+                                            {/* Title Display */}
+                                            <div className="font-semibold text-gray-900">{req.title || "Untitled"}</div>
+
                                             <button
                                                 onClick={() => setPreviewFile(req)}
-                                                className="inline-flex items-center gap-1.5 font-medium text-indigo-600 break-all hover:underline"
+                                                className="inline-flex items-center gap-1.5 text-sm text-indigo-600 break-all hover:underline"
                                             >
                                                 <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -289,7 +318,20 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                     )}
                                     {!hideActions && (
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex justify-end gap-2">
+                                            <div className="flex justify-end gap-2 items-center">
+                                                {/* Delete Button (Admin or Owner) */}
+                                                {(role === "ADMIN" || role === "TEACHER") && (
+                                                    <button
+                                                        onClick={() => deleteRequest(req._id)}
+                                                        className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50"
+                                                        title="Delete Request"
+                                                    >
+                                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                )}
+
                                                 {role === "ADMIN" && req.status === "PENDING" && (
                                                     <>
                                                         <Button size="sm" onClick={() => approve(req._id)} className="gap-2">

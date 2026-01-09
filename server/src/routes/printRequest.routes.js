@@ -58,4 +58,11 @@ router.get(
     printRequestController.downloadPrintFile
 );
 
+// Delete Request (Admin or Teacher)
+router.delete(
+    "/:id",
+    requireRole(["ADMIN", "TEACHER"]),
+    printRequestController.deletePrintRequest
+);
+
 export default router;

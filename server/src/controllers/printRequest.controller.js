@@ -10,6 +10,7 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
 
     const {
         teacherId,
+        title,
         copies,
         printType,
         deliveryType,
@@ -21,13 +22,14 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         throw new ApiError(400, "File is required");
     }
 
-    if (!copies || !printType || !deliveryType || !dueDateTime) {
+    if (!title || !copies || !printType || !deliveryType || !dueDateTime) {
         throw new ApiError(400, "Missing required fields");
     }
 
 
     const newRequest = await PrintRequest.create({
         teacher: teacherId,
+        title,
         fileUrl: `/uploads/${req.file.filename}`,
         fileType: req.file.mimetype,
         fileSize: req.file.size,
@@ -102,6 +104,50 @@ export const getPrintFile = asyncHandler(async (req, res) => {
 
     res.sendFile(filePath, { root: "." });
 });
+
+/* ----------------------------------------
+   DELETE PRINT REQUEST (Admin & Teacher)
+----------------------------------------- */
+import fs from "fs";
+
+export const deletePrintRequest = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { role, _id: userId } = req.user;
+
+    const request = await PrintRequest.findById(id);
+
+    if (!request) {
+        throw new ApiError(404, "Print request not found");
+    }
+
+    // Authorization Check
+    let canDelete = false;
+
+    if (role === "ADMIN") {
+        canDelete = true;
+    } else if (role === "TEACHER" && request.teacher.toString() === userId) {
+        canDelete = true;
+    }
+
+    if (!canDelete) {
+        throw new ApiError(403, "Not authorized to delete this request");
+    }
+
+    // Delete File from storage
+    const filePath = `./src${request.fileUrl}`;
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+    }
+
+    // Delete Record
+    await request.deleteOne();
+
+    res.json({
+        success: true,
+        message: "Print request deleted successfully",
+    });
+});
+
 
 /* ----------------------------------------
    GET PRINT REQUESTS (Role-based)

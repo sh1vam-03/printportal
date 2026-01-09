@@ -67,6 +67,19 @@ const CreatePrintRequest = ({ onSuccess }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title Section */}
+            <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Document Title</label>
+                <input
+                    name="title"
+                    type="text"
+                    placeholder="e.g. Math Exam - Grade 10"
+                    required
+                    maxLength={100}
+                    className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                />
+            </div>
+
             {/* File Upload Section */}
             <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">Upload Document</label>

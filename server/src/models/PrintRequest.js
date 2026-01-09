@@ -8,6 +8,12 @@ const printRequestSchema = new mongoose.Schema(
             required: true,
         },
 
+        title: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+
         fileUrl: {
             type: String,
             required: true,
