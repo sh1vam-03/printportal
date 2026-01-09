@@ -67,7 +67,7 @@ const ApproveRequests = () => {
                 role="ADMIN"
                 fetchQueryRole=""
                 filterFn={view === "PENDING" ? (req) => req.status === "PENDING" : undefined}
-                hideActions={view === "ALL"}
+                filterFn={view === "PENDING" ? (req) => req.status === "PENDING" : undefined}
                 hideStatus={view === "PENDING"}
                 key={view}
             />

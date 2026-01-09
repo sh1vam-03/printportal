@@ -47,7 +47,7 @@ const MyRequests = () => {
                     </Button>
                 }
             >
-                <RequestTable role="TEACHER" key={refreshKey} hideActions={true} />
+                <RequestTable role="TEACHER" key={refreshKey} />
             </Card>
 
             <Modal
