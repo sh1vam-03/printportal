@@ -48,12 +48,12 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobileOpen, closeMobileSidebar }) =>
                 title="Toggle Sidebar"
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-600">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-violet-600 text-white shadow-md shadow-brand-200">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 2 0 011 1v5m-4 0h4" />
                         </svg>
                     </div>
-                    <span className={`text-lg font-bold text-indigo-600 whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"}`}>
+                    <span className={`text-lg font-bold text-gray-900 whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"}`}>
                         SchoolPrint
                     </span>
                 </div>
@@ -67,8 +67,8 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobileOpen, closeMobileSidebar }) =>
                         end
                         title={!isOpen ? link.name : ""}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors overflow-hidden whitespace-nowrap ${isActive
-                                ? "bg-indigo-50 text-indigo-700"
+                            `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 overflow-hidden whitespace-nowrap ${isActive
+                                ? "bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-100"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             }`
                         }

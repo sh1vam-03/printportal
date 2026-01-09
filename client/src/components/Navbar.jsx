@@ -20,11 +20,25 @@ const Navbar = ({ isOpen, toggleMobileSidebar }) => {
                 </button>
 
                 <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-gray-600 hidden sm:block">
-                        {user?.role}
-                    </span>
-                    <Button size="sm" variant="secondary" onClick={logout}>
-                        Logout
+                    <div className="hidden sm:flex flex-col items-end mr-2">
+                        <span className="text-sm font-semibold text-gray-900 leading-tight">
+                            {user?.name || "User"}
+                        </span>
+                        <span className="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full">
+                            {user?.role}
+                        </span>
+                    </div>
+
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-100 to-violet-100 text-brand-700 font-bold border border-white shadow-sm ring-1 ring-gray-100">
+                        {user?.name?.charAt(0) || "U"}
+                    </div>
+
+                    <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+
+                    <Button size="sm" variant="secondary" onClick={logout} className="ml-2 !px-3">
+                        <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
                     </Button>
                 </div>
             </div>

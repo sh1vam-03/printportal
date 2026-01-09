@@ -39,7 +39,10 @@ const DashboardAnalytics = () => {
         {
             label: "Pending",
             value: stats.pending,
-            statusColor: "text-yellow-600",
+            color: "amber",
+            statusColor: "text-amber-600",
+            bg: "bg-amber-50",
+            barClass: "bg-gradient-to-t from-amber-500 to-amber-400 group-hover:shadow-amber-200",
             icon: (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -49,7 +52,10 @@ const DashboardAnalytics = () => {
         {
             label: "Approved",
             value: stats.approved,
-            statusColor: "text-blue-600",
+            color: "brand",
+            statusColor: "text-brand-600",
+            bg: "bg-brand-50",
+            barClass: "bg-gradient-to-t from-brand-500 to-brand-400 group-hover:shadow-brand-200",
             icon: (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -59,7 +65,10 @@ const DashboardAnalytics = () => {
         {
             label: "In Progress",
             value: stats.inProgress,
-            statusColor: "text-indigo-600",
+            color: "violet",
+            statusColor: "text-violet-600",
+            bg: "bg-violet-50",
+            barClass: "bg-gradient-to-t from-violet-500 to-violet-400 group-hover:shadow-violet-200",
             icon: (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
@@ -69,7 +78,10 @@ const DashboardAnalytics = () => {
         {
             label: "Completed",
             value: stats.completed,
-            statusColor: "text-green-600",
+            color: "emerald",
+            statusColor: "text-emerald-600",
+            bg: "bg-emerald-50",
+            barClass: "bg-gradient-to-t from-emerald-500 to-emerald-400 group-hover:shadow-emerald-200",
             icon: (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -79,7 +91,10 @@ const DashboardAnalytics = () => {
         {
             label: "Rejected",
             value: stats.rejected,
+            color: "red",
             statusColor: "text-red-600",
+            bg: "bg-red-50",
+            barClass: "bg-gradient-to-t from-red-500 to-red-400 group-hover:shadow-red-200",
             icon: (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -116,17 +131,17 @@ const DashboardAnalytics = () => {
 
             {/* KPI Cards */}
             {/* KPI Cards */}
-            <Card title="Overview">
-                {/* Mobile: Horizontal Scroll (Flex), Tablet+: Grid */}
-                <div className={`flex overflow-x-auto pb-4 gap-8 md:grid md:gap-8 md:pb-4 ${filteredChartData.length <= 3 ? "lg:grid-cols-3" : "lg:grid-cols-5"}`}>
-                    {filteredChartData.map((item) => (
-                        <div key={item.label} className="flex-shrink-0 w-1/3 min-w-[120px] flex flex-col items-center justify-center border-r border-gray-100 last:border-0 md:w-auto md:border-r md:border-gray-200">
-                            <span className="mb-3 text-xs font-semibold text-gray-400 uppercase tracking-widest">{item.label}</span>
-                            <span className={`text-3xl font-extrabold ${item.statusColor}`}>{item.value}</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {filteredChartData.map((item) => (
+                    <div key={item.label} className="bg-white rounded-xl shadow-soft p-5 border border-gray-100 flex flex-col items-start hover:shadow-lg transition-shadow duration-300">
+                        <div className={`p-3 rounded-lg ${item.bg} ${item.statusColor} mb-3`}>
+                            {item.icon}
                         </div>
-                    ))}
-                </div>
-            </Card>
+                        <span className="text-3xl font-bold text-gray-900 mb-1">{item.value}</span>
+                        <span className="text-sm font-medium text-gray-500">{item.label}</span>
+                    </div>
+                ))}
+            </div>
 
             {/* Chart Section */}
             <Card title="Requests Breakdown" className="overflow-hidden">
@@ -166,7 +181,7 @@ const DashboardAnalytics = () => {
                                             <div className="relative flex h-full w-full flex-col justify-end items-center">
                                                 {/* Bar */}
                                                 <div
-                                                    className="w-full max-w-[40px] md:max-w-[60px] rounded-t-lg bg-gradient-to-t from-indigo-500 to-indigo-400 opacity-90 transition-all duration-500 hover:opacity-100 hover:scale-y-105 origin-bottom shadow-sm group-hover:shadow-indigo-200"
+                                                    className={`w-full max-w-[40px] md:max-w-[60px] rounded-t-lg opacity-90 transition-all duration-500 hover:opacity-100 hover:scale-y-105 origin-bottom shadow-sm ${item.barClass}`}
                                                     style={{ height: `${height}%` }}
                                                 ></div>
                                             </div>
