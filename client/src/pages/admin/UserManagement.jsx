@@ -76,7 +76,7 @@ const UserManagement = () => {
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    Create User
+                    Add Teacher
                 </Button>
             }
         >
@@ -159,23 +159,13 @@ const UserManagement = () => {
             <Modal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
-                title="Create New User"
+                title="Add New Teacher"
             >
                 <form onSubmit={handleCreateUser} className="space-y-4">
+                    {/* Role selection removed - defaults to TEACHER */}
+
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Role</label>
-                        <select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                        >
-                            <option value="TEACHER">Teacher</option>
-                            <option value="PRINTING">Printing Staff</option>
-                            <option value="ADMIN">Admin</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Name</label>
+                        <label className="block text-sm font-medium text-gray-700">Teacher Name</label>
                         <input
                             type="text"
                             required
@@ -185,7 +175,7 @@ const UserManagement = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <label className="block text-sm font-medium text-gray-700">Email Address</label>
                         <input
                             type="email"
                             required
@@ -206,7 +196,7 @@ const UserManagement = () => {
                     </div>
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="secondary" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
-                        <Button type="submit">Create User</Button>
+                        <Button type="submit">Create Teacher Account</Button>
                     </div>
                 </form>
             </Modal>
