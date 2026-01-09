@@ -187,9 +187,9 @@ const FilePreviewModal = ({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-end justify-center shrink-0">
+                                <div className="flex flex-col items-center justify-center shrink-0">
                                     <StatusBadge status={requestData?.status} />
-                                    <span className="text-xs text-gray-400 mt-1 font-medium text-right">
+                                    <span className="text-xs text-gray-400 mt-1 font-medium text-center">
                                         {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
