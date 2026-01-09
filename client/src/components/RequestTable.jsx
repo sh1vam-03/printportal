@@ -135,25 +135,39 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
 
     return (
         <div className="overflow-hidden">
-            {/* Minimal Mobile View */}
+            {/* Minimal Mobile View (Polished Cards) */}
             <div className="block md:hidden">
                 {requests.length === 0 ? (
-                    <div className="py-12 text-center text-gray-500">No requests found</div>
+                    <div className="py-12 text-center text-gray-400 italic">No print requests found</div>
                 ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {requests.map((req) => (
                             <div
                                 key={req._id}
                                 onClick={() => setPreviewFile(req)}
-                                className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm active:scale-98 transition-transform"
+                                className="relative rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-all duration-200"
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="font-semibold text-gray-900 truncate pr-4">{req.title || "Untitled"}</div>
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-50 to-brand-100 text-sm font-bold text-brand-600 shadow-inner">
+                                            {req.teacher?.name?.charAt(0) || "?"}
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <div className="font-bold text-gray-900 truncate">{req.title || "Untitled"}</div>
+                                            <div className="text-xs text-gray-500">{new Date(req.createdAt).toLocaleDateString()}</div>
+                                        </div>
+                                    </div>
                                     {!hideStatus && <StatusBadge status={req.status} />}
                                 </div>
-                                <div className="flex justify-between text-xs text-gray-500">
-                                    <span>{new Date(req.createdAt).toLocaleDateString()}</span>
-                                    <span>{req.teacher?.name}</span>
+
+                                <div className="mt-2 flex items-center justify-between text-sm">
+                                    <span className="inline-flex items-center gap-1.5 text-gray-600 bg-gray-50 px-2 py-1 rounded-md text-xs font-medium">
+                                        <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        {req.originalName || req.fileUrl.split('/').pop()}
+                                    </span>
+                                    <svg className="h-5 w-5 text-gray-300 transform group-active:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
                                 </div>
                             </div>
                         ))}
@@ -161,39 +175,58 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                 )}
             </div>
 
-            {/* Minimal Desktop Table */}
-            <div className="hidden md:block overflow-x-hidden rounded-lg border border-gray-100">
+            {/* Premium Desktop Table */}
+            <div className="hidden md:block overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
                 <table className="w-full border-collapse table-fixed">
-                    <thead className="bg-gray-50/50 text-xs uppercase tracking-wider text-gray-500">
-                        <tr>
-                            <th className="w-16 px-4 py-3 text-center">Status</th>
-                            <th className="px-6 py-3 text-left font-semibold">Document</th>
-                            <th className="w-48 px-6 py-3 text-left font-semibold">Teacher</th>
-                            <th className="w-32 px-6 py-3 text-right font-semibold">Date</th>
+                    <thead>
+                        <tr className="bg-gray-50/50 border-b border-gray-100">
+                            <th className="w-24 px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Document Details</th>
+                            <th className="w-56 px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Teacher</th>
+                            <th className="w-40 px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Requested</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
+                    <tbody className="divide-y divide-gray-50">
                         {requests.length === 0 ? (
-                            <tr><td colSpan="4" className="py-8 text-center text-gray-500">No requests found</td></tr>
+                            <tr><td colSpan="4" className="py-12 text-center text-gray-400 italic">No pending requests found</td></tr>
                         ) : (
                             requests.map((req) => (
                                 <tr
                                     key={req._id}
                                     onClick={() => setPreviewFile(req)}
-                                    className="group hover:bg-brand-50/30 cursor-pointer transition-colors"
+                                    className="group hover:bg-gray-50 cursor-pointer transition-colors duration-200"
                                 >
-                                    <td className="px-4 py-3 text-center">
-                                        <div className="flex justify-center scale-90"><StatusBadge status={req.status} /></div>
+                                    <td className="px-6 py-4 text-center align-middle">
+                                        <div className="flex justify-center scale-95 origin-center transition-transform group-hover:scale-100">
+                                            <StatusBadge status={req.status} />
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-3">
-                                        <div className="font-medium text-gray-900 group-hover:text-brand-600 transition-colors">{req.title || "Untitled Document"}</div>
-                                        <div className="text-xs text-gray-400 truncate max-w-[300px]">{req.originalName}</div>
+                                    <td className="px-6 py-4 align-middle">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="font-semibold text-gray-900 group-hover:text-brand-600 transition-colors">{req.title || "Untitled Job"}</span>
+                                            <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                                                <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                                <span className="truncate max-w-[200px]">{req.originalName || "file.pdf"}</span>
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-3 text-gray-600 font-medium">
-                                        {req.teacher?.name}
+                                    <td className="px-6 py-4 align-middle">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 ring-2 ring-white shadow-sm">
+                                                {req.teacher?.name?.charAt(0) || "T"}
+                                            </div>
+                                            <span className="text-sm font-medium text-gray-700">{req.teacher?.name}</span>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-3 text-right text-sm text-gray-500">
-                                        {new Date(req.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                    <td className="px-6 py-4 text-right align-middle">
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="text-sm font-medium text-gray-900">
+                                                {new Date(req.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                            </span>
+                                            <span className="text-xs text-gray-400">
+                                                {new Date(req.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
