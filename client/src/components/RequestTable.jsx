@@ -180,7 +180,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                 <table className="w-full border-collapse table-fixed">
                     <thead>
                         <tr className="bg-gray-50/50 border-b border-gray-100">
-                            <th className="w-24 px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                            <th className="w-36 px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Document Details</th>
                             <th className="w-56 px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Teacher</th>
                             <th className="w-40 px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Requested</th>

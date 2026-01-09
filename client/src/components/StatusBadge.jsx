@@ -17,7 +17,7 @@ const dotStyles = {
 const StatusBadge = ({ status }) => {
     return (
         <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border shadow-sm ring-1 ring-inset ${statusStyles[status] || "bg-gray-50 text-gray-700 border-gray-100"}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border shadow-sm ring-1 ring-inset whitespace-nowrap ${statusStyles[status] || "bg-gray-50 text-gray-700 border-gray-100"}`}
         >
             <span className={`h-1.5 w-1.5 rounded-full ${dotStyles[status] || "bg-gray-400"}`} />
             {status ? status.replace(/_/g, " ") : "UNKNOWN"}

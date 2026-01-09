@@ -39,7 +39,9 @@ const Layout = ({ children }) => {
                     closeMobileSidebar={() => setIsMobileOpen(false)}
                 />
                 <main className={`flex-1 p-4 md:p-6 transition-all duration-300 min-w-0 ${isSidebarOpen ? "md:ml-64" : "md:ml-20"}`}>
-                    {children}
+                    <div className="max-w-7xl mx-auto w-full">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>
