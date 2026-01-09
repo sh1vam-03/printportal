@@ -157,10 +157,12 @@ const FilePreviewModal = ({
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900 leading-tight mb-1">{requestData?.title || "Untitled Job"}</h2>
                                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                                    <span>by</span>
-                                    <span className="flex items-center gap-1 font-semibold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full text-xs">
-                                        {requestData?.teacher?.name}
-                                    </span>
+                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                        <span className="text-xs uppercase tracking-wide font-medium text-gray-400">Requested by</span>
+                                        <span className="flex items-center gap-1 font-semibold text-brand-600 bg-brand-50 px-3 py-1 rounded-full text-xs border border-brand-100">
+                                            {requestData?.teacher?.name || "Unknown Teacher"}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
