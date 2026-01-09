@@ -5,11 +5,12 @@ import api from "../../services/api";
 const FilePreviewModal = ({
     isOpen,
     onClose,
-    fileUrl, // API endpoint or partial URL
+    fileUrl,
     fileType,
     originalName,
-    canDownload = false,
-    canPrint = false,
+    requestData, // Full request object for details
+    onAction, // { approve, reject, delete, start, complete }
+    userRole, // "ADMIN", "TEACHER", "PRINTING"
     onNext = null,
     onPrev = null,
 }) => {
@@ -18,7 +19,7 @@ const FilePreviewModal = ({
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
 
-
+    // Reset state when file changes
     useEffect(() => {
         let active = true;
         let createdUrl = null;
@@ -32,8 +33,6 @@ const FilePreviewModal = ({
             api.get(fileUrl, { responseType: "blob" })
                 .then((response) => {
                     if (!active) return;
-
-                    // Prefer Content-Type from server headers
                     const type = response.headers['content-type'] || fileType;
                     const blob = new Blob([response.data], { type });
                     createdUrl = URL.createObjectURL(blob);
@@ -41,9 +40,7 @@ const FilePreviewModal = ({
 
                     if (fileType === "text/plain") {
                         const reader = new FileReader();
-                        reader.onload = () => {
-                            if (active) setTextContent(reader.result);
-                        };
+                        reader.onload = () => { if (active) setTextContent(reader.result); };
                         reader.readAsText(blob);
                     }
                 })
@@ -52,17 +49,12 @@ const FilePreviewModal = ({
                     console.error("Error loading preview:", err);
                     setError("Failed to load file preview. You may not have permission.");
                 })
-                .finally(() => {
-                    if (active) setLoading(false);
-                });
+                .finally(() => { if (active) setLoading(false); });
         }
 
         return () => {
             active = false;
-            // If we created a URL, revoke it
-            if (createdUrl) {
-                URL.revokeObjectURL(createdUrl);
-            }
+            if (createdUrl) URL.revokeObjectURL(createdUrl);
         };
     }, [isOpen, fileUrl]);
 
@@ -70,10 +62,7 @@ const FilePreviewModal = ({
         if (!blobUrl) return;
         const printWindow = window.open(blobUrl);
         if (printWindow) {
-            // Wait for load then print
-            printWindow.onload = () => {
-                printWindow.print();
-            };
+            printWindow.onload = () => { printWindow.print(); };
         }
     };
 
@@ -87,128 +76,160 @@ const FilePreviewModal = ({
         document.body.removeChild(link);
     };
 
+    if (!isOpen) return null;
+
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
             title={originalName || "File Preview"}
+            maxWidth="max-w-6xl" // Wider modal for split view
         >
-            <div className="flex flex-col items-center justify-center min-h-[400px] relative">
-                {loading && (
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600"></div>
-                        <span className="mt-4 text-sm font-medium text-gray-500">Loading document preview...</span>
-                    </div>
-                )}
+            <div className="flex flex-col lg:flex-row gap-6 h-[80vh] lg:h-[700px]">
+                {/* LEFT: File Preview Area */}
+                <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden relative flex flex-col border border-gray-200">
+                    {loading && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
+                            <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600"></div>
+                            <span className="mt-4 text-sm font-medium text-gray-500">Loading document...</span>
+                        </div>
+                    )}
 
-                {/* Navigation Buttons (Floating) */}
-                {!loading && !error && (
-                    <>
-                        {onPrev && (
-                            <button
-                                onClick={onPrev}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/80 shadow-md text-gray-600 hover:bg-white hover:text-brand-600 transition-all border border-gray-200"
-                                title="Previous File"
-                            >
-                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                        )}
-                        {onNext && (
-                            <button
-                                onClick={onNext}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/80 shadow-md text-gray-600 hover:bg-white hover:text-brand-600 transition-all border border-gray-200"
-                                title="Next File"
-                            >
-                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        )}
-                    </>
-                )}
+                    {error && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white p-8 text-center text-red-500">
+                            <p>{error}</p>
+                        </div>
+                    )}
 
-                {error && (
-                    <div className="rounded-lg bg-red-50 p-4 text-center text-red-600">
-                        <p className="font-medium">Preview Failed</p>
-                        <p className="text-sm mt-1 opacity-80">{error}</p>
-                    </div>
-                )}
+                    {!loading && !error && blobUrl && (
+                        <div className="w-full h-full overflow-auto bg-gray-50 flex items-center justify-center">
+                            {fileType === "application/pdf" ? (
+                                <iframe src={blobUrl} className="w-full h-full" title="PDF Preview" />
+                            ) : fileType?.startsWith("image/") ? (
+                                <img src={blobUrl} alt="Preview" className="max-w-full max-h-full object-contain p-4" />
+                            ) : fileType === "text/plain" ? (
+                                <pre className="p-6 text-sm font-mono whitespace-pre-wrap text-left w-full h-full overflow-auto text-gray-800">{textContent}</pre>
+                            ) : (
+                                <div className="text-gray-500">Preview not available for this file type</div>
+                            )}
+                        </div>
+                    )}
 
-                {!loading && !error && blobUrl && (
-                    <div className="w-full h-full flex-1 overflow-auto relative group rounded-lg bg-gray-50 border border-gray-100">
-                        {/* Watermark */}
-                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03] select-none z-10 overflow-hidden">
-                            <div className="transform -rotate-45 text-4xl font-black text-gray-900 whitespace-nowrap">
-                                PREVIEW • PREVIEW • PREVIEW
+                    {/* Navigation Overlays */}
+                    {onPrev && (
+                        <button onClick={onPrev} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 shadow-lg rounded-full text-gray-600 hover:text-brand-600 transition-all border hover:scale-110">
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                    )}
+                    {onNext && (
+                        <button onClick={onNext} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 shadow-lg rounded-full text-gray-600 hover:text-brand-600 transition-all border hover:scale-110">
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    )}
+                </div>
+
+                {/* RIGHT: Details & Actions Panel */}
+                <div className="w-full lg:w-80 flex flex-col border-l border-gray-100 pl-0 lg:pl-2 shrink-0 overflow-y-auto">
+                    <div className="space-y-6 px-1">
+
+                        {/* Meta Header */}
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 leading-snug mb-1">{requestData?.title || "Untitled Job"}</h3>
+                            <div className="text-sm text-gray-500">
+                                by <span className="font-semibold text-brand-600">{requestData?.teacher?.name}</span>
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1">
+                                {new Date(requestData?.createdAt).toLocaleString()}
                             </div>
                         </div>
 
-                        {fileType === "application/pdf" ? (
-                            <iframe
-                                src={blobUrl}
-                                className="w-full h-[600px] rounded-lg"
-                                title="PDF Preview"
-                            />
-                        ) : fileType.startsWith("image/") ? (
-                            <img
-                                src={blobUrl}
-                                alt="Preview"
-                                className="max-w-full h-auto mx-auto rounded-lg shadow-sm"
-                            />
-                        ) : fileType === "text/plain" ? (
-                            <pre className="bg-white p-6 overflow-auto h-[500px] w-full text-sm font-mono text-gray-800 leading-relaxed">
-                                {textContent}
-                            </pre>
-                        ) : (
-                            <div className="text-center p-12">
-                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                                    <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        {/* Specs Grid */}
+                        <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-100">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-500">Copies</span>
+                                <span className="font-semibold text-gray-900">{requestData?.copies}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-500">Sides</span>
+                                <span className="font-semibold text-gray-900">{requestData?.printType === "DOUBLE_SIDE" ? "Double" : "Single"}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-500">File Type</span>
+                                <span className="font-medium text-gray-700 uppercase">{fileType?.split('/')[1] || "File"}</span>
+                            </div>
+                        </div>
+
+                        {/* Delivery Info */}
+                        <div className="space-y-2">
+                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Delivery Details</h4>
+                            <div className="flex items-start gap-3 text-sm">
+                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                 </div>
-                                <h3 className="font-semibold text-gray-900">Preview not available</h3>
-                                <p className="text-sm text-gray-500 mt-2">({fileType})</p>
+                                <div>
+                                    <p className="font-semibold text-gray-900">
+                                        {requestData?.deliveryType === "ROOM_DELIVERY" ? `Room ${requestData?.deliveryRoom}` : "Pickup"}
+                                    </p>
+                                    <p className="text-gray-500 text-xs mt-0.5">
+                                        Due: {new Date(requestData?.dueDateTime).toLocaleDateString()}
+                                    </p>
+                                </div>
                             </div>
-                        )}
+                        </div>
+
+                        {/* ACTION BUTTONS */}
+                        <div className="pt-4 mt-auto space-y-3 border-t border-gray-100">
+
+                            {/* Admin Actions */}
+                            {userRole === "ADMIN" && requestData?.status === "PENDING" && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => { onAction.approve(requestData._id); onClose(); }} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                        Approve
+                                    </button>
+                                    <button onClick={() => { onAction.reject(requestData._id); onClose(); }} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                        Reject
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Printing Dept Actions */}
+                            {userRole === "PRINTING" && (
+                                <div className="space-y-2">
+                                    {requestData?.status === "APPROVED" && (
+                                        <button onClick={() => { onAction.start(requestData._id); onClose(); }} className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm">
+                                            Start Printing
+                                        </button>
+                                    )}
+                                    {requestData?.status === "IN_PROGRESS" && (
+                                        <button onClick={() => { onAction.complete(requestData._id); onClose(); }} className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium shadow-sm">
+                                            Mark Completed
+                                        </button>
+                                    )}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button onClick={handlePrint} className="px-3 py-2 border border-gray-200 hover:bg-gray-50 rounded-lg text-sm font-medium text-gray-700">Print File</button>
+                                        <button onClick={handleDownload} className="px-3 py-2 border border-gray-200 hover:bg-gray-50 rounded-lg text-sm font-medium text-gray-700">Download</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Delete Action (Shared) */}
+                            {((userRole === "TEACHER" && ["PENDING", "REJECTED", "COMPLETED"].includes(requestData?.status)) || (userRole === "ADMIN" && requestData?.status !== "PENDING")) && (
+                                <button
+                                    onClick={() => { onAction.delete(requestData._id); onClose(); }}
+                                    className="w-full px-4 py-2 border border-red-100 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    Delete Request
+                                </button>
+                            )}
+
+                            <button onClick={onClose} className="w-full px-4 py-2 text-gray-500 hover:text-gray-800 text-sm">
+                                Close Preview
+                            </button>
+                        </div>
                     </div>
-                )}
-
-                {/* Actions */}
-                <div className="mt-6 flex flex-wrap gap-3 w-full justify-end border-t border-gray-100 pt-5">
-                    {canPrint && (
-                        <button
-                            onClick={handlePrint}
-                            disabled={!blobUrl}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-colors shadow-sm hover:shadow"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 002 2zm-7 14h10a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2z" />
-                            </svg>
-                            Print
-                        </button>
-                    )}
-
-                    {canDownload && (
-                        <button
-                            onClick={handleDownload}
-                            disabled={!blobUrl}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 transition-colors shadow-sm hover:shadow"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Download
-                        </button>
-                    )}
-
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                        Close
-                    </button>
                 </div>
             </div>
         </Modal>
