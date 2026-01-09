@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const PublicLayout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navLinks = [
         { name: "Help Center", path: "/help" },
@@ -16,8 +18,8 @@ const PublicLayout = ({ children }) => {
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                     {/* Logo Section */}
-                    <div
-                        className="flex items-center gap-2.5 cursor-pointer group"
+                    <div 
+                        className="flex items-center gap-2.5 cursor-pointer group" 
                         onClick={() => navigate('/')}
                     >
                         <div className="relative flex items-center justify-center h-10 w-10 bg-gradient-to-tr from-brand-600 to-indigo-600 rounded-xl shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
@@ -36,16 +38,17 @@ const PublicLayout = ({ children }) => {
                             <button
                                 key={link.path}
                                 onClick={() => navigate(link.path)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${location.pathname === link.path
-                                        ? "bg-brand-50 text-brand-700"
-                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                    }`}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                                    location.pathname === link.path 
+                                    ? "bg-brand-50 text-brand-700" 
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                }`}
                             >
                                 {link.name}
                             </button>
                         ))}
                         <div className="w-px h-6 bg-gray-200 mx-2"></div>
-                        <button
+                        <button 
                             onClick={() => navigate('/')}
                             className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-lg shadow-gray-900/10 hover:shadow-gray-900/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                         >
@@ -53,16 +56,52 @@ const PublicLayout = ({ children }) => {
                         </button>
                     </nav>
 
-                    {/* Mobile Menu Button - Simple Implementation */}
-                    <button
-                        onClick={() => navigate('/')} // Simplified for mobile for now, just directs back to app
-                        className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
-                    >
-                        <span className="sr-only">Menu</span>
-                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                        </svg>
-                    </button>
+                    {/* Mobile Menu Button */}
+                    <div className="md:hidden relative">
+                         <button 
+                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                             className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                        >
+                            {isMobileMenuOpen ? (
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                                </svg>
+                            )}
+                        </button>
+                        
+                        {/* Mobile Dropdown */}
+                        {isMobileMenuOpen && (
+                            <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl shadow-gray-200/50 p-2 space-y-1 animate-in fade-in slide-in-from-top-4 z-50">
+                                {navLinks.map((link) => (
+                                    <button
+                                        key={link.path}
+                                        onClick={() => {
+                                            navigate(link.path);
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                                            location.pathname === link.path 
+                                            ? "bg-brand-50 text-brand-700" 
+                                            : "text-gray-600 hover:bg-gray-50"
+                                        }`}
+                                    >
+                                        {link.name}
+                                    </button>
+                                ))}
+                                <div className="h-px bg-gray-100 my-1"></div>
+                                <button 
+                                    onClick={() => navigate('/')}
+                                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-gray-900 shadow-md hover:bg-gray-800"
+                                >
+                                    Return to App
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 
