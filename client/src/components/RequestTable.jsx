@@ -225,9 +225,6 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                         )}
                                         {role === "PRINTING" && (
                                             <div className="flex flex-col gap-2 w-full">
-                                                <Button size="sm" variant="secondary" onClick={() => downloadFile(req._id, req.fileUrl.split('/').pop())} className="w-full justify-center">
-                                                    Download
-                                                </Button>
                                                 {req.status === "APPROVED" && (
                                                     <Button size="sm" onClick={() => updateStatus(req._id, "IN_PROGRESS")} className="w-full justify-center">Start Printing</Button>
                                                 )}
@@ -372,18 +369,6 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
 
                                                 {role === "PRINTING" && (
                                                     <div className="flex flex-col gap-2 sm:flex-row">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="secondary"
-                                                            onClick={() => downloadFile(req._id, req.fileUrl.split('/').pop())}
-                                                            className="gap-2"
-                                                        >
-                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                            </svg>
-                                                            Download
-                                                        </Button>
-
                                                         {req.status === "APPROVED" && (
                                                             <Button
                                                                 size="sm"
