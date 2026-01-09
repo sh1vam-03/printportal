@@ -172,7 +172,16 @@ const FilePreviewModal = ({
                 {/* RIGHT: Details & Actions Panel */}
                 <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.02)] z-10 h-[45vh] lg:h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
                     {/* Header */}
-                    <div className="p-6 border-b border-gray-100">
+                    <div className="p-6 border-b border-gray-100 relative">
+                        {/* Desktop Close Button */}
+                        <button
+                            onClick={onClose}
+                            className="hidden lg:flex absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full transition-all"
+                            title="Close Preview"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+
                         <div className="flex flex-col gap-4">
                             <h2 className="text-2xl font-bold text-gray-900 leading-tight truncate">{requestData?.title || "Untitled Job"}</h2>
 

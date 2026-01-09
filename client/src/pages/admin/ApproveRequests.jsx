@@ -30,16 +30,16 @@ const ApproveRequests = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-row items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900">Printing Management</h2>
-                    <p className="text-sm text-gray-500 mt-1">Review and approve print requests</p>
+                    <h2 className="text-xl font-bold text-gray-900 leading-tight">Printing Management</h2>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1 hidden sm:block">Review and approve print requests</p>
                 </div>
 
-                <div className="flex p-1 bg-gray-100 rounded-xl">
+                <div className="flex p-1 bg-gray-100 rounded-xl shrink-0 h-fit">
                     <button
                         onClick={() => setView("PENDING")}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${view === "PENDING" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+                        className={`flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${view === "PENDING" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         <div className="relative">
@@ -54,7 +54,7 @@ const ApproveRequests = () => {
                     </button>
                     <button
                         onClick={() => setView("ALL")}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${view === "ALL" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+                        className={`flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${view === "ALL" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         All History
