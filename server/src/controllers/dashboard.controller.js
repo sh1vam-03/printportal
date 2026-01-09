@@ -3,7 +3,7 @@ import PrintRequest from "../models/PrintRequest.js";
 
 export const getDashboardStats = async (req, res) => {
     try {
-        const { role, _id: userId } = req.user;
+        const { role, userId } = req.user;
         let stats = {
             total: 0,
             pending: 0,

@@ -1,14 +1,21 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import Button from "./ui/Button";
 
 const Navbar = ({ isOpen, toggleMobileSidebar }) => {
     const { user, logout } = useContext(AuthContext);
-
-    // Help Center Link Logic
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const navigate = (path) => {
-        window.location.href = path; // Simple navigation
+        setIsProfileOpen(false);
+        window.location.href = path;
     };
+
+    // Close dropdown on outside click (simple version)
+    useEffect(() => {
+        const close = () => setIsProfileOpen(false);
+        if (isProfileOpen) window.addEventListener('click', close);
+        return () => window.removeEventListener('click', close);
+    }, [isProfileOpen]);
 
     return (
         <header className={`fixed top-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300 left-0 ${isOpen ? "md:left-64" : "md:left-20"}`}>
@@ -25,36 +32,70 @@ const Navbar = ({ isOpen, toggleMobileSidebar }) => {
                 </button>
 
                 <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex flex-col items-end mr-2">
-                        <span className="text-sm font-semibold text-gray-900 leading-tight">
-                            {user?.name || "User"}
-                        </span>
-                        <span className="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full">
-                            {user?.role}
-                        </span>
+
+                    {/* Simplified Profile Dropdown Trigger */}
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            onClick={() => setIsProfileOpen(!isProfileOpen)}
+                            className="flex items-center gap-3 p-1.5 rounded-xl transition-colors hover:bg-gray-50 group border border-transparent hover:border-gray-100"
+                        >
+                            <div className="hidden sm:flex flex-col items-end mr-1">
+                                <span className="text-sm font-semibold text-gray-900 leading-tight">
+                                    {user?.name || "User"}
+                                </span>
+                                <span className="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full">
+                                    {user?.role}
+                                </span>
+                            </div>
+                            <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-100 to-violet-100 text-brand-700 font-bold border border-white shadow-sm ring-1 ring-gray-100 text-sm group-hover:scale-105 transition-transform">
+                                {user?.name?.charAt(0) || "U"}
+                            </div>
+                            <svg className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isProfileOpen && (
+                            <div className="absolute right-0 top-full mt-2 w-60 rounded-2xl bg-white border border-gray-100 shadow-xl shadow-gray-200/50 transform origin-top-right transition-all animate-in fade-in slide-in-from-top-2 overflow-hidden z-50">
+
+                                <div className="p-2 space-y-1">
+                                    <button onClick={() => navigate('/help')} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium">
+                                        <svg className="h-4.5 w-4.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        Help Center
+                                    </button>
+                                    <button onClick={() => navigate('/privacy')} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium">
+                                        <svg className="h-4.5 w-4.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        Privacy Policy
+                                    </button>
+                                    <button onClick={() => navigate('/terms')} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium">
+                                        <svg className="h-4.5 w-4.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Terms of Service
+                                    </button>
+                                </div>
+
+                                <div className="h-px bg-gray-100 mx-2"></div>
+
+                                <div className="p-2">
+                                    <button
+                                        onClick={logout}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors font-medium"
+                                    >
+                                        <svg className="h-4.5 w-4.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        </svg>
+                                        Sign Out
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-100 to-violet-100 text-brand-700 font-bold border border-white shadow-sm ring-1 ring-gray-100">
-                        {user?.name?.charAt(0) || "U"}
-                    </div>
-
-                    <button
-                        onClick={() => navigate('/help')}
-                        className="hidden sm:flex items-center justify-center p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-all"
-                        title="Help Center"
-                    >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </button>
-
-                    <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block"></div>
-
-                    <Button size="sm" variant="secondary" onClick={logout} className="ml-2 !px-3">
-                        <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                    </Button>
                 </div>
             </div>
         </header>
