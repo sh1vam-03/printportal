@@ -123,10 +123,9 @@ const FilePreviewModal = ({
                         </div>
                     )}
 
-                    {/* Mobile Header (Only visible on mobile) */}
-                    <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shadow-sm z-20">
-                        <h3 className="font-bold text-gray-900 truncate pr-4">{originalName || "File Preview"}</h3>
-                        <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors">
+                    {/* Mobile Header (Close Button Only) */}
+                    <div className="lg:hidden flex items-center justify-end px-4 py-2 bg-transparent absolute top-0 right-0 z-30">
+                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-700 bg-white/50 backdrop-blur-md rounded-full shadow-sm">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
@@ -178,18 +177,18 @@ const FilePreviewModal = ({
                         <div className="flex flex-col gap-4">
                             <h2 className="text-2xl font-bold text-gray-900 leading-tight">{requestData?.title || "Untitled Job"}</h2>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex flex-row items-center justify-between gap-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
+                                    <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
                                         {requestData?.teacher?.name?.charAt(0) || "?"}
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-900">{requestData?.teacher?.name || "Unknown User"}</p>
-                                        <p className="text-xs text-gray-500 font-medium">Request Owner</p>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[120px] sm:max-w-none">{requestData?.teacher?.name || "Unknown"}</p>
+                                        <p className="text-xs text-gray-500 font-medium truncate">Request Owner</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-start sm:items-end gap-1">
+                                <div className="flex flex-col items-end gap-1 shrink-0">
                                     <StatusBadge status={requestData?.status} />
                                     <span className="text-xs text-gray-400">
                                         {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
