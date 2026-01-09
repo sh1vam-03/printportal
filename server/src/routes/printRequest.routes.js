@@ -21,6 +21,13 @@ router.get(
     printRequestController.getPrintRequests
 );
 
+// Preview File
+router.get(
+    "/:id/preview",
+    requireRole(["TEACHER", "ADMIN", "PRINTING"]),
+    printRequestController.getPrintFile
+);
+
 /* ---------------- Admin ---------------- */
 // Admin approves request
 router.put(

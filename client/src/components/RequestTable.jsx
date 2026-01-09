@@ -5,11 +5,14 @@ import StatusBadge from "./StatusBadge";
 import { AuthContext } from "../context/AuthContext";
 import { ToastContext } from "../context/ToastContext";
 
+import FilePreviewModal from "./common/FilePreviewModal";
+
 const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus }) => {
     const { user } = useContext(AuthContext);
     const { showToast } = useContext(ToastContext);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [previewFile, setPreviewFile] = useState(null);
 
     const fetchRequests = async () => {
         try {
@@ -138,7 +141,19 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                                     <div className="col-span-2">
                                         <span className="block text-xs font-semibold text-gray-400 uppercase">File</span>
-                                        <span className="font-medium text-indigo-600 break-all">{req.fileUrl.split('/').pop()}</span>
+                                        <button
+                                            onClick={() => setPreviewFile(req)}
+                                            className="font-medium text-indigo-600 break-all hover:underline text-left flex items-center gap-1"
+                                        >
+                                            <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            {req.originalName || req.fileUrl.split('/').pop()}
+                                        </button>
+                                        <div className="text-xs text-gray-400 mt-1">
+                                            {(req.fileSize / 1024).toFixed(1)} KB • {req.fileType?.split('/')[1] || 'unknown'}
+                                        </div>
                                     </div>
                                     <div>
                                         <span className="block text-xs font-semibold text-gray-400 uppercase">Copies</span>
@@ -226,16 +241,23 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="inline-flex items-center gap-1.5 font-medium text-indigo-600 break-all">
+                                        <div className="flex flex-col gap-1 items-start">
+                                            <button
+                                                onClick={() => setPreviewFile(req)}
+                                                className="inline-flex items-center gap-1.5 font-medium text-indigo-600 break-all hover:underline"
+                                            >
                                                 <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                                {req.fileUrl.split('/').pop()}
-                                            </span>
+                                                {req.originalName || req.fileUrl.split('/').pop()}
+                                            </button>
                                             <div className="flex items-center gap-2 text-xs text-gray-500">
                                                 <span className="rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600">
                                                     {req.copies} Copies
+                                                </span>
+                                                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-500">
+                                                    {req.fileType ? req.fileType.split('/')[1].toUpperCase() : 'FILE'}
                                                 </span>
                                                 <span>•</span>
                                                 <span>{req.printType === "DOUBLE_SIDE" ? "Double Sided" : "Single Sided"}</span>
@@ -337,6 +359,17 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                     </tbody>
                 </table>
             </div>
+
+            {/* File Preview Modal */}
+            <FilePreviewModal
+                isOpen={!!previewFile}
+                onClose={() => setPreviewFile(null)}
+                fileUrl={previewFile ? `/print-requests/${previewFile._id}/preview` : ""}
+                fileType={previewFile?.fileType || "application/octet-stream"}
+                originalName={previewFile?.originalName || previewFile?.fileUrl.split('/').pop()}
+                canDownload={role === "ADMIN" || role === "PRINTING"}
+                canPrint={role === "PRINTING"}
+            />
         </div>
     );
 };

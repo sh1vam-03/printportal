@@ -13,6 +13,21 @@ const printRequestSchema = new mongoose.Schema(
             required: true,
         },
 
+        fileType: {
+            type: String, // MIME type
+            required: true,
+        },
+
+        fileSize: {
+            type: Number, // Bytes
+            required: true,
+        },
+
+        originalName: {
+            type: String,
+            required: true,
+        },
+
         copies: {
             type: Number,
             required: true,

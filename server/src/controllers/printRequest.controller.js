@@ -29,6 +29,9 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
     const newRequest = await PrintRequest.create({
         teacher: teacherId,
         fileUrl: `/uploads/${req.file.filename}`,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size,
+        originalName: req.file.originalname,
         copies,
         printType,
         deliveryType,
@@ -42,6 +45,44 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         data: newRequest,
     });
 
+});
+
+/* ----------------------------------------
+   GET PRINT FILE PREVIEW (Secure)
+----------------------------------------- */
+export const getPrintFile = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { role, userId } = req.user; // Securely get from token
+
+    const request = await PrintRequest.findById(id);
+
+    if (!request) {
+        throw new ApiError(404, "Print request not found");
+    }
+
+    // Authorization Check
+    let canAccess = false;
+
+    // Admin and Printing can access all
+    if (role === "ADMIN" || role === "PRINTING") {
+        canAccess = true;
+    }
+    // Teacher can only access their own
+    else if (role === "TEACHER" && request.teacher.toString() === userId) {
+        canAccess = true;
+    }
+
+    if (!canAccess) {
+        throw new ApiError(403, "Access denied to this file");
+    }
+
+    // Serve file inline for preview
+    const filePath = `./src${request.fileUrl}`;
+
+    res.setHeader('Content-Type', request.fileType);
+    res.setHeader('Content-Disposition', `inline; filename="${request.originalName}"`);
+
+    res.sendFile(filePath, { root: "." });
 });
 
 /* ----------------------------------------
