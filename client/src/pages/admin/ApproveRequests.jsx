@@ -66,8 +66,10 @@ const ApproveRequests = () => {
             <RequestTable
                 role="ADMIN"
                 fetchQueryRole=""
-                filterFn={view === "PENDING" ? (req) => req.status === "PENDING" : undefined}
-                filterFn={view === "PENDING" ? (req) => req.status === "PENDING" : undefined}
+                filterFn={view === "PENDING"
+                    ? (req) => req.status === "PENDING"
+                    : (req) => req.status !== "PENDING"
+                }
                 hideStatus={view === "PENDING"}
                 key={view}
             />
