@@ -30,7 +30,10 @@ const FilePreviewModal = ({
             api.get(fileUrl, { responseType: "blob" })
                 .then((response) => {
                     if (!active) return;
-                    const blob = new Blob([response.data], { type: fileType });
+
+                    // Prefer Content-Type from server headers
+                    const type = response.headers['content-type'] || fileType;
+                    const blob = new Blob([response.data], { type });
                     createdUrl = URL.createObjectURL(blob);
                     setBlobUrl(createdUrl);
 

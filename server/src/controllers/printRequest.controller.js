@@ -94,12 +94,26 @@ export const getPrintFile = asyncHandler(async (req, res) => {
 
     // Serve file inline for preview
     // request.fileUrl is like "/uploads/filename.ext"
-    // We need to resolve this relative to the project root's src folder
-    const filePath = path.join(process.cwd(), "src", request.fileUrl);
+    // Remove leading slash for safe join
+    const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
+
+    // Path: CWD/src/uploads/file
+    const filePath = path.join(process.cwd(), "src", relativeUrl);
+
+    console.log(`[Preview] Request ID: ${id}`);
+    console.log(`[Preview] fileUrl in DB: ${request.fileUrl}`);
+    console.log(`[Preview] Resolved Path: ${filePath}`);
+
+    if (!fs.existsSync(filePath)) {
+        console.error(`[Preview] File NOT FOUND at ${filePath}`);
+        throw new ApiError(404, "File not found on server");
+    }
 
     // Fallback for old files without metadata
     const contentType = request.fileType || getMimeType(request.fileUrl);
     const downloadName = request.originalName || path.basename(request.fileUrl);
+
+    console.log(`[Preview] Content-Type: ${contentType}`);
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
