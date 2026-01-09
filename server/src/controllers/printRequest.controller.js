@@ -68,7 +68,7 @@ const getMimeType = (filename) => {
 
 export const getPrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { role, _id: userId } = req.user; // Securely get from token
+    const { role, userId } = req.user; // Securely get from token
 
     const request = await PrintRequest.findById(id);
 
@@ -128,7 +128,7 @@ import fs from "fs";
 
 export const deletePrintRequest = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { role, _id: userId } = req.user;
+    const { role, userId } = req.user;
 
     const request = await PrintRequest.findById(id);
 
