@@ -90,7 +90,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobileOpen, closeMobileSidebar }) =>
                             end
                             title={!isOpen ? link.name : ""}
                             className={({ isActive }) =>
-                                `group flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden ${isActive
+                                `group flex items-center ${isOpen ? "gap-4 px-4" : "justify-center px-2"} py-3.5 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden ${isActive
                                     ? "bg-brand-50/80 text-brand-700 shadow-sm ring-1 ring-brand-200"
                                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                                 }`
@@ -99,12 +99,12 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobileOpen, closeMobileSidebar }) =>
                             {({ isActive }) => (
                                 <>
                                     {isActive && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-brand-500 rounded-r-full"></div>
+                                        <div className={`absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-brand-500 rounded-r-full ${!isOpen ? "left-0.5" : ""}`}></div>
                                     )}
                                     <div className={`shrink-0 transition-colors duration-300 ${isActive ? "text-brand-600" : "text-gray-400 group-hover:text-gray-600"}`}>
                                         {link.icon}
                                     </div>
-                                    <span className={`transition-all duration-300 whitespace-nowrap ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 w-0"}`}>
+                                    <span className={`transition-all duration-300 whitespace-nowrap ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 w-0 absolute"}`}>
                                         {link.name}
                                     </span>
                                 </>

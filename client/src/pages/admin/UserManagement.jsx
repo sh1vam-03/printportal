@@ -84,7 +84,69 @@ const UserManagement = () => {
                 </Button>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            {/* Mobile View (Cards) */}
+            <div className="md:hidden space-y-4">
+                {users.map((user) => (
+                    <Card key={user._id} className="p-5">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gray-100 to-gray-50 text-gray-600 font-bold text-lg shadow-sm border border-white ring-1 ring-gray-100">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900">{user.name}</div>
+                                    <div className="text-sm text-gray-500">{user.email}</div>
+                                </div>
+                            </div>
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${user.role === 'ADMIN'
+                                ? 'bg-purple-50 text-purple-700 border-purple-100'
+                                : user.role === 'TEACHER'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-100'
+                                    : 'bg-orange-50 text-orange-700 border-orange-100'
+                                }`}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${user.role === 'ADMIN' ? 'bg-purple-400' : user.role === 'TEACHER' ? 'bg-blue-400' : 'bg-orange-400'
+                                    }`}></span>
+                                {user.role}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center justify-between py-3 border-t border-gray-50">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${user.isActive
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                : 'bg-red-50 text-red-700 border-red-100'
+                                }`}>
+                                {user.isActive ? 'Active' : 'Disabled'}
+                            </span>
+                            <div className="text-right">
+                                <span className="block text-xs text-gray-500">Last seen</span>
+                                <span className="text-xs font-medium text-gray-700">
+                                    {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Never"}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 justify-end mt-2">
+                            <Button
+                                variant="secondary"
+                                onClick={() => setConfirmModal({ isOpen: true, id: user._id, type: 'TERMINATE' })}
+                                className="text-xs py-2 h-auto"
+                            >
+                                Terminate
+                            </Button>
+                            <Button
+                                variant="danger"
+                                onClick={() => setConfirmModal({ isOpen: true, id: user._id, type: 'DELETE' })}
+                                className="text-xs py-2 h-auto"
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+
+            {/* Desktop View (Table) */}
+            <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
@@ -126,10 +188,10 @@ const UserManagement = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${user.role === 'ADMIN'
-                                                    ? 'bg-purple-50 text-purple-700 border-purple-100'
-                                                    : user.role === 'TEACHER'
-                                                        ? 'bg-blue-50 text-blue-700 border-blue-100'
-                                                        : 'bg-orange-50 text-orange-700 border-orange-100'
+                                                ? 'bg-purple-50 text-purple-700 border-purple-100'
+                                                : user.role === 'TEACHER'
+                                                    ? 'bg-blue-50 text-blue-700 border-blue-100'
+                                                    : 'bg-orange-50 text-orange-700 border-orange-100'
                                                 }`}>
                                                 <span className={`h-1.5 w-1.5 rounded-full ${user.role === 'ADMIN' ? 'bg-purple-400' : user.role === 'TEACHER' ? 'bg-blue-400' : 'bg-orange-400'
                                                     }`}></span>
@@ -138,8 +200,8 @@ const UserManagement = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${user.isActive
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                    : 'bg-red-50 text-red-700 border-red-100'
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                                : 'bg-red-50 text-red-700 border-red-100'
                                                 }`}>
                                                 {user.isActive ? 'Active' : 'Disabled'}
                                             </span>
