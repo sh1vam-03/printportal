@@ -93,7 +93,9 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     }
 
     // Serve file inline for preview
-    const filePath = `./src${request.fileUrl}`;
+    // request.fileUrl is like "/uploads/filename.ext"
+    // We need to resolve this relative to the project root's src folder
+    const filePath = path.join(process.cwd(), "src", request.fileUrl);
 
     // Fallback for old files without metadata
     const contentType = request.fileType || getMimeType(request.fileUrl);
@@ -102,7 +104,7 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
 
-    res.sendFile(filePath, { root: "." });
+    res.sendFile(filePath);
 });
 
 /* ----------------------------------------
@@ -120,13 +122,25 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Print request not found");
     }
 
-    // Authorization Check
+    // Authorization Check with Status Rules
     let canDelete = false;
 
-    if (role === "ADMIN") {
-        canDelete = true;
-    } else if (role === "TEACHER" && request.teacher.toString() === userId) {
-        canDelete = true;
+    if (role === "TEACHER" && request.teacher.toString() === userId) {
+        // Teacher can delete: PENDING, REJECTED, COMPLETED
+        // Teacher CANNOT delete: APPROVED, IN_PROGRESS (Printing dept needs it)
+        if (["PENDING", "REJECTED", "COMPLETED"].includes(request.status)) {
+            canDelete = true;
+        } else {
+            throw new ApiError(403, "Cannot delete file while it is being processed by Printing Dept");
+        }
+    } else if (role === "ADMIN") {
+        // Admin can delete: APPROVED, IN_PROGRESS, COMPLETED, REJECTED
+        // Admin CANNOT delete: PENDING (Must approve/reject first)
+        if (request.status !== "PENDING") {
+            canDelete = true;
+        } else {
+            throw new ApiError(403, "Cannot delete Pending request. Please Approve or Reject it first.");
+        }
     }
 
     if (!canDelete) {

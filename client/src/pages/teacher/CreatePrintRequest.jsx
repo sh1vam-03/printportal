@@ -76,14 +76,14 @@ const CreatePrintRequest = ({ onSuccess }) => {
                     placeholder="e.g. Math Exam - Grade 10"
                     required
                     maxLength={100}
-                    className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
             </div>
 
             {/* File Upload Section */}
             <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">Upload Document</label>
-                <div className="relative flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6 transition hover:border-indigo-500 hover:bg-gray-100">
+                <div className="relative flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6 transition hover:border-brand-500 hover:bg-gray-100">
                     <input
                         type="file"
                         name="file"
@@ -92,15 +92,15 @@ const CreatePrintRequest = ({ onSuccess }) => {
                         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
                     <div className="text-center">
-                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50">
-                            <svg className="h-10 w-10 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-brand-50">
+                            <svg className="h-10 w-10 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                         </div>
 
                         <p className="mt-4 text-xl font-bold text-gray-800">
                             {fileName ? (
-                                <span className="text-indigo-600">{fileName}</span>
+                                <span className="text-brand-600">{fileName}</span>
                             ) : (
                                 "Drag & Drop File Here"
                             )}
@@ -114,7 +114,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                         </p>
 
                         {!fileName && (
-                            <p className="mt-4 text-md font-bold text-indigo-600 hover:text-indigo-500 underline">
+                            <p className="mt-4 text-md font-bold text-brand-600 hover:text-brand-500 underline">
                                 Browse File
                             </p>
                         )}
@@ -132,7 +132,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                         min="1"
                         defaultValue="1"
                         required
-                        className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                     />
                 </div>
 
@@ -142,7 +142,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                     <div className="relative">
                         <select
                             name="printType"
-                            className="w-full appearance-none rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                            className="w-full appearance-none rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                         >
                             <option value="SINGLE_SIDE">Single Sided</option>
                             <option value="DOUBLE_SIDE">Double Sided</option>
@@ -165,7 +165,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                             name="deliveryType"
                             value={deliveryType}
                             onChange={(e) => setDeliveryType(e.target.value)}
-                            className="w-full appearance-none rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                            className="w-full appearance-none rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                         >
                             <option value="PICKUP">Pickup at Printing Dept</option>
                             <option value="ROOM_DELIVERY">Deliver to Room</option>
@@ -186,7 +186,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                             name="deliveryRoom"
                             placeholder="e.g. 104-B"
                             required
-                            className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                            className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                         />
                     </div>
                 )}
@@ -199,7 +199,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                     name="dueDateTime"
                     type="datetime-local"
                     required
-                    className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full rounded-lg border-gray-300 px-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
             </div>
 

@@ -125,19 +125,26 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
     );
 
     return (
-        <div className="overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div className="overflow-hidden">
             {/* Mobile View: Stacked Cards */}
             <div className="block md:hidden">
                 {requests.length === 0 ? (
-                    <div className="py-8 text-center text-gray-500">No requests found</div>
+                    <div className="py-12 text-center">
+                        <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center">
+                            <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <p className="text-gray-500">No requests found</p>
+                    </div>
                 ) : (
-                    <div className="divide-y divide-gray-100">
+                    <div className="space-y-4">
                         {requests.map((req) => (
-                            <div key={req._id} className="p-4 space-y-4">
+                            <div key={req._id} className="rounded-xl border border-gray-100 bg-white p-5 shadow-soft">
                                 {/* Header: Teacher & Status */}
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-700 ring-4 ring-brand-50/30">
                                             {req.teacher?.name?.charAt(0) || "?"}
                                         </div>
                                         <div>
@@ -157,7 +164,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                         <span className="block text-xs font-semibold text-gray-400 uppercase">File</span>
                                         <button
                                             onClick={() => setPreviewFile(req)}
-                                            className="font-medium text-indigo-600 break-all hover:underline text-left flex items-center gap-1"
+                                            className="font-medium text-brand-600 break-all hover:underline text-left flex items-center gap-1"
                                         >
                                             <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -193,17 +200,22 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                 {/* Actions */}
                                 {!hideActions && (
                                     <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-2 justify-end">
-                                        {/* Delete Button (Admin or Owner) */}
-                                        {(role === "ADMIN" || role === "TEACHER") && (
-                                            <Button
-                                                size="sm"
-                                                variant="danger"
-                                                onClick={() => deleteRequest(req._id)}
-                                                className="w-full justify-center bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200"
-                                            >
-                                                Delete
-                                            </Button>
-                                        )}
+                                        {/* Delete Button (Conditional based on Role & Status) */}
+                                        {/* 
+                                            Teacher: PENDING, REJECTED, COMPLETED 
+                                            Admin: APPROVED, IN_PROGRESS, COMPLETED, REJECTED (Not PENDING)
+                                        */}
+                                        {((role === "TEACHER" && ["PENDING", "REJECTED", "COMPLETED"].includes(req.status)) ||
+                                            (role === "ADMIN" && req.status !== "PENDING")) && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="danger"
+                                                    onClick={() => deleteRequest(req._id)}
+                                                    className="w-full justify-center bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200 order-last"
+                                                >
+                                                    Delete
+                                                </Button>
+                                            )}
 
                                         {role === "ADMIN" && req.status === "PENDING" && (
                                             <>
@@ -233,9 +245,9 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
             </div>
 
             {/* Desktop View: Table */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-100">
                 <table className="w-full border-collapse">
-                    <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                    <thead className="bg-gray-50/50 text-xs uppercase tracking-wider text-gray-500">
                         <tr>
                             <th className="px-6 py-4 text-left font-semibold">Teacher</th>
                             <th className="px-6 py-4 text-left font-semibold">File Details</th>
@@ -257,11 +269,11 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                 <tr key={req._id} className="group transition-colors hover:bg-gray-50/50">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-xs font-bold text-brand-700 ring-4 ring-brand-50/30">
                                                 {req.teacher?.name?.charAt(0) || "?"}
                                             </div>
                                             <div>
-                                                <div className="font-medium text-gray-900">{req.teacher?.name || "Unknown"}</div>
+                                                <div className="font-semibold text-gray-900">{req.teacher?.name || "Unknown"}</div>
                                                 <div className="text-xs text-gray-500">{req.teacher?.email}</div>
                                             </div>
                                         </div>
@@ -273,13 +285,17 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
 
                                             <button
                                                 onClick={() => setPreviewFile(req)}
-                                                className="inline-flex items-center gap-1.5 text-sm text-indigo-600 break-all hover:underline"
+                                                className="group inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-600 transition-colors"
                                             >
-                                                <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                {req.originalName || req.fileUrl.split('/').pop()}
+                                                <div className="rounded p-1 text-gray-400 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                                                    <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </div>
+                                                <span className="font-medium decoration-brand-200 underline-offset-2 group-hover:underline">
+                                                    {req.originalName || req.fileUrl.split('/').pop()}
+                                                </span>
                                             </button>
                                             <div className="flex items-center gap-2 text-xs text-gray-500">
                                                 <span className="rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600">
@@ -319,18 +335,23 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                     {!hideActions && (
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2 items-center">
-                                                {/* Delete Button (Admin or Owner) */}
-                                                {(role === "ADMIN" || role === "TEACHER") && (
-                                                    <button
-                                                        onClick={() => deleteRequest(req._id)}
-                                                        className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50"
-                                                        title="Delete Request"
-                                                    >
-                                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                        </svg>
-                                                    </button>
-                                                )}
+                                                {/* Delete Button (Conditional based on Role & Status) */}
+                                                {/* 
+                                                    Teacher: PENDING, REJECTED, COMPLETED 
+                                                    Admin: APPROVED, IN_PROGRESS, COMPLETED, REJECTED (Not PENDING)
+                                                */}
+                                                {((role === "TEACHER" && ["PENDING", "REJECTED", "COMPLETED"].includes(req.status)) ||
+                                                    (role === "ADMIN" && req.status !== "PENDING")) && (
+                                                        <button
+                                                            onClick={() => deleteRequest(req._id)}
+                                                            className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50"
+                                                            title="Delete Request"
+                                                        >
+                                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
 
                                                 {role === "ADMIN" && req.status === "PENDING" && (
                                                     <>

@@ -1,10 +1,10 @@
 const Card = ({ title, children, action, className = "" }) => {
     return (
-        <div className={`rounded-2xl border border-gray-200 bg-white p-5 shadow-sm ${className}`}>
+        <div className={`overflow-hidden rounded-xl border border-gray-100 bg-white shadow-soft transition-all duration-300 hover:shadow-md ${className}`}>
             {(title || action) && (
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-50 bg-gray-50/50 px-6 py-4">
                     {title && (
-                        <h2 className="text-lg font-bold text-gray-800">
+                        <h2 className="text-lg font-bold text-gray-800 tracking-tight">
                             {title}
                         </h2>
                     )}
@@ -15,7 +15,9 @@ const Card = ({ title, children, action, className = "" }) => {
                     )}
                 </div>
             )}
-            {children}
+            <div className="p-6">
+                {children}
+            </div>
         </div>
     );
 };
