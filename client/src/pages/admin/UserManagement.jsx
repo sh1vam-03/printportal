@@ -125,18 +125,18 @@ const UserManagement = () => {
                             </div>
                         </div>
 
-                        <div className="flex gap-3 justify-end mt-2">
+                        <div className="flex items-center justify-between mt-4">
                             <Button
                                 variant="secondary"
                                 onClick={() => setConfirmModal({ isOpen: true, id: user._id, type: 'TERMINATE' })}
-                                className="text-xs py-2 h-auto"
+                                className="text-xs py-2 px-4 h-auto"
                             >
                                 Terminate
                             </Button>
                             <Button
                                 variant="danger"
                                 onClick={() => setConfirmModal({ isOpen: true, id: user._id, type: 'DELETE' })}
-                                className="text-xs py-2 h-auto"
+                                className="text-xs py-2 px-4 h-auto"
                             >
                                 Delete
                             </Button>
