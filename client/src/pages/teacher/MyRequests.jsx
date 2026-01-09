@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import RequestTable from "../../components/RequestTable";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -8,14 +8,6 @@ import CreatePrintRequest from "./CreatePrintRequest";
 const MyRequests = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
-
-    // Auto-refresh every 30 seconds to update status (Pending -> Approved -> In Progress -> Completed)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setRefreshKey(prev => prev + 1);
-        }, 30000);
-        return () => clearInterval(interval);
-    }, []);
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1);
