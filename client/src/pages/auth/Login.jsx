@@ -60,9 +60,11 @@ const Login = () => {
                 <div className="relative z-10 flex items-center gap-6 text-sm font-medium text-brand-200/60">
                     <span>&copy; {new Date().getFullYear()} SchoolPrint</span>
                     <span className="h-1 w-1 rounded-full bg-brand-500"></span>
-                    <a href="#" className="hover:text-white transition-colors">Help Center</a>
+                    <a href="/help" className="hover:text-white transition-colors">Help Center</a>
                     <span className="h-1 w-1 rounded-full bg-brand-500"></span>
-                    <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                    <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+                    <span className="h-1 w-1 rounded-full bg-brand-500"></span>
+                    <a href="/terms" className="hover:text-white transition-colors">Terms</a>
                 </div>
             </div>
 

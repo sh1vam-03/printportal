@@ -10,6 +10,7 @@ import AdminRoutes from "./pages/admin";
 import PrintingRoutes from "./pages/printing";
 import HelpCenter from "./pages/public/HelpCenter";
 import Privacy from "./pages/public/Privacy";
+import Terms from "./pages/public/Terms";
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
@@ -56,6 +57,7 @@ const App = () => {
         {/* Public Pages */}
         <Route path="/help" element={<HelpCenter />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
 
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
