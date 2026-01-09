@@ -20,6 +20,28 @@ const FilePreviewModal = ({
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
 
+    // Helper to format file size
+    const formatFileSize = (bytes) => {
+        if (!bytes) return "Unknown Size";
+        if (bytes === 0) return "0 B";
+        const k = 1024;
+        const sizes = ["B", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    };
+
+    // Helper to get readable file type
+    const getReadableFileType = (mimeType, url) => {
+        if (mimeType === "application/pdf") return "PDF Document";
+        if (mimeType?.startsWith("image/")) return "Image File";
+        if (mimeType === "text/plain") return "Text File";
+
+        // Fallback to extension
+        const ext = url?.split('.').pop()?.toUpperCase();
+        if (ext) return `${ext} File`;
+        return "Unknown Type";
+    };
+
     // Reset state when file changes
     useEffect(() => {
         let active = true;
@@ -182,7 +204,30 @@ const FilePreviewModal = ({
 
 
 
-                        {/* Specs Grid */}
+                        {/* File Details Grid */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm space-y-4">
+                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">File Details</h4>
+                            <div className="space-y-3">
+                                <div>
+                                    <span className="block text-xs text-gray-500 mb-0.5">Filename</span>
+                                    <span className="font-semibold text-gray-900 text-sm break-all line-clamp-2" title={originalName}>
+                                        {originalName || "Unknown Filename"}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span className="block text-xs text-gray-500 mb-0.5">Size</span>
+                                        <span className="font-semibold text-gray-900 text-sm">{formatFileSize(requestData?.fileSize)}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-xs text-gray-500 mb-0.5">Type</span>
+                                        <span className="font-semibold text-gray-900 text-sm">{getReadableFileType(fileType, fileUrl)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Print Specs Grid */}
                         <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100 shadow-sm space-y-3">
                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Print Specifications</h4>
 
