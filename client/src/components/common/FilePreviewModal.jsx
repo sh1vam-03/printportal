@@ -156,13 +156,22 @@ const FilePreviewModal = ({
                         <div className="flex flex-col gap-4">
                             <h2 className="text-2xl font-bold text-gray-900 leading-tight">{requestData?.title || "Untitled Job"}</h2>
 
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
-                                    {requestData?.teacher?.name?.charAt(0) || "?"}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
+                                        {requestData?.teacher?.name?.charAt(0) || "?"}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900">{requestData?.teacher?.name || "Unknown User"}</p>
+                                        <p className="text-xs text-gray-500 font-medium">Request Owner</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold text-gray-900">{requestData?.teacher?.name || "Unknown User"}</p>
-                                    <p className="text-xs text-gray-500 font-medium">Request Owner</p>
+
+                                <div className="flex flex-col items-start sm:items-end gap-1">
+                                    <StatusBadge status={requestData?.status} />
+                                    <span className="text-xs text-gray-400">
+                                        {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -171,15 +180,7 @@ const FilePreviewModal = ({
                     {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-                        {/* Status Section */}
-                        <div>
-                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current Status</h4>
-                            <div className="flex items-center gap-3">
-                                {/* StatusBadge component is assumed to be defined or imported elsewhere */}
-                                <StatusBadge status={requestData?.status} />
-                                <span className="text-xs text-gray-400">{new Date(requestData?.updatedAt).toLocaleTimeString()}</span>
-                            </div>
-                        </div>
+
 
                         {/* Specs Grid */}
                         <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100 shadow-sm space-y-3">
