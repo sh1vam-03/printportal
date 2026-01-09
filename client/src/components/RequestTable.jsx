@@ -252,6 +252,6 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
         </div>
     );
 };
-};
+
 
 export default RequestTable;
