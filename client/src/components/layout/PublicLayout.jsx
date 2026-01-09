@@ -124,7 +124,7 @@ const PublicLayout = ({ children }) => {
                                 <span className="text-lg font-bold text-gray-900">PrintPortal</span>
                             </div>
                             <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-                                Streamlining school printing operations with secure, efficient, and trackable cloud-based solutions.
+                                Streamlining printing operations with secure, efficient, and trackable cloud-based solutions.
                             </p>
                         </div>
 
@@ -141,7 +141,7 @@ const PublicLayout = ({ children }) => {
                     </div>
 
                     <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-                        <p>&copy; {new Date().getFullYear()} School Print Portal. All rights reserved.</p>
+                        <p>&copy; {new Date().getFullYear()} PrintPortal. All rights reserved.</p>
                         <div className="flex gap-4">
                             <span>v1.0.0</span>
                             <span className="hidden md:inline">&bull;</span>
