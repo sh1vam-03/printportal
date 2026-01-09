@@ -52,7 +52,7 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
 ----------------------------------------- */
 export const getPrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { role, userId } = req.user; // Securely get from token
+    const { role, _id: userId } = req.user; // Securely get from token
 
     const request = await PrintRequest.findById(id);
 
