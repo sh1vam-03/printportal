@@ -45,51 +45,77 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobileOpen, closeMobileSidebar }) =>
     };
 
     return (
-        <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-white border-r border-gray-200 transition-all duration-300 
-            ${isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"} 
-            md:translate-x-0 md:shadow-none 
-            w-64 ${isOpen ? "md:w-64" : "md:w-20"}`}
-        >
-            {/* Logo / Toggle Area */}
-            <div
-                className="flex h-16 items-center px-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={handleToggle}
-                title="Toggle Sidebar"
-            >
-                <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-violet-600 text-white shadow-md shadow-brand-200">
-                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 2 0 011 1v5m-4 0h4" />
-                        </svg>
-                    </div>
-                    <span className={`text-lg font-bold text-gray-900 whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"}`}>
-                        SchoolPrint
-                    </span>
-                </div>
-            </div>
+        <>
+            {/* Mobile Backdrop */}
+            {isMobileOpen && (
+                <div
+                    className="fixed inset-0 z-40 bg-gray-900/20 backdrop-blur-sm md:hidden transition-opacity"
+                    onClick={closeMobileSidebar}
+                />
+            )}
 
-            <div className="p-4 space-y-2 flex-1">
-                {links.map((link) => (
-                    <NavLink
-                        key={link.path}
-                        to={link.path}
-                        end
-                        title={!isOpen ? link.name : ""}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 overflow-hidden whitespace-nowrap ${isActive
-                                ? "bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-100"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                            }`
-                        }
-                    >
-                        <div className="shrink-0">{link.icon}</div>
-                        <span className={`transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 w-0"}`}>
-                            {link.name}
-                        </span>
-                    </NavLink>
-                ))}
-            </div>
-        </aside>
+            <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-white/90 backdrop-blur-xl border-r border-gray-200/50 shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
+                ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} 
+                md:translate-x-0 md:shadow-none 
+                w-72 ${isOpen ? "md:w-72" : "md:w-24"}`}
+            >
+                {/* Logo / Toggle Area */}
+                <div
+                    className="flex h-20 items-center px-6 border-b border-gray-100/50 cursor-pointer group"
+                    onClick={handleToggle}
+                    title="Toggle Sidebar"
+                >
+                    <div className="flex items-center gap-4 w-full">
+                        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 text-white shadow-lg shadow-brand-500/30 transition-transform group-hover:scale-105 group-active:scale-95">
+                            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 2 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/20"></div>
+                        </div>
+                        <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"}`}>
+                            <span className="block text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 leading-none">
+                                SchoolPrint
+                            </span>
+                            <span className="text-xs font-medium text-brand-500 tracking-wide uppercase mt-0.5 block">Portal</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Navigation Links */}
+                <div className="p-4 space-y-2 flex-1 overflow-y-auto custom-scrollbar">
+                    {links.map((link) => (
+                        <NavLink
+                            key={link.path}
+                            to={link.path}
+                            end
+                            title={!isOpen ? link.name : ""}
+                            className={({ isActive }) =>
+                                `group flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden ${isActive
+                                    ? "bg-brand-50/80 text-brand-700 shadow-sm ring-1 ring-brand-200"
+                                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                }`
+                            }
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    {isActive && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-brand-500 rounded-r-full"></div>
+                                    )}
+                                    <div className={`shrink-0 transition-colors duration-300 ${isActive ? "text-brand-600" : "text-gray-400 group-hover:text-gray-600"}`}>
+                                        {link.icon}
+                                    </div>
+                                    <span className={`transition-all duration-300 whitespace-nowrap ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 w-0"}`}>
+                                        {link.name}
+                                    </span>
+                                </>
+                            )}
+                        </NavLink>
+                    ))}
+                </div>
+
+                {/* Optional Footer/User section could go here */}
+            </aside>
+        </>
     );
 };
 
