@@ -4,12 +4,6 @@ import User from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-/* ---------------- TEACHER SIGNUP (DISABLED) ---------------- */
-// Public registration disabled. Use Admin User Management.
-export const teacherRegister = asyncHandler(async (req, res) => {
-    throw new ApiError(403, "Public registration is disabled.");
-});
-
 /* ---------------- LOGIN (ALL ROLES) ---------------- */
 export const login = asyncHandler(async (req, res) => {
     const { email, password, role } = req.body;

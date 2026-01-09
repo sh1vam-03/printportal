@@ -4,8 +4,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 
 const Login = () => {
-    const { login, signup } = useContext(AuthContext);
-    const [isSignup, setIsSignup] = useState(false);
+    const { login } = useContext(AuthContext);
     const [role, setRole] = useState("TEACHER");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -18,11 +17,7 @@ const Login = () => {
         const data = Object.fromEntries(form.entries());
 
         try {
-            if (isSignup) {
-                await signup(data);
-            } else {
-                await login(data);
-            }
+            await login(data);
         } catch (err) {
             const msg = err.response?.data?.message || "An error occurred. Please try again.";
             setError(msg);
@@ -48,7 +43,7 @@ const Login = () => {
 
                 <div className="max-w-md">
                     <h1 className="mb-6 text-5xl font-bold leading-tight">
-                        {isSignup ? "Join the Faculty Portal." : "Manage School Printing Efficiently."}
+                        Manage School Printing Efficiently.
                     </h1>
                     <p className="text-lg text-indigo-100">
                         Streamline your document workflow with our centralized print management system. secure, fast, and reliable.
@@ -71,12 +66,10 @@ const Login = () => {
                 <div className="mx-auto w-full max-w-md">
                     <div className="mb-10">
                         <h2 className="text-3xl font-bold text-gray-900">
-                            {isSignup ? "Create Account" : "Welcome Back"}
+                            Welcome Back
                         </h2>
                         <p className="mt-2 text-gray-600">
-                            {isSignup
-                                ? "Enter your details to register as a teacher."
-                                : "Please enter your details to sign in."}
+                            Please enter your details to sign in.
                         </p>
                     </div>
 
@@ -87,25 +80,6 @@ const Login = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                                 {error}
-                            </div>
-                        )}
-
-                        {isSignup && (
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Full Name</label>
-                                <div className="relative">
-                                    <input
-                                        name="name"
-                                        placeholder="John Doe"
-                                        className="w-full rounded-lg border-gray-300 pl-11 pr-4 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                                        required
-                                    />
-                                    <div className="pointer-events-none absolute left-0 top-1/2 flex h-full w-11 -translate-y-1/2 items-center justify-center text-gray-400">
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
-                                </div>
                             </div>
                         )}
 
@@ -145,33 +119,31 @@ const Login = () => {
                             </div>
                         </div>
 
-                        {!isSignup && (
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Select Role</label>
-                                <div className="relative">
-                                    <select
-                                        name="role"
-                                        value={role}
-                                        onChange={(e) => setRole(e.target.value)}
-                                        className="w-full appearance-none rounded-lg border-gray-300 pl-11 pr-10 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 bg-white"
-                                    >
-                                        <option value="TEACHER">Teacher</option>
-                                        <option value="ADMIN">Administrator</option>
-                                        <option value="PRINTING">Printing Department</option>
-                                    </select>
-                                    <div className="pointer-events-none absolute left-0 top-1/2 flex h-full w-11 -translate-y-1/2 items-center justify-center text-gray-400">
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
+                        <div>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Select Role</label>
+                            <div className="relative">
+                                <select
+                                    name="role"
+                                    value={role}
+                                    onChange={(e) => setRole(e.target.value)}
+                                    className="w-full appearance-none rounded-lg border-gray-300 pl-11 pr-10 py-3 text-base shadow-sm ring-1 ring-gray-900/5 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                                >
+                                    <option value="TEACHER">Teacher</option>
+                                    <option value="ADMIN">Administrator</option>
+                                    <option value="PRINTING">Printing Department</option>
+                                </select>
+                                <div className="pointer-events-none absolute left-0 top-1/2 flex h-full w-11 -translate-y-1/2 items-center justify-center text-gray-400">
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
                         <Button className="w-full py-3 text-base shadow-lg shadow-indigo-200 transition-all hover:shadow-indigo-300 active:scale-[0.98]" disabled={loading} size="lg">
                             {loading ? (
@@ -183,25 +155,11 @@ const Login = () => {
                                     Running checks...
                                 </span>
                             ) : (
-                                isSignup ? "Create Account" : "Sign In to Portal"
+                                "Sign In to Portal"
                             )}
                         </Button>
                     </form>
-
-                    <div className="mt-8 text-center">
-                        <p className="text-sm text-gray-600">
-                            {isSignup ? "Already have an account?" : "Are you a teacher?"}
-                            <button
-                                onClick={() => {
-                                    setIsSignup(!isSignup);
-                                    setError("");
-                                }}
-                                className="ml-2 font-semibold text-indigo-600 hover:text-indigo-500 focus:outline-none"
-                            >
-                                {isSignup ? "Sign in" : "Create an account"}
-                            </button>
-                        </p>
-                    </div>
+                    {/* Signup link removed */}
                 </div>
             </div>
         </div>
