@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Modal from "../ui/Modal";
 import api from "../../services/api";
+import StatusBadge from "../StatusBadge";
 
 const FilePreviewModal = ({
     isOpen,
