@@ -194,7 +194,7 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
     }
 
     if (role === "PRINTING") {
-        filter.status = "APPROVED";
+        filter.status = { $in: ["APPROVED", "IN_PROGRESS"] };
     }
 
     // Admins see all by default, or can filter if needed (future feature)
