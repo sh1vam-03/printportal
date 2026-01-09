@@ -133,9 +133,9 @@ const PublicLayout = ({ children }) => {
                         <div>
                             <h4 className="font-semibold text-gray-900 mb-4">Resources & Legal</h4>
                             <ul className="space-y-2 text-sm text-gray-600">
+                                <li><button onClick={() => navigate('/help')} className="hover:text-brand-600 transition-colors">Help Center</button></li>
                                 <li><button onClick={() => navigate('/privacy')} className="hover:text-brand-600 transition-colors">Privacy Policy</button></li>
                                 <li><button onClick={() => navigate('/terms')} className="hover:text-brand-600 transition-colors">Terms of Service</button></li>
-                                <li><button onClick={() => navigate('/help')} className="hover:text-brand-600 transition-colors">Help Center</button></li>
                             </ul>
                         </div>
                     </div>
