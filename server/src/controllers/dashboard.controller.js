@@ -4,6 +4,8 @@ import PrintRequest from "../models/PrintRequest.js";
 export const getDashboardStats = async (req, res) => {
     try {
         const { role, userId } = req.user;
+
+
         let stats = {
             total: 0,
             pending: 0,
@@ -29,6 +31,9 @@ export const getDashboardStats = async (req, res) => {
         // Admin sees all (no extra filter)
 
         // GLOBAL FLITER: Organization Isolation
+        if (!req.user.organizationId) {
+            throw new Error("Organization ID missing from user context");
+        }
         filter.organization = new mongoose.Types.ObjectId(req.user.organizationId);
 
         // Aggregation for performance

@@ -29,7 +29,13 @@ export const requireRole = (roles) => {
                 return res.status(401).json({ message: "Session terminated. Please login again." });
             }
 
-            req.user = decoded; // { userId, role, tokenVersion }
+            // Attach user info to request, blending token data with fresh DB data
+            req.user = {
+                userId: decoded.userId,
+                role: decoded.role,
+                tokenVersion: decoded.tokenVersion,
+                organizationId: user.organization ? user.organization.toString() : null
+            };
             next();
 
         } catch (err) {
