@@ -9,7 +9,7 @@ const router = express.Router();
 // Teacher creates print request
 router.post(
     "/",
-    requireRole(["TEACHER"]),
+    requireRole(["EMPLOYEE"]),
     handleUpload,
     printRequestController.createPrintRequest
 );
@@ -17,14 +17,14 @@ router.post(
 // Teacher / Admin / Printing can view requests (filtered by role in controller)
 router.get(
     "/",
-    requireRole(["TEACHER", "ADMIN", "PRINTING"]),
+    requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
     printRequestController.getPrintRequests
 );
 
 // Preview File
 router.get(
     "/:id/preview",
-    requireRole(["TEACHER", "ADMIN", "PRINTING"]),
+    requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
     printRequestController.getPrintFile
 );
 
@@ -61,7 +61,7 @@ router.get(
 // Delete Request (Admin or Teacher)
 router.delete(
     "/:id",
-    requireRole(["ADMIN", "TEACHER"]),
+    requireRole(["ADMIN", "EMPLOYEE"]),
     printRequestController.deletePrintRequest
 );
 
