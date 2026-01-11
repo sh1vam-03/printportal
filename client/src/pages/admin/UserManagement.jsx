@@ -4,6 +4,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
+import AlertModal from "../../components/ui/AlertModal";
 import { ToastContext } from "../../context/ToastContext";
 
 const UserManagement = () => {
@@ -12,6 +13,7 @@ const UserManagement = () => {
     const [loading, setLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, type: null }); // type: 'DELETE' | 'TERMINATE'
+    const [alertModal, setAlertModal] = useState({ isOpen: false, title: "", message: "" });
 
     const [newUser, setNewUser] = useState({
         name: "",
@@ -44,8 +46,18 @@ const UserManagement = () => {
             setIsCreateModalOpen(false);
             setNewUser({ name: "", email: "", password: "", role: "EMPLOYEE" });
             fetchUsers();
+            fetchUsers();
         } catch (err) {
-            showToast(err.response?.data?.message || "Failed to create user", "error");
+            if (err.response?.status === 403) {
+                setIsCreateModalOpen(false); // Close create modal to show alert clearly
+                setAlertModal({
+                    isOpen: true,
+                    title: "Plan Limit Reached",
+                    message: err.response.data.message
+                });
+            } else {
+                showToast(err.response?.data?.message || "Failed to create user", "error");
+            }
         }
     };
 
@@ -316,6 +328,14 @@ const UserManagement = () => {
                     : "This will log the user out of all active sessions immediately. They will need to log in again."}
                 confirmText={confirmModal.type === 'DELETE' ? "Delete User" : "Terminate Session"}
                 variant={confirmModal.type === 'DELETE' ? "danger" : "secondary"}
+            />
+
+            {/* Assessment Alert Modal */}
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
             />
         </div>
     );

@@ -44,7 +44,13 @@ export const createUser = asyncHandler(async (req, res) => {
     });
 
     if (currentCount >= limits[role]) {
-        throw new ApiError(403, `Your ${plan} Plan allows only ${limits[role]} ${role === 'PRINTING' ? 'Printing Staff' : 'Employees'}. Please upgrade your plan to add more.`);
+        let msg = "";
+        if (role === "PRINTING") {
+            msg = "You already have one printing staff if you want more please upgrade your plan";
+        } else {
+            msg = "Upgrade for more employe";
+        }
+        throw new ApiError(403, msg);
     }
 
     const existing = await User.findOne({ email });
