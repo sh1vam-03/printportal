@@ -73,9 +73,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobileOpen, closeMobileSidebar }) =>
                             <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/20"></div>
                         </div>
                         <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"}`}>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 tracking-tight">
-                                PrintPortal
-                            </span>
+                            <span className="text-xl font-bold tracking-tight text-gray-900">Print<span className="text-brand-600 font-light">Portal</span></span>
                             <span className="text-xs font-medium text-brand-500 tracking-wide uppercase mt-0.5 block">MENU</span>
                         </div>
                     </div>
