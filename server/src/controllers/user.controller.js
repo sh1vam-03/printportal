@@ -9,6 +9,7 @@ import Organization from "../models/Organization.js";
 /* ---------------- CREATE NEW USER (ADMIN ONLY) ---------------- */
 export const createUser = asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
+    console.log("Create User Request:", req.body, "User Context:", req.user);
 
     // Allow creation of EMPLOYEE and PRINTING roles
     if (!["EMPLOYEE", "PRINTING"].includes(role)) {
@@ -65,7 +66,6 @@ export const createUser = asyncHandler(async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        role,
         role,
         isActive: true,
         organization: req.user.organizationId,
