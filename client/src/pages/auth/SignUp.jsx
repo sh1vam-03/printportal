@@ -43,8 +43,15 @@ const SignUp = () => {
                     msg = "Server unavailable. Please try again later.";
                 } else if (status === 404) {
                     msg = "Service not found. Please contact support.";
+                } else if (status === 400) {
+                    const backendMsg = err.response.data?.message || "";
+                    if (backendMsg.includes("exists") || backendMsg.includes("registered")) {
+                        msg = "User already exists. Please login instead.";
+                    } else {
+                        msg = backendMsg || "Invalid details provided.";
+                    }
                 } else {
-                    // Use backend message for validation errors (400, 401, 403)
+                    // Use backend message for validation errors (401, 403)
                     msg = err.response.data?.message || "Invalid request.";
                 }
             } else if (err.request) {

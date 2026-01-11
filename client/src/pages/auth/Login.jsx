@@ -29,12 +29,22 @@ const Login = () => {
                 if (status === 500) {
                     msg = "Server unavailable. Please try again later.";
                 } else if (status === 404) {
-                    // If backend sends specific "User not found", show it. Otherwise call it "Service not found"
-                    msg = err.response.data?.message === "User not found"
-                        ? "User not found"
-                        : "Service not found. Please contact support.";
+                    // Check for "User not found" in a robust way
+                    const backendMsg = err.response.data?.message || "";
+                    if (backendMsg.includes("not found")) {
+                        msg = "User not found. Please check your email.";
+                    } else {
+                        msg = "Service not found. Please contact support.";
+                    }
+                } else if (status === 400) {
+                    const backendMsg = err.response.data?.message || "";
+                    if (backendMsg.includes("exists")) {
+                        msg = "User already exists. Please login instead.";
+                    } else {
+                        msg = backendMsg || "Invalid details provided.";
+                    }
                 } else {
-                    // Use backend message for validation errors (400, 401, 403)
+                    // Use backend message for validation errors (401, 403)
                     msg = err.response.data?.message || "Invalid request.";
                 }
             } else if (err.request) {
