@@ -10,7 +10,7 @@ const LandingPage = () => {
     return (
         <PublicLayout>
             {/* 1️⃣ HERO SECTION */}
-            <section className="relative py-12 lg:py-32 overflow-hidden text-center">
+            <section className="relative py-16 lg:py-32 overflow-hidden text-center">
                 <div className="absolute inset-0 -z-10">
                     <div className="absolute top-0 right-1/4 h-96 w-96 rounded-full bg-brand-500 opacity-10 blur-3xl animate-pulse-slow"></div>
                     <div className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-indigo-500 opacity-10 blur-3xl animate-float"></div>
@@ -70,7 +70,7 @@ const LandingPage = () => {
             </section>
 
             {/* 2️⃣ WHO IS IT FOR? */}
-            <section className="py-16 lg:py-20 bg-white">
+            <section className="py-12 lg:py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
@@ -102,7 +102,7 @@ const LandingPage = () => {
                                 desc: "High-volume print tracking and cost optimization for large teams."
                             }
                         ].map((item, idx) => (
-                            <div key={idx} className="p-8 rounded-2xl bg-white border border-gray-100/80 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                            <div key={idx} className="p-6 lg:p-8 rounded-2xl bg-white border border-gray-100/80 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                                 <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-6 group-hover:bg-brand-500 group-hover:text-white transition-colors">
                                     <div className="group-hover:text-white transition-colors">{item.icon}</div>
                                 </div>
@@ -115,7 +115,7 @@ const LandingPage = () => {
             </section>
 
             {/* 3️⃣ THE PROBLEM */}
-            <section className="py-16 lg:py-20 bg-gray-50">
+            <section className="py-12 lg:py-20 bg-gray-50">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
                     <div className="space-y-6">
                         <span className="text-brand-600 font-bold uppercase tracking-wider text-sm">The Challenge</span>
@@ -137,7 +137,7 @@ const LandingPage = () => {
                         </ul>
                     </div>
                     {/* Abstract Visual for Chaos */}
-                    <div className="relative h-96 bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl shadow-lg border border-red-100 flex items-center justify-center overflow-hidden">
+                    <div className="relative h-64 lg:h-96 bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl shadow-lg border border-red-100 flex items-center justify-center overflow-hidden">
                         <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-10 -translate-y-10">
                             <svg className="w-64 h-64 text-red-300" fill="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
@@ -154,7 +154,7 @@ const LandingPage = () => {
 
 
             {/* 4️⃣ THE SOLUTION */}
-            <section className="py-20 bg-white">
+            <section className="py-12 lg:py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <span className="text-brand-600 font-bold uppercase tracking-wider text-sm">Why PrintPortal?</span>
@@ -181,7 +181,7 @@ const LandingPage = () => {
             </section>
 
             {/* 5️⃣ HOW IT WORKS */}
-            <section className="py-20 bg-brand-900 text-white overflow-hidden relative">
+            <section className="py-16 lg:py-20 bg-brand-900 text-white overflow-hidden relative">
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="text-center mb-16">
@@ -210,7 +210,7 @@ const LandingPage = () => {
             </section>
 
             {/* 6️⃣ FEATURES SECTION */}
-            <section id="features" className="py-20 bg-gray-50">
+            <section id="features" className="py-12 lg:py-20 bg-gray-50">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
                         <span className="text-brand-600 font-bold uppercase tracking-wider text-sm">Features</span>
@@ -262,7 +262,7 @@ const LandingPage = () => {
             </section>
 
             {/* 7️⃣ PRICING */}
-            <section className="py-20 bg-white">
+            <section className="py-12 lg:py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl font-bold text-gray-900">Simple, Transparent Pricing</h2>
@@ -322,7 +322,7 @@ const LandingPage = () => {
             </section>
 
             {/* 8️⃣ TRUST */}
-            <section className="py-16 bg-gray-50 text-center">
+            <section className="py-12 lg:py-16 bg-gray-50 text-center">
                 <div className="max-w-4xl mx-auto px-6">
                     <p className="text-gray-500 font-semibold uppercase tracking-widest mb-8">Trusted by Education Leaders</p>
                     <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale">
@@ -336,7 +336,7 @@ const LandingPage = () => {
             </section>
 
             {/* 9️⃣ FAQ */}
-            <section className="py-20 bg-white">
+            <section className="py-12 lg:py-20 bg-white">
                 <div className="max-w-3xl mx-auto px-6">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
@@ -364,7 +364,7 @@ const LandingPage = () => {
             </section>
 
             {/* 🔟 FINAL CTA */}
-            <section className="py-24 bg-brand-900 text-white text-center relative overflow-hidden">
+            <section className="py-16 lg:py-24 bg-brand-900 text-white text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-800 to-indigo-900 opacity-50"></div>
                 <div className="relative z-10 max-w-4xl mx-auto px-6">
                     <h2 className="text-5xl font-bold mb-6">Ready to Simplify Your Printing?</h2>
