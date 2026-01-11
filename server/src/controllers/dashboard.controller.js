@@ -28,6 +28,9 @@ export const getDashboardStats = async (req, res) => {
 
         // Admin sees all (no extra filter)
 
+        // GLOBAL FLITER: Organization Isolation
+        filter.organization = new mongoose.Types.ObjectId(req.user.organizationId);
+
         // Aggregation for performance
         const results = await PrintRequest.aggregate([
             { $match: filter },

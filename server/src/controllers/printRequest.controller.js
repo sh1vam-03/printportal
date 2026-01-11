@@ -29,6 +29,7 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
 
     const newRequest = await PrintRequest.create({
         teacher: teacherId,
+        organization: req.user.organizationId,
         title,
         fileUrl: `/uploads/${req.file.filename}`,
         fileType: req.file.mimetype,
@@ -77,6 +78,11 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     }
 
     // Authorization Check
+    // 0. Organization Check (Crucial for SaaS)
+    if (request.organization.toString() !== req.user.organizationId) {
+        throw new ApiError(403, "Access denied to this file");
+    }
+
     let canAccess = false;
 
     // Admin and Printing can access all
@@ -198,6 +204,8 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
     }
 
     // Admins see all by default, or can filter if needed (future feature)
+    // ALWAYS filter by organization for data isolation
+    filter.organization = req.user.organizationId;
 
     const requests = await PrintRequest.find(filter)
         .populate("teacher", "name email")
@@ -229,14 +237,22 @@ export const approvePrintRequest = asyncHandler(async (req, res) => {
     const io = getIO();
 
     // Notify Teacher
-    io.emit("notify_teacher", {
+    // Notify Teacher - Targeted
+    // In a real app we might join user-specific rooms "user_ID"
+    // For now, if we emit to Org room, everyone in Org gets it, but frontend filters?
+    // BETTER: Emit to organization room, let frontend decide or backend smarts.
+    // Ideally: io.to(request.teacher.toString()).emit(...) 
+    // BUT we are keeping it simple: Emit to ORG room.
+
+    // Notify EVERYONE in the ORG (Teacher + Admin + Printing)
+    io.to(req.user.organizationId).emit("notify_teacher", {
         type: "APPROVED",
         requestId: request._id,
         message: "Your print request has been approved",
     });
 
-    // Notify Printing Department
-    io.emit("notify_printing", {
+    // Notify Printing Department (Also in the same Org Room)
+    io.to(req.user.organizationId).emit("notify_printing", {
         type: "NEW_JOB",
         requestId: request._id,
         message: "A new print request is ready for processing",
@@ -267,7 +283,7 @@ export const rejectPrintRequest = asyncHandler(async (req, res) => {
     // Notificaton Only Teacher
     const io = getIO();
 
-    io.emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_teacher", {
         type: "REJECTED",
         requestId: request._id,
         message: "Your print request has been rejected",
@@ -312,7 +328,7 @@ export const updatePrintStatus = asyncHandler(async (req, res) => {
 
     const io = getIO();
 
-    io.emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_teacher", {
         type: "STATUS_UPDATE",
         requestId: request._id,
         status: request.status,
@@ -346,7 +362,7 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
     // Notification Only Teacher
     const io = getIO();
 
-    io.emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_teacher", {
         type: "FILE_DOWNLOADED",
         requestId: request._id,
         message: "Your document has been downloaded by the printing department",

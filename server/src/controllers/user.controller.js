@@ -7,9 +7,9 @@ import bcrypt from "bcryptjs";
 export const createUser = asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
 
-    // Restrict strictly to TEACHER creation
-    if (role !== "TEACHER") {
-        throw new ApiError(403, "Admins can only create Teacher accounts.");
+    // Allow creation of TEACHER and PRINTING roles
+    if (!["TEACHER", "PRINTING"].includes(role)) {
+        throw new ApiError(403, "Admins can only create Teacher or Printing accounts.");
     }
 
     const existing = await User.findOne({ email });
@@ -24,7 +24,9 @@ export const createUser = asyncHandler(async (req, res) => {
         email,
         password: hashedPassword,
         role,
+        role,
         isActive: true,
+        organization: req.user.organizationId,
     });
 
     res.status(201).json({
@@ -42,7 +44,10 @@ export const createUser = asyncHandler(async (req, res) => {
 /* ---------------- GET ALL USERS (ADMIN ONLY) ---------------- */
 export const getUsers = asyncHandler(async (req, res) => {
     // Exclude current admin from list to prevent self-deletion issues
-    const users = await User.find({ _id: { $ne: req.user.userId } })
+    const users = await User.find({
+        _id: { $ne: req.user.userId },
+        organization: req.user.organizationId
+    })
         .select("-password")
         .sort({ createdAt: -1 });
 

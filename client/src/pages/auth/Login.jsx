@@ -184,6 +184,15 @@ const Login = () => {
                                 )}
                             </Button>
                         </div>
+
+                        <div className="mt-6 text-center">
+                            <p className="text-gray-500">
+                                Don't have an account?{" "}
+                                <Link to="/signup" className="font-semibold text-brand-600 hover:text-brand-700 transition-colors">
+                                    Get Started Free
+                                </Link>
+                            </p>
+                        </div>
                     </form>
 
                     {/* Mobile Footer Links */}

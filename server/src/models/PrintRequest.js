@@ -8,6 +8,12 @@ const printRequestSchema = new mongoose.Schema(
             required: true,
         },
 
+        organization: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Organization",
+            required: true,
+        },
+
         title: {
             type: String,
             required: true,

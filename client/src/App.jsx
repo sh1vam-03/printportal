@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 
 import Login from "./pages/auth/Login";
+import SignUp from "./pages/auth/SignUp";
 import NotFound from "./pages/NotFound";
 
 import TeacherRoutes from "./pages/teacher";
@@ -36,6 +37,10 @@ const App = () => {
         <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/dashboard" />}
+        />
+        <Route
+          path="/signup"
+          element={!user ? <SignUp /> : <Navigate to="/dashboard" />}
         />
 
         {/* Role-based redirect */}

@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import api from "../services/api";
+import { joinOrg, getSocket } from "../services/socket";
 
 export const AuthContext = createContext();
 
@@ -33,7 +35,19 @@ export const AuthProvider = ({ children }) => {
         if (token && role) {
             const decoded = parseToken(token);
             // Payload uses 'userId' key
-            setUser({ role, name, userId: decoded?.userId || decoded?._id });
+            const userData = {
+                role,
+                name,
+                userId: decoded?.userId || decoded?._id,
+                organizationId: decoded?.organizationId
+            };
+            setUser(userData);
+
+            // Connect socket and join org room
+            getSocket();
+            if (decoded?.organizationId) {
+                joinOrg(decoded.organizationId);
+            }
         }
 
         setLoading(false);
@@ -46,12 +60,40 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("name", res.data.name);
 
         const decoded = parseToken(res.data.token);
-        setUser({ role: res.data.role, name: res.data.name, userId: decoded?.userId || decoded?._id });
+        const userData = {
+            role: res.data.role,
+            name: res.data.name,
+            userId: decoded?.userId || decoded?._id,
+            organizationId: decoded?.organizationId
+        };
+        setUser(userData);
+
+        // Connect socket
+        getSocket();
+        if (decoded?.organizationId) {
+            joinOrg(decoded.organizationId);
+        }
     };
 
     const signup = async (data) => {
-        // Signup is disabled but keeping function for context compatibility
-        throw new Error("Signup disabled");
+        const res = await api.post("/auth/signup-org", data);
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("role", res.data.role);
+        localStorage.setItem("name", res.data.name);
+
+        const decoded = parseToken(res.data.token);
+        const userData = {
+            role: res.data.role,
+            name: res.data.name,
+            userId: decoded?.userId || decoded?._id,
+            organizationId: decoded?.organizationId
+        };
+        setUser(userData);
+
+        getSocket();
+        if (decoded?.organizationId) {
+            joinOrg(decoded.organizationId);
+        }
     };
 
     const logout = () => {

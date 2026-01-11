@@ -29,6 +29,12 @@ export const getSocket = () => {
     return socket;
 };
 
+export const joinOrg = (orgId) => {
+    if (socket && orgId) {
+        socket.emit("join_org", orgId);
+    }
+};
+
 export const disconnectSocket = () => {
     if (socket) {
         socket.disconnect();
