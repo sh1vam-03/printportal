@@ -25,8 +25,8 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // If error is 401 and we haven't tried refreshing yet
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // If error is 401, we haven't tried refreshing yet, and it's NOT a login request
+        if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes("/login")) {
             originalRequest._retry = true;
 
             try {
