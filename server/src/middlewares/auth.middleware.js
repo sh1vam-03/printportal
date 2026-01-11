@@ -3,6 +3,11 @@ import User from "../models/User.js";
 
 export const requireRole = (roles) => {
     return async (req, res, next) => {
+        // Skip auth for OPTIONS (CORS preflight)
+        if (req.method === "OPTIONS") {
+            return next();
+        }
+
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
