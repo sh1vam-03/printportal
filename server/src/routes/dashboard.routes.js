@@ -4,6 +4,6 @@ import * as dashboardController from "../controllers/dashboard.controller.js";
 
 const router = express.Router();
 
-router.get("/stats", requireRole(["ADMIN", "TEACHER", "PRINTING"]), dashboardController.getDashboardStats);
+router.get("/stats", requireRole(["ADMIN", "EMPLOYEE", "PRINTING"]), dashboardController.getDashboardStats);
 
 export default router;
