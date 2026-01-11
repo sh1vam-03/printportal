@@ -8,7 +8,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 /* ---------------- REGISTER ORGANIZATION (NEW SAAS FLOW) ---------------- */
 export const signupOrganization = asyncHandler(async (req, res) => {
-    const { orgName, adminName, email, password } = req.body;
+    const { orgName, adminName, email, password, subscriptionPlan } = req.body;
 
     // 1. Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -20,6 +20,7 @@ export const signupOrganization = asyncHandler(async (req, res) => {
     const organization = await Organization.create({
         name: orgName,
         adminEmail: email,
+        subscriptionPlan: subscriptionPlan || "STARTER"
     });
 
     // 3. Create Admin User linked to Organization

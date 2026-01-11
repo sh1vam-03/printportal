@@ -19,8 +19,8 @@ const organizationSchema = new mongoose.Schema(
         },
         subscriptionPlan: {
             type: String,
-            enum: ["FREE", "PRO", "ENTERPRISE"],
-            default: "FREE",
+            enum: ["STARTER", "PROFESSIONAL", "ENTERPRISE"],
+            default: "STARTER",
         },
         isActive: {
             type: Boolean,

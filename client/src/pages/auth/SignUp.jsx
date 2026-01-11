@@ -1,13 +1,22 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Button from "../../components/ui/Button";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import AuthLayout from "../../components/layout/AuthLayout";
 
 const SignUp = () => {
     const { signup } = useContext(AuthContext);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [searchParams] = useSearchParams();
+    const [selectedPlan, setSelectedPlan] = useState("STARTER");
+
+    useEffect(() => {
+        const planParam = searchParams.get("plan");
+        if (planParam === "STARTER" || planParam === "PROFESSIONAL") {
+            setSelectedPlan(planParam);
+        }
+    }, [searchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -110,6 +119,25 @@ const SignUp = () => {
                         className="w-full rounded-xl border-gray-200 bg-gray-50/30 px-4 py-3.5 text-base shadow-sm ring-1 ring-transparent transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 hover:bg-gray-50"
                         required
                     />
+                </div>
+
+                <div className="space-y-2 group">
+                    <label className="block text-sm font-medium text-gray-700 ml-1">Subscription Plan</label>
+                    <div className="relative">
+                        <select
+                            name="subscriptionPlan"
+                            value={selectedPlan}
+                            onChange={(e) => setSelectedPlan(e.target.value)}
+                            className="w-full rounded-xl border-gray-200 bg-gray-50/30 px-4 py-3.5 text-base shadow-sm ring-1 ring-transparent transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 hover:bg-gray-50 appearance-none"
+                            required
+                        >
+                            <option value="STARTER">Starter (Free - 20 Employees)</option>
+                            <option value="PROFESSIONAL">Professional (Free - 100 Employees)</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="pt-2">

@@ -20,7 +20,7 @@ export const createUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Organization not found");
     }
 
-    const plan = organization.subscriptionPlan; // FREE, PRO, ENTERPRISE (Assumed 'STARTER' logic applies to 'FREE')
+    const plan = organization.subscriptionPlan; // STARTER, PROFESSIONAL, ENTERPRISE
 
     // 2. Define Limits
     let limits = {
@@ -28,10 +28,10 @@ export const createUser = asyncHandler(async (req, res) => {
         PRINTING: Infinity
     };
 
-    if (plan === "FREE") {
-        // "Starter Plan" limits as per user request
+    if (plan === "STARTER") {
+        // "Starter Plan" limits
         limits = { EMPLOYEE: 20, PRINTING: 1 };
-    } else if (plan === "PRO") {
+    } else if (plan === "PROFESSIONAL") {
         // "Professional Plan" limits
         limits = { EMPLOYEE: 100, PRINTING: 1 };
     }
@@ -44,7 +44,7 @@ export const createUser = asyncHandler(async (req, res) => {
     });
 
     if (currentCount >= limits[role]) {
-        throw new ApiError(403, `${plan} plan limit reached. You can only add ${limits[role]} ${role.toLowerCase()}(s). Upgrade your plan for more.`);
+        throw new ApiError(403, `Your ${plan} Plan allows only ${limits[role]} ${role === 'PRINTING' ? 'Printing Staff' : 'Employees'}. Please upgrade your plan to add more.`);
     }
 
     const existing = await User.findOne({ email });
