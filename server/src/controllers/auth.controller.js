@@ -1,4 +1,5 @@
 import { generateToken } from "../utils/jwt.js";
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import Organization from "../models/Organization.js";
 import RefreshToken from "../models/RefreshToken.js";
