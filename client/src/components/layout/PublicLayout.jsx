@@ -50,10 +50,10 @@ const PublicLayout = ({ children }) => {
                         ))}
                         <div className="w-px h-6 bg-gray-200 mx-2"></div>
                         <button
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/login')}
                             className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-lg shadow-gray-900/10 hover:shadow-gray-900/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                         >
-                            Return to App
+                            Login
                         </button>
                     </nav>
 
@@ -94,10 +94,10 @@ const PublicLayout = ({ children }) => {
                                 ))}
                                 <div className="h-px bg-gray-100 my-1"></div>
                                 <button
-                                    onClick={() => navigate('/')}
+                                    onClick={() => navigate('/login')}
                                     className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-gray-900 shadow-md hover:bg-gray-800"
                                 >
-                                    Return to App
+                                    Login
                                 </button>
                             </div>
                         )}
