@@ -275,7 +275,8 @@ const LandingPage = () => {
                             <h3 className="text-xl font-bold text-gray-900">Starter</h3>
                             <p className="text-gray-500 text-sm mt-1">Small schools / Teams</p>
                             <div className="my-6">
-                                <span className="text-4xl font-bold">$49</span><span className="text-gray-400">/mo</span>
+                                <span className="text-4xl font-bold text-gray-400 line-through">$49</span>
+                                <span className="text-4xl font-bold text-brand-600 block">FREE</span>
                             </div>
                             <Button className="w-full mb-6" variant="secondary">Request Quote</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
@@ -290,7 +291,8 @@ const LandingPage = () => {
                             <h3 className="text-xl font-bold text-gray-900">Professional</h3>
                             <p className="text-gray-500 text-sm mt-1">Colleges / Companies</p>
                             <div className="my-6">
-                                <span className="text-4xl font-bold">$199</span><span className="text-gray-400">/mo</span>
+                                <span className="text-4xl font-bold text-gray-400 line-through">$199</span>
+                                <span className="text-4xl font-bold text-brand-600 block">FREE</span>
                             </div>
                             <Button className="w-full mb-6 shadow-lg shadow-brand-500/20">Get Started</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
@@ -307,7 +309,7 @@ const LandingPage = () => {
                             <div className="my-6">
                                 <span className="text-4xl font-bold">Custom</span>
                             </div>
-                            <Button className="w-full mb-6" variant="secondary">Contact Sales</Button>
+                            <Button className="w-full mb-6" variant="secondary" onClick={() => navigate("/contact-sales")}>Contact Sales</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Unlimited Users</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Dedicated Manager</li>
@@ -376,6 +378,7 @@ const LandingPage = () => {
                         </Button>
                         <Button
                             variant="text"
+                            onClick={() => navigate("/contact-sales")}
                             className="px-8 py-4 text-lg font-bold text-white border border-white/20 hover:bg-white/10"
                         >
                             Contact Sales

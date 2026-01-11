@@ -10,6 +10,7 @@ import EmployeeRoutes from "./pages/employee";
 import AdminRoutes from "./pages/admin";
 import PrintingRoutes from "./pages/printing";
 import HelpCenter from "./pages/public/HelpCenter";
+import ContactSales from "./pages/public/ContactSales";
 import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
 import LandingPage from "./pages/public/LandingPage";
@@ -66,6 +67,7 @@ const App = () => {
 
         {/* Public Pages */}
         <Route path="/help" element={<HelpCenter />} />
+        <Route path="/contact-sales" element={<ContactSales />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
 
