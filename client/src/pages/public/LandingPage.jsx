@@ -17,8 +17,9 @@ const LandingPage = () => {
                 </div>
 
                 <div className="max-w-4xl mx-auto px-6 space-y-8 animate-fade-in">
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-4 border border-brand-100 shadow-sm">
-                        🚀 Trusted by 500+ Schools & Colleges
+                    <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-4 border border-brand-100 shadow-sm">
+                        <svg className="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                        Trusted by 500+ Schools & Colleges
                     </span>
                     <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight leading-tight">
                         Smart Print Management <br />
@@ -74,25 +75,39 @@ const LandingPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
                             {
-                                icon: "🏫",
+                                icon: (
+                                    <svg className="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                ),
                                 title: "Schools & Colleges",
                                 desc: "For effortless assignment submissions and exam paper management."
                             },
                             {
-                                icon: "🏢",
+                                icon: (
+                                    <svg className="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                ),
                                 title: "Companies & Firms",
                                 desc: "Secure document handling with approval workflows for sensitive data."
                             },
                             {
-                                icon: "🏭",
+                                icon: (
+                                    <svg className="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                ),
                                 title: "Industries & Offices",
                                 desc: "High-volume print tracking and cost optimization for large teams."
                             }
                         ].map((item, idx) => (
-                            <div key={idx} className="p-8 rounded-2xl bg-gray-50 border border-gray-100 text-center hover:shadow-lg transition-shadow">
-                                <div className="text-4xl mb-4">{item.icon}</div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                                <p className="text-gray-600">{item.desc}</p>
+                            <div key={idx} className="p-8 rounded-2xl bg-white border border-gray-100/80 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                                <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-6 group-hover:bg-brand-500 group-hover:text-white transition-colors">
+                                    <div className="group-hover:text-white transition-colors">{item.icon}</div>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                                <p className="text-gray-500 leading-relaxed font-medium text-sm">{item.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -122,11 +137,16 @@ const LandingPage = () => {
                         </ul>
                     </div>
                     {/* Abstract Visual for Chaos */}
-                    <div className="relative h-80 bg-white rounded-3xl shadow-xl border border-gray-100 flex items-center justify-center overflow-hidden">
-                        <div className="absolute inset-0 bg-red-50/50"></div>
-                        <div className="text-center p-8 relative z-10">
-                            <div className="text-6xl mb-4 animate-bounce">😫</div>
-                            <h3 className="text-2xl font-bold text-gray-400">Chaos & Confusion</h3>
+                    <div className="relative h-96 bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl shadow-lg border border-red-100 flex items-center justify-center overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-10 -translate-y-10">
+                            <svg className="w-64 h-64 text-red-300" fill="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div className="text-center p-10 relative z-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-red-100 max-w-xs">
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Chaos & Confusion</h3>
+                            <p className="text-gray-500 text-sm">Lost files, unapproved prints, and wasted resources.</p>
                         </div>
                     </div>
                 </div>
@@ -143,15 +163,17 @@ const LandingPage = () => {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
-                            { title: "Role-Based Access", desc: "Admin controls users, permissions, and approvals securely.", icon: "🔐" },
-                            { title: "Centralized Requests", desc: "Users submit digital requests easily from anywhere.", icon: "📄" },
-                            { title: "Print Dept. Panel", desc: "Dedicated interface to track, process, and complete jobs.", icon: "🖨️" },
-                            { title: "Audit Trails", desc: "Every single print request is logged and trackable.", icon: "📊" },
+                            { title: "Role-Based Access", desc: "Admin controls users, permissions, and approvals securely.", icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg> },
+                            { title: "Centralized Requests", desc: "Users submit digital requests easily from anywhere.", icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> },
+                            { title: "Print Dept. Panel", desc: "Dedicated interface to track, process, and complete jobs.", icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg> },
+                            { title: "Audit Trails", desc: "Every single print request is logged and trackable.", icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg> },
                         ].map((card, i) => (
-                            <Card key={i} className="group hover:-translate-y-1 transition-transform duration-300 border-none shadow-md hover:shadow-xl bg-gray-50">
-                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{card.icon}</div>
+                            <Card key={i} className="group hover:-translate-y-1 transition-all duration-300 border border-gray-100 shadow-sm hover:shadow-xl bg-white p-6">
+                                <div className="w-12 h-12 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 mb-6 group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
+                                    {card.icon}
+                                </div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">{card.title}</h3>
-                                <p className="text-sm text-gray-600 leading-relaxed">{card.desc}</p>
+                                <p className="text-sm text-gray-600 leading-relaxed font-medium">{card.desc}</p>
                             </Card>
                         ))}
                     </div>
@@ -203,10 +225,10 @@ const LandingPage = () => {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-4">For Admins</h3>
                             <ul className="space-y-3 text-gray-600">
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> User & Role Management</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Approval Workflows</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Usage Reporting</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Security Controls</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> User & Role Management</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Approval Workflows</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Usage Reporting</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Security Controls</li>
                             </ul>
                         </div>
                         {/* Users */}
@@ -214,12 +236,12 @@ const LandingPage = () => {
                             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-6">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-4">For Teachers</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">For Employees</h3>
                             <ul className="space-y-3 text-gray-600">
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> 1-Click Request Submission</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Real-time Status Tracking</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Request History</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Mobile-Friendly Interface</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> 1-Click Request Submission</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Real-time Status Tracking</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Request History</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Mobile-Friendly Interface</li>
                             </ul>
                         </div>
                         {/* Print Dept */}
@@ -229,10 +251,10 @@ const LandingPage = () => {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-4">For Print Dept.</h3>
                             <ul className="space-y-3 text-gray-600">
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Job Queue Management</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Priority Handling</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> One-Click Status Updates</li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span> File Preview before Printing</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Job Queue Management</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Priority Handling</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> One-Click Status Updates</li>
+                                <li className="flex items-center gap-2"><svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> File Preview before Printing</li>
                             </ul>
                         </div>
                     </div>
@@ -257,9 +279,9 @@ const LandingPage = () => {
                             </div>
                             <Button className="w-full mb-6" variant="secondary">Request Quote</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
-                                <li className="flex items-center gap-2">✓ Up to 100 Users</li>
-                                <li className="flex items-center gap-2">✓ Basic Reporting</li>
-                                <li className="flex items-center gap-2">✓ Email Support</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Up to 100 Users</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Basic Reporting</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Email Support</li>
                             </ul>
                         </div>
                         {/* Pro */}
@@ -272,10 +294,10 @@ const LandingPage = () => {
                             </div>
                             <Button className="w-full mb-6 shadow-lg shadow-brand-500/20">Get Started</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
-                                <li className="flex items-center gap-2">✓ Up to 1,000 Users</li>
-                                <li className="flex items-center gap-2">✓ Advanced Analytics</li>
-                                <li className="flex items-center gap-2">✓ Priority Support</li>
-                                <li className="flex items-center gap-2">✓ Custom Branding</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Up to 1,000 Users</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Advanced Analytics</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Priority Support</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Custom Branding</li>
                             </ul>
                         </div>
                         {/* Enterprise */}
@@ -287,10 +309,10 @@ const LandingPage = () => {
                             </div>
                             <Button className="w-full mb-6" variant="secondary">Contact Sales</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
-                                <li className="flex items-center gap-2">✓ Unlimited Users</li>
-                                <li className="flex items-center gap-2">✓ Dedicated Manager</li>
-                                <li className="flex items-center gap-2">✓ On-Premise Option</li>
-                                <li className="flex items-center gap-2">✓ SLA 99.9%</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Unlimited Users</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Dedicated Manager</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> On-Premise Option</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> SLA 99.9%</li>
                             </ul>
                         </div>
                     </div>
