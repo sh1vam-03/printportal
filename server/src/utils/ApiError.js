@@ -1,3 +1,4 @@
+// Api Error Handler
 export class ApiError extends Error {
     constructor(statusCode, message) {
         super(message);
