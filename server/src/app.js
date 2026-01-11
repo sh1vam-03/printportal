@@ -20,7 +20,15 @@ app.get("/", (req, res) => {
     });
 });
 
-/* ---------------- Routes (will add later) ---------------- */
+/* ---------------- Routes ---------------- */
 app.use("/api", indexRoutes);
+
+// Global 404 Handler for unmatched routes
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route not found: ${req.method} ${req.originalUrl}`
+    });
+});
 
 export default app;

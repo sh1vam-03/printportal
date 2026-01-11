@@ -8,6 +8,8 @@ export const requireRole = (roles) => {
             return next();
         }
 
+        console.log(`Auth Middleware: ${req.method} ${req.originalUrl}`);
+
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
