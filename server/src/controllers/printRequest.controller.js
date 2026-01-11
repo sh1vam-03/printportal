@@ -4,12 +4,12 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 
 /* ----------------------------------------
-   CREATE PRINT REQUEST (Teacher)
+   CREATE PRINT REQUEST (Employee)
 ----------------------------------------- */
 export const createPrintRequest = asyncHandler(async (req, res) => {
 
     const {
-        teacherId,
+        // teacherId removed, using req.user.userId
         title,
         copies,
         printType,
@@ -28,7 +28,7 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
 
 
     const newRequest = await PrintRequest.create({
-        teacher: teacherId,
+        teacher: req.user.userId,
         organization: req.user.organizationId,
         title,
         fileUrl: `/uploads/${req.file.filename}`,
@@ -89,8 +89,8 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     if (role === "ADMIN" || role === "PRINTING") {
         canAccess = true;
     }
-    // Teacher can only access their own
-    else if (role === "TEACHER" && request.teacher.toString() === userId) {
+    // Employee can only access their own
+    else if (role === "EMPLOYEE" && request.teacher.toString() === userId) {
         canAccess = true;
     }
 
@@ -145,7 +145,7 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
     // Authorization Check with Status Rules
     let canDelete = false;
 
-    if (role === "TEACHER" && request.teacher.toString() === userId) {
+    if (role === "EMPLOYEE" && request.teacher.toString() === userId) {
         // Teacher can delete: PENDING, REJECTED, COMPLETED
         // Teacher CANNOT delete: APPROVED, IN_PROGRESS (Printing dept needs it)
         if (["PENDING", "REJECTED", "COMPLETED"].includes(request.status)) {
@@ -195,7 +195,7 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
 
     let filter = {};
 
-    if (role === "TEACHER") {
+    if (role === "EMPLOYEE") {
         filter.teacher = userId;
     }
 
@@ -245,7 +245,7 @@ export const approvePrintRequest = asyncHandler(async (req, res) => {
     // BUT we are keeping it simple: Emit to ORG room.
 
     // Notify EVERYONE in the ORG (Teacher + Admin + Printing)
-    io.to(req.user.organizationId).emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_employee", {
         type: "APPROVED",
         requestId: request._id,
         message: "Your print request has been approved",
@@ -283,7 +283,7 @@ export const rejectPrintRequest = asyncHandler(async (req, res) => {
     // Notificaton Only Teacher
     const io = getIO();
 
-    io.to(req.user.organizationId).emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_employee", {
         type: "REJECTED",
         requestId: request._id,
         message: "Your print request has been rejected",
@@ -328,7 +328,7 @@ export const updatePrintStatus = asyncHandler(async (req, res) => {
 
     const io = getIO();
 
-    io.to(req.user.organizationId).emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_employee", {
         type: "STATUS_UPDATE",
         requestId: request._id,
         status: request.status,
@@ -362,7 +362,7 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
     // Notification Only Teacher
     const io = getIO();
 
-    io.to(req.user.organizationId).emit("notify_teacher", {
+    io.to(req.user.organizationId).emit("notify_employee", {
         type: "FILE_DOWNLOADED",
         requestId: request._id,
         message: "Your document has been downloaded by the printing department",

@@ -11,7 +11,7 @@ const FilePreviewModal = ({
     originalName,
     requestData, // Full request object for details
     onAction, // { approve, reject, delete, start, complete }
-    userRole, // "ADMIN", "TEACHER", "PRINTING"
+    userRole, // "ADMIN", "EMPLOYEE", "PRINTING"
     onNext = null,
     onPrev = null,
 }) => {
@@ -170,7 +170,7 @@ const FilePreviewModal = ({
                 </div>
 
                 {/* RIGHT: Details & Actions Panel */}
-                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.02)] z-10 h-[45vh] lg:h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
+                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 z-10 h-[45vh] lg:h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100 relative">
                         {/* Desktop Close Button */}
@@ -327,7 +327,7 @@ const FilePreviewModal = ({
                         )}
 
                         {/* Dangerous Actions */}
-                        {((userRole === "TEACHER" && ["PENDING", "REJECTED", "COMPLETED"].includes(requestData?.status)) || (userRole === "ADMIN" && requestData?.status !== "PENDING")) && (
+                        {((userRole === "EMPLOYEE" && ["PENDING", "REJECTED", "COMPLETED"].includes(requestData?.status)) || (userRole === "ADMIN" && requestData?.status !== "PENDING")) && (
                             <button
                                 onClick={() => { onAction.delete(requestData._id); onClose(); }}
                                 className="w-full flex items-center justify-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-semibold uppercase tracking-wide transition-colors mt-2"

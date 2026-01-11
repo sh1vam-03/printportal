@@ -39,7 +39,7 @@ const MyRequests = () => {
                     </Button>
                 }
             >
-                <RequestTable role="TEACHER" key={refreshKey} />
+                <RequestTable role="EMPLOYEE" key={refreshKey} />
             </Card>
 
             <Modal

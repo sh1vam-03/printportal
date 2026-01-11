@@ -8,32 +8,32 @@ import MyRequests from "./MyRequests";
 import DashboardAnalytics from "../common/DashboardAnalytics";
 import NotFound from "../NotFound";
 
-const TeacherRoutes = () => {
+const EmployeeRoutes = () => {
     const { showToast } = useContext(ToastContext);
 
     useEffect(() => {
         const socket = getSocket();
 
         const handleNotification = (data) => {
-            // Teacher needs to know about: APPROVED, REJECTED, FILE_DOWNLOADED, STATUS_UPDATE
+            // Employee needs to know about: APPROVED, REJECTED, FILE_DOWNLOADED, STATUS_UPDATE
             showToast(data.message, "info");
         };
 
-        socket.on("notify_teacher", handleNotification);
+        socket.on("notify_employee", handleNotification);
 
         return () => {
-            socket.off("notify_teacher", handleNotification);
+            socket.off("notify_employee", handleNotification);
         };
     }, [showToast]);
 
     return (
-        <ProtectedRoutes allowedRoles={["TEACHER"]}>
+        <ProtectedRoutes allowedRoles={["EMPLOYEE"]}>
             <Layout>
                 <Routes>
                     <Route index element={<DashboardAnalytics />} />
                     <Route path="printing-management" element={<MyRequests />} />
                     {/* <Route path="create" element={<CreatePrintRequest />} /> */}
-                    <Route path="my-requests" element={<Navigate to="/teacher/printing-management" replace />} />
+                    <Route path="my-requests" element={<Navigate to="/employee/printing-management" replace />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </Layout>
@@ -41,4 +41,4 @@ const TeacherRoutes = () => {
     );
 };
 
-export default TeacherRoutes;
+export default EmployeeRoutes;

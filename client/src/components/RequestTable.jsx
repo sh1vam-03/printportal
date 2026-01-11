@@ -21,7 +21,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
             // If fetchQueryRole is provided (even empty string), use it. Otherwise use the 'role' prop.
             const queryRole = fetchQueryRole !== undefined ? fetchQueryRole : role;
 
-            // Controller expects userId in query for TEACHER filtering
+            // Controller expects userId in query for EMPLOYEE filtering
             const userIdParam = user?.userId ? `&userId=${user.userId}` : "";
             const res = await api.get(`/print-requests?role=${queryRole}${userIdParam}`);
 

@@ -6,7 +6,7 @@ import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import NotFound from "./pages/NotFound";
 
-import TeacherRoutes from "./pages/teacher";
+import EmployeeRoutes from "./pages/employee";
 import AdminRoutes from "./pages/admin";
 import PrintingRoutes from "./pages/printing";
 import HelpCenter from "./pages/public/HelpCenter";
@@ -47,8 +47,8 @@ const App = () => {
         <Route
           path="/dashboard"
           element={
-            user?.role === "TEACHER" ? (
-              <Navigate to="/teacher" />
+            user?.role === "EMPLOYEE" ? (
+              <Navigate to="/employee" />
             ) : user?.role === "ADMIN" ? (
               <Navigate to="/admin" />
             ) : user?.role === "PRINTING" ? (
@@ -60,7 +60,7 @@ const App = () => {
         />
 
         {/* Dashboards */}
-        <Route path="/teacher/*" element={<TeacherRoutes />} />
+        <Route path="/employee/*" element={<EmployeeRoutes />} />
         <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/printing/*" element={<PrintingRoutes />} />
 

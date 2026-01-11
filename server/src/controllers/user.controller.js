@@ -7,9 +7,9 @@ import bcrypt from "bcryptjs";
 export const createUser = asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
 
-    // Allow creation of TEACHER and PRINTING roles
-    if (!["TEACHER", "PRINTING"].includes(role)) {
-        throw new ApiError(403, "Admins can only create Teacher or Printing accounts.");
+    // Allow creation of EMPLOYEE and PRINTING roles
+    if (!["EMPLOYEE", "PRINTING"].includes(role)) {
+        throw new ApiError(403, "Admins can only create Employee or Printing accounts.");
     }
 
     const existing = await User.findOne({ email });

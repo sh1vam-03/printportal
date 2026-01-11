@@ -6,7 +6,7 @@ import AuthLayout from "../../components/layout/AuthLayout";
 
 const Login = () => {
     const { login } = useContext(AuthContext);
-    const [role, setRole] = useState("TEACHER");
+    const [role, setRole] = useState("EMPLOYEE");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -118,7 +118,7 @@ const Login = () => {
                             onChange={(e) => setRole(e.target.value)}
                             className="w-full appearance-none rounded-xl border-gray-200 bg-gray-50/30 pl-12 pr-10 py-3.5 text-base shadow-sm ring-1 ring-transparent transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 hover:bg-gray-50 cursor-pointer"
                         >
-                            <option value="TEACHER">Teacher</option>
+                            <option value="EMPLOYEE">Employee</option>
                             <option value="ADMIN">Administrator</option>
                             <option value="PRINTING">Printing Staff</option>
                         </select>

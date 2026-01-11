@@ -17,7 +17,7 @@ const UserManagement = () => {
         name: "",
         email: "",
         password: "",
-        role: "TEACHER",
+        role: "EMPLOYEE",
     });
 
     const fetchUsers = async () => {
@@ -42,7 +42,7 @@ const UserManagement = () => {
             await api.post("/users", newUser);
             showToast("User account created successfully", "success");
             setIsCreateModalOpen(false);
-            setNewUser({ name: "", email: "", password: "", role: "TEACHER" });
+            setNewUser({ name: "", email: "", password: "", role: "EMPLOYEE" });
             fetchUsers();
         } catch (err) {
             showToast(err.response?.data?.message || "Failed to create user", "error");
@@ -73,14 +73,14 @@ const UserManagement = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900">User Management</h2>
-                    <p className="text-sm text-gray-500 mt-1">Manage system access and teacher accounts</p>
+                    <p className="text-sm text-gray-500 mt-1">Manage system access and employee accounts</p>
                 </div>
 
                 <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2 shadow-lg shadow-brand-500/20">
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    Add Teacher
+                    Add User
                 </Button>
             </div>
 
@@ -100,11 +100,11 @@ const UserManagement = () => {
                             </div>
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${user.role === 'ADMIN'
                                 ? 'bg-purple-50 text-purple-700 border-purple-100'
-                                : user.role === 'TEACHER'
+                                : user.role === 'EMPLOYEE'
                                     ? 'bg-blue-50 text-blue-700 border-blue-100'
                                     : 'bg-orange-50 text-orange-700 border-orange-100'
                                 }`}>
-                                <span className={`h-1.5 w-1.5 rounded-full ${user.role === 'ADMIN' ? 'bg-purple-400' : user.role === 'TEACHER' ? 'bg-blue-400' : 'bg-orange-400'
+                                <span className={`h-1.5 w-1.5 rounded-full ${user.role === 'ADMIN' ? 'bg-purple-400' : user.role === 'EMPLOYEE' ? 'bg-blue-400' : 'bg-orange-400'
                                     }`}></span>
                                 {user.role}
                             </span>
@@ -193,7 +193,7 @@ const UserManagement = () => {
                                                     ? 'bg-blue-50 text-blue-700 border-blue-100'
                                                     : 'bg-orange-50 text-orange-700 border-orange-100'
                                                 }`}>
-                                                <span className={`h-1.5 w-1.5 rounded-full ${user.role === 'ADMIN' ? 'bg-purple-400' : user.role === 'TEACHER' ? 'bg-blue-400' : 'bg-orange-400'
+                                                <span className={`h-1.5 w-1.5 rounded-full ${user.role === 'ADMIN' ? 'bg-purple-400' : user.role === 'EMPLOYEE' ? 'bg-blue-400' : 'bg-orange-400'
                                                     }`}></span>
                                                 {user.role}
                                             </span>
@@ -250,12 +250,12 @@ const UserManagement = () => {
             <Modal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
-                title="Add New Teacher"
+                title="Add New User"
                 maxWidth="max-w-md"
             >
                 <form onSubmit={handleCreateUser} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Teacher Name</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Employee Name</label>
                         <input
                             type="text"
                             required
