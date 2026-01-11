@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (data) => {
         const res = await api.post("/auth/login", data);
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("refreshToken", res.data.refreshToken); // Store Refresh Token
         localStorage.setItem("role", res.data.role);
         localStorage.setItem("name", res.data.name);
 
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (data) => {
         const res = await api.post("/auth/signup-org", data);
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("refreshToken", res.data.refreshToken); // Store Refresh Token
         localStorage.setItem("role", res.data.role);
         localStorage.setItem("name", res.data.name);
 
@@ -96,9 +98,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
-        localStorage.clear();
-        setUser(null);
+    const logout = async () => {
+        try {
+            const refreshToken = localStorage.getItem("refreshToken");
+            if (refreshToken) {
+                await api.post("/auth/logout", { refreshToken });
+            }
+        } catch (err) {
+            console.error("Logout failed", err);
+        } finally {
+            localStorage.clear();
+            setUser(null);
+        }
     };
 
     return (

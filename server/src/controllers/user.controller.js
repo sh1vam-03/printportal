@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import bcrypt from "bcryptjs";
+import RefreshToken from "../models/RefreshToken.js";
 
 import Organization from "../models/Organization.js";
 
@@ -136,8 +137,11 @@ export const terminateSession = asyncHandler(async (req, res) => {
     user.tokenVersion += 1;
     await user.save();
 
-    res.json({
+    // 2. Revoke all refresh tokens
+    await RefreshToken.deleteMany({ user: id });
+
+    res.status(200).json({
         success: true,
-        message: "User session terminated successfully. Verification required on next request.",
+        message: "User session terminated and tokens revoked successfully",
     });
 });

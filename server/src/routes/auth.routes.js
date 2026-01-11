@@ -8,5 +8,7 @@ router.post("/signup-org", authController.signupOrganization);
 
 // Login for all roles
 router.post("/login", authController.login);
+router.post("/refresh-token", authController.refreshToken);
+router.post("/logout", authController.logout);
 
 export default router;
