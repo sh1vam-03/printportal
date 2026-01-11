@@ -37,8 +37,17 @@ const FilePreviewModal = ({
         if (mimeType === "text/plain") return "Text File";
 
         // Fallback to extension
-        const ext = url?.split('.').pop()?.toUpperCase();
-        if (ext) return `${ext} File`;
+        if (url) {
+            const parts = url.split('.');
+            // Ensure we actually have an extension (more than 1 part) and it's not a path
+            if (parts.length > 1) {
+                const ext = parts.pop()?.toUpperCase();
+                // Basic validation for extension (length < 6, no slashes)
+                if (ext && ext.length < 6 && !ext.includes('/')) {
+                    return `${ext} File`;
+                }
+            }
+        }
         return "Unknown Type";
     };
 
