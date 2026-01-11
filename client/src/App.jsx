@@ -11,6 +11,7 @@ import PrintingRoutes from "./pages/printing";
 import HelpCenter from "./pages/public/HelpCenter";
 import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
+import LandingPage from "./pages/public/LandingPage";
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
@@ -27,9 +28,13 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home / Auth */}
+
+        {/* Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Auth */}
         <Route
-          path="/"
+          path="/login"
           element={!user ? <Login /> : <Navigate to="/dashboard" />}
         />
 
