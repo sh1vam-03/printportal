@@ -95,7 +95,7 @@ const PublicLayout = ({ children }) => {
                                 <div className="h-px bg-gray-100 my-1"></div>
                                 <button
                                     onClick={() => navigate('/login')}
-                                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-gray-900 shadow-md hover:bg-gray-800"
+                                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-tr from-brand-600 to-indigo-600 hover:bg-brand-700 hover:to-indigo-700"
                                 >
                                     Login
                                 </button>

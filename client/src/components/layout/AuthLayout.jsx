@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const AuthLayout = ({ title, subtitle, children }) => {
+    const navigate = useNavigate();
     return (
         <div className="flex min-h-screen w-full bg-gray-50 font-sans">
             {/* Left Side - Hero & Brand */}
@@ -10,7 +11,7 @@ const AuthLayout = ({ title, subtitle, children }) => {
                 <div className="absolute bottom-0 left-0 -m-20 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl animate-float"></div>
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-900/90 to-brand-950/90 backdrop-blur-sm z-0"></div>
 
-                <div className="relative z-10">
+                <div className="relative z-10" onClick={() => navigate('/')}>
                     <div className="flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md shadow-glow ring-1 ring-white/20">
                             <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
