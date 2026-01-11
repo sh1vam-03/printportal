@@ -120,11 +120,11 @@ const FilePreviewModal = ({
             hideHeader={true}
         >
             <div
-                className="flex flex-col lg:flex-row h-[100dvh] lg:h-[700px] w-full bg-white lg:rounded-2xl overflow-hidden"
+                className="flex flex-col lg:flex-row h-[100dvh] lg:h-[700px] w-full bg-white lg:rounded-2xl overflow-y-auto lg:overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* LEFT: File Preview Area */}
-                <div className="flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 pt-14 lg:pt-0">
+                <div className="min-h-[40vh] lg:h-auto lg:flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 pt-14 lg:pt-0 shrink-0">
                     {loading && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
                             <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-brand-200 border-t-brand-600"></div>
@@ -133,8 +133,8 @@ const FilePreviewModal = ({
                     )}
 
                     {/* Mobile Header (Close Button Only) */}
-                    <div className="lg:hidden flex items-center justify-end px-4 py-3 bg-transparent absolute top-0 right-0 z-30 w-full bg-gradient-to-b from-black/10 to-transparent">
-                        <button onClick={onClose} className="p-2 text-white hover:text-gray-200 bg-black/20 backdrop-blur-md rounded-full shadow-sm transition-all active:scale-95">
+                    <div className="lg:hidden flex items-center justify-end px-4 py-3 bg-transparent absolute top-0 right-0 z-30 w-full pointer-events-none">
+                        <button onClick={onClose} className="pointer-events-auto p-2 text-white hover:text-gray-200 bg-black/20 backdrop-blur-md rounded-full shadow-sm transition-all active:scale-95">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
@@ -149,13 +149,13 @@ const FilePreviewModal = ({
                     )}
 
                     {!loading && !error && blobUrl && (
-                        <div className="w-full h-full overflow-auto flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
+                        <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
                             {fileType === "application/pdf" ? (
-                                <iframe src={blobUrl} className="w-full h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
+                                <iframe src={blobUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
                             ) : fileType?.startsWith("image/") ? (
-                                <img src={blobUrl} alt="Preview" className="max-w-full max-h-full object-contain shadow-xl rounded-lg" />
+                                <img src={blobUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
                             ) : fileType === "text/plain" ? (
-                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-full overflow-auto text-gray-800 bg-white rounded-lg shadow-sm">{textContent}</pre>
+                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent}</pre>
                             ) : (
                                 <div className="text-gray-400 flex flex-col items-center p-6 text-center">
                                     <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -183,7 +183,7 @@ const FilePreviewModal = ({
                 </div>
 
                 {/* RIGHT: Details & Actions Panel */}
-                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 z-10 h-[45vh] lg:h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
+                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 z-10 h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100 relative">
                         {/* Desktop Close Button */}
@@ -220,7 +220,7 @@ const FilePreviewModal = ({
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div className="p-6 space-y-6 lg:overflow-y-auto lg:flex-1">
 
 
 
