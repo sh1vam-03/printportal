@@ -32,7 +32,7 @@ const LandingPage = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                         <Button
-                            onClick={() => navigate("/login")}
+                            onClick={() => navigate("/register")}
                             className="px-8 py-4 text-lg font-bold shadow-xl shadow-brand-500/20 bg-gradient-to-r from-brand-600 to-indigo-600 hover:scale-105 transition-transform"
                         >
                             Get Started Now
@@ -278,7 +278,7 @@ const LandingPage = () => {
                                 <span className="text-4xl font-bold text-gray-400 line-through">$49</span>
                                 <span className="text-4xl font-bold text-brand-600 block">FREE</span>
                             </div>
-                            <Button className="w-full mb-6" variant="secondary">Request Quote</Button>
+                            <Button className="w-full mb-6" variant="secondary" onClick={() => navigate("/register")}>Get Started</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Up to 100 Users</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Basic Reporting</li>
@@ -294,7 +294,7 @@ const LandingPage = () => {
                                 <span className="text-4xl font-bold text-gray-400 line-through">$199</span>
                                 <span className="text-4xl font-bold text-brand-600 block">FREE</span>
                             </div>
-                            <Button className="w-full mb-6 shadow-lg shadow-brand-500/20">Get Started</Button>
+                            <Button className="w-full mb-6 shadow-lg shadow-brand-500/20" onClick={() => navigate("/register")}>Get Started</Button>
                             <ul className="space-y-3 text-sm text-gray-600">
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Up to 1,000 Users</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Advanced Analytics</li>
@@ -371,7 +371,7 @@ const LandingPage = () => {
                     <p className="text-xl text-brand-100 mb-10 max-w-2xl mx-auto">Join hundreds of institutions that have switched to a smarter, more efficient workflow today.</p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button
-                            onClick={() => navigate("/login")}
+                            onClick={() => navigate("/register")}
                             className="px-8 py-4 text-lg font-bold shadow-xl shadow-brand-500/30 bg-white text-brand-900 hover:bg-gray-100 scale-100 hover:scale-105"
                         >
                             Get Started Free
