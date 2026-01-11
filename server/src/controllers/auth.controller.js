@@ -15,7 +15,7 @@ export const signupOrganization = asyncHandler(async (req, res) => {
     // 1. Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        throw new ApiError(400, "Email already registered");
+        throw new ApiError(400, "User already exists");
     }
 
     // 2. Create Organization
@@ -71,7 +71,8 @@ export const login = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email, role }).select("+password");
 
     if (!user) {
-        throw new ApiError(401, "Invalid credentials");
+        // User requesting specific "User not found" error
+        throw new ApiError(404, "User not found");
     }
 
     if (!user.isActive) {

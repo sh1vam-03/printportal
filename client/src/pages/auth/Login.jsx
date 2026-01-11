@@ -22,11 +22,26 @@ const Login = () => {
         try {
             await login(data);
         } catch (err) {
-            let msg = "An error occurred. Please try again.";
-            if (err.response?.data?.message) {
-                msg = err.response.data.message;
-            } else if (err.message) {
-                msg = err.message; // e.g. "Network Error"
+            let msg = "Something went wrong. Please try again.";
+
+            if (err.response) {
+                const status = err.response.status;
+                if (status === 500) {
+                    msg = "Server unavailable. Please try again later.";
+                } else if (status === 404) {
+                    // If backend sends specific "User not found", show it. Otherwise call it "Service not found"
+                    msg = err.response.data?.message === "User not found"
+                        ? "User not found"
+                        : "Service not found. Please contact support.";
+                } else {
+                    // Use backend message for validation errors (400, 401, 403)
+                    msg = err.response.data?.message || "Invalid request.";
+                }
+            } else if (err.request) {
+                // Request made but no response (Network error)
+                msg = "Unable to connect to the server. Check your internet connection.";
+            } else {
+                msg = "An unexpected error occurred.";
             }
             setError(msg);
         } finally {
