@@ -55,13 +55,14 @@ const UserManagement = () => {
                     title: "Plan Limit Reached",
                     message: err.response.data.message
                 });
-            });
-        } else {
-            let msg = "Failed to create user";
-            if (err.response?.data?.message) {
-                msg = err.response.data.message;
-            } else if (err.message) {
-                msg = err.message; // e.g. "Network Error"
+            } else {
+                let msg = "Failed to create user";
+                if (err.response?.data?.message) {
+                    msg = err.response.data.message;
+                } else if (err.message) {
+                    msg = err.message; // e.g. "Network Error"
+                }
+                showToast(msg, "error");
             }
             showToast(msg, "error");
         }
