@@ -3,8 +3,10 @@ import { AuthContext } from "../../context/AuthContext";
 import Button from "../../components/ui/Button";
 import { Link } from "react-router-dom";
 import AuthLayout from "../../components/layout/AuthLayout";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+    const navigate = useNavigate();
     const { login } = useContext(AuthContext);
     const [role, setRole] = useState("EMPLOYEE");
     const [error, setError] = useState("");
@@ -50,7 +52,7 @@ const Login = () => {
                 So we should keep the mobile branding header here.
             */}
 
-            <div className="flex lg:hidden items-center gap-3 mb-8">
+            <div className="flex lg:hidden items-center gap-3 mb-8" onClick={() => navigate('/')}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 shadow-lg shadow-brand-500/20">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
