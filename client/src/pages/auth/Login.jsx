@@ -20,7 +20,12 @@ const Login = () => {
         try {
             await login(data);
         } catch (err) {
-            const msg = err.response?.data?.message || "An error occurred. Please try again.";
+            let msg = "An error occurred. Please try again.";
+            if (err.response?.data?.message) {
+                msg = err.response.data.message;
+            } else if (err.message) {
+                msg = err.message; // e.g. "Network Error"
+            }
             setError(msg);
         } finally {
             setLoading(false);

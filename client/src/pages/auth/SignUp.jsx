@@ -34,7 +34,12 @@ const SignUp = () => {
         try {
             await signup(data);
         } catch (err) {
-            const msg = err.response?.data?.message || "An error occurred. Please try again.";
+            let msg = "An error occurred. Please try again.";
+            if (err.response?.data?.message) {
+                msg = err.response.data.message;
+            } else if (err.message) {
+                msg = err.message;
+            }
             setError(msg);
         } finally {
             setLoading(false);

@@ -51,11 +51,14 @@ api.interceptors.response.use(
                 }
             } catch (refreshError) {
                 // Refresh failed (expired or invalid)
+                console.error("Session refresh failed:", refreshError);
                 localStorage.clear();
                 window.location.href = "/login"; // Force redirect to login
                 return Promise.reject(refreshError);
             }
         }
+
+        console.error("API Error intercepted:", error.response?.status, error.message);
         return Promise.reject(error);
     }
 );
