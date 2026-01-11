@@ -10,7 +10,7 @@ const LandingPage = () => {
     return (
         <PublicLayout>
             {/* 1️⃣ HERO SECTION */}
-            <section className="relative py-20 lg:py-32 overflow-hidden text-center">
+            <section className="relative py-12 lg:py-32 overflow-hidden text-center">
                 <div className="absolute inset-0 -z-10">
                     <div className="absolute top-0 right-1/4 h-96 w-96 rounded-full bg-brand-500 opacity-10 blur-3xl animate-pulse-slow"></div>
                     <div className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-indigo-500 opacity-10 blur-3xl animate-float"></div>
@@ -21,26 +21,26 @@ const LandingPage = () => {
                         <svg className="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                         Trusted by 500+ Schools & Colleges
                     </span>
-                    <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight leading-tight">
-                        Smart Print Management <br />
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        Smart Print Management <br className="hidden sm:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">
                             for Modern Institutions
                         </span>
                     </h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
                         Manage print requests, control permissions, and streamline workflows from one centralized, secure platform.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                         <Button
                             onClick={() => navigate("/register?plan=STARTER")}
-                            className="px-8 py-4 text-lg font-bold shadow-xl shadow-brand-500/20 bg-gradient-to-r from-brand-600 to-indigo-600 hover:scale-105 transition-transform"
+                            className="w-full sm:w-auto px-8 py-4 text-lg font-bold shadow-xl shadow-brand-500/20 bg-gradient-to-r from-brand-600 to-indigo-600 hover:scale-105 transition-transform"
                         >
                             Get Started Now
                         </Button>
                         <Button
                             variant="secondary"
                             onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
-                            className="px-8 py-4 text-lg font-bold bg-white border border-gray-200 hover:bg-gray-50 hover:scale-105 transition-transform"
+                            className="w-full sm:w-auto px-8 py-4 text-lg font-bold bg-white border border-gray-200 hover:bg-gray-50 hover:scale-105 transition-transform"
                         >
                             View Features
                         </Button>
@@ -70,7 +70,7 @@ const LandingPage = () => {
             </section>
 
             {/* 2️⃣ WHO IS IT FOR? */}
-            <section className="py-20 bg-white">
+            <section className="py-16 lg:py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
@@ -115,11 +115,11 @@ const LandingPage = () => {
             </section>
 
             {/* 3️⃣ THE PROBLEM */}
-            <section className="py-20 bg-gray-50">
+            <section className="py-16 lg:py-20 bg-gray-50">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
                     <div className="space-y-6">
                         <span className="text-brand-600 font-bold uppercase tracking-wider text-sm">The Challenge</span>
-                        <h2 className="text-4xl font-bold text-gray-900">Stop Struggling with Manual Printing</h2>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Stop Struggling with Manual Printing</h2>
                         <ul className="space-y-4">
                             {[
                                 "No tracking of who printed what and when",
@@ -372,14 +372,14 @@ const LandingPage = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button
                             onClick={() => navigate("/register")}
-                            className="px-8 py-4 text-lg font-bold shadow-xl shadow-brand-500/30 bg-white text-brand-900 hover:bg-gray-100 scale-100 hover:scale-105"
+                            className="w-full sm:w-auto px-8 py-4 text-lg font-bold shadow-xl shadow-brand-500/30 bg-white text-brand-900 hover:bg-gray-100 scale-100 hover:scale-105"
                         >
                             Get Started Free
                         </Button>
                         <Button
                             variant="text"
                             onClick={() => navigate("/contact-sales")}
-                            className="px-8 py-4 text-lg font-bold text-white border border-white/20 hover:bg-white/10"
+                            className="w-full sm:w-auto px-8 py-4 text-lg font-bold text-white border border-white/20 hover:bg-white/10"
                         >
                             Contact Sales
                         </Button>
