@@ -189,7 +189,7 @@ const LandingPage = () => {
                         <p className="text-brand-200 mt-4 text-xl">Incredibly simple. Powerfully efficient.</p>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
+                    <div className="flex flex-col md:flex-row gap-8 justify-center items-center md:items-start">
                         {[
                             { step: "1", title: "Setup", desc: "Admin creates users roles & permissions." },
                             { step: "2", title: "Request", desc: "Teachers/Staff submit print files & details." },
