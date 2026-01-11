@@ -57,11 +57,11 @@ const LandingPage = () => {
                             </div>
                             <div className="ml-4 h-6 w-full max-w-xs bg-white rounded-md shadow-sm opacity-50"></div>
                         </div>
-                        <div className="aspect-[16/9] bg-white flex items-center justify-center overflow-hidden">
+                        <div className="bg-white flex items-center justify-center overflow-hidden">
                             <img
                                 src="/preview.png"
                                 alt="Dashboard Interface"
-                                className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                             />
                         </div>
                     </div>
