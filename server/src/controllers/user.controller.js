@@ -3,6 +3,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import bcrypt from "bcryptjs";
 
+import Organization from "../models/Organization.js";
+
 /* ---------------- CREATE NEW USER (ADMIN ONLY) ---------------- */
 export const createUser = asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
@@ -10,6 +12,39 @@ export const createUser = asyncHandler(async (req, res) => {
     // Allow creation of EMPLOYEE and PRINTING roles
     if (!["EMPLOYEE", "PRINTING"].includes(role)) {
         throw new ApiError(403, "Admins can only create Employee or Printing accounts.");
+    }
+
+    // 1. Fetch Organization & Plan
+    const organization = await Organization.findById(req.user.organizationId);
+    if (!organization) {
+        throw new ApiError(404, "Organization not found");
+    }
+
+    const plan = organization.subscriptionPlan; // FREE, PRO, ENTERPRISE (Assumed 'STARTER' logic applies to 'FREE')
+
+    // 2. Define Limits
+    let limits = {
+        EMPLOYEE: Infinity,
+        PRINTING: Infinity
+    };
+
+    if (plan === "FREE") {
+        // "Starter Plan" limits as per user request
+        limits = { EMPLOYEE: 20, PRINTING: 1 };
+    } else if (plan === "PRO") {
+        // "Professional Plan" limits
+        limits = { EMPLOYEE: 100, PRINTING: 1 };
+    }
+    // ENTERPRISE = Infinity
+
+    // 3. Check Current Usage
+    const currentCount = await User.countDocuments({
+        organization: req.user.organizationId,
+        role: role
+    });
+
+    if (currentCount >= limits[role]) {
+        throw new ApiError(403, `${plan} plan limit reached. You can only add ${limits[role]} ${role.toLowerCase()}(s). Upgrade your plan for more.`);
     }
 
     const existing = await User.findOne({ email });
