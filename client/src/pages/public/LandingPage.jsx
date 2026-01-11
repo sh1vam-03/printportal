@@ -47,7 +47,7 @@ const LandingPage = () => {
                     </div>
 
                     {/* Dashboard Visual Placeholder */}
-                    <div className="mt-16 rounded-2xl border border-gray-200/50 shadow-2xl overflow-hidden bg-gray-50 relative group">
+                    <div className="mt-16 rounded-2xl border border-gray-200/50 shadow-2xl overflow-hidden bg-gray-50 relative group hover:scale-105 transition-transform duration-700">
                         <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent z-10 lg:hidden"></div>
                         <div className="bg-gray-900/5 p-4 flex items-center gap-2 border-b border-gray-200/50">
                             <div className="flex gap-1.5">
@@ -61,7 +61,7 @@ const LandingPage = () => {
                             <img
                                 src="/preview.png"
                                 alt="Dashboard Interface"
-                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain"
                             />
                         </div>
                     </div>
