@@ -4,7 +4,7 @@ The system uses **JSON Web Tokens (JWT)** for stateless authentication.
 
 ## User Model
 The `User` schema supports three roles:
-- `TEACHER`: Can sign up publicly.
+- `Employee`: Can sign up publicly.
 - `ADMIN`: Seeded or manually added (cannot sign up).
 - `PRINTING`: Seeded or manually added (cannot sign up).
 

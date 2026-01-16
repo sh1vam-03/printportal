@@ -16,7 +16,7 @@ The main wrapper component used in `ProtectedRoutes`.
 The primary navigation drawer.
 
 **Features:**
-- **Dynamic Links**: Renders different menu items based on `user.role` (Teacher, Admin, Printing).
+- **Dynamic Links**: Renders different menu items based on `user.role` (Employee, Admin, Printing).
 - **Responsive Modes**:
    - **Desktop**: Collapsible (expands/shrinks).
    - **Mobile**: Off-canvas drawer (slide-in).

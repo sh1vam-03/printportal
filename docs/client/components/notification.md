@@ -26,7 +26,7 @@ showToast("Operation successful", "success");
 ## Socket Integration
 The application listens for real-time events to trigger notifications without user action.
 
-**Teacher Dashboard (`MyRequests.jsx`):**
+**Employee Dashboard (`MyRequests.jsx`):**
 - Listens for `requestStatusUpdated`.
 - Triggers a toast: "Your request has been [Approved/Rejected]".
 

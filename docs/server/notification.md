@@ -15,18 +15,18 @@ The backend acts as a real-time event hub, pushing updates to relevant clients i
 ```mermaid
 graph LR
     Admin[Admin User] -- "Approves Request" --> Server[Back-End]
-    Server -- "Emit: notify_teacher" --> Teacher[Teacher Client]
+    Server -- "Emit: notify_Employee" --> Employee[Employee Client]
     Server -- "Emit: notify_printing" --> Printing[Printing Dept Client]
     
-    Teacher -- "Toast: APPROVED" --> TeacherUI[Update UI]
+    Employee -- "Toast: APPROVED" --> EmployeeUI[Update UI]
     Printing -- "List Update" --> PrintUI[Refresh Table]
 ```
 
 ## Events
 
-### `notify_teacher`
-Broadcasts updates to a specific teacher's request.
-*Ideally, this should be emitted to a specific socket room (e.g., `teacherId`), but currently broadcasts with a payload for the client to filter.*
+### `notify_Employee`
+Broadcasts updates to a specific Employee's request.
+*Ideally, this should be emitted to a specific socket room (e.g., `EmployeeId`), but currently broadcasts with a payload for the client to filter.*
 
 **Payload:**
 ```json
@@ -51,5 +51,5 @@ Broadcasts when a new job is available for the printing department.
 
 ## Workflow Example
 1. **Admin approves request** (`approvePrintRequest` controller).
-2. Server emits `notify_teacher` -> Teacher gets "Approved" toast.
+2. Server emits `notify_Employee` -> Employee gets "Approved" toast.
 3. Server emits `notify_printing` -> Printing dashboard refreshes list.

@@ -43,7 +43,7 @@ The system operates on a **Client-Server** architecture facilitated by REST APIs
 ```mermaid
 graph TD
     subgraph Frontend
-        TeacherUI[Teacher Dashboard]
+        EmployeeUI[Employee Dashboard]
         AdminUI[Admin Dashboard]
         PrintUI[Printing Dept UI]
     end
@@ -54,10 +54,10 @@ graph TD
         SocketHub[Notification Hub]
     end
 
-    TeacherUI -->|Create Req| RequestMgr
+    EmployeeUI -->|Create Req| RequestMgr
     AdminUI -->|Approve/Reject| RequestMgr
     RequestMgr -->|Event| SocketHub
-    SocketHub -->|Toast| TeacherUI
+    SocketHub -->|Toast| EmployeeUI
     SocketHub -->|Update List| PrintUI
 ```
 

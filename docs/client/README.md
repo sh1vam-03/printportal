@@ -20,7 +20,7 @@ client/src/
 │   ├── admin/           #    Admin-specific dashboards
 │   ├── auth/            #    Login & Signup
 │   ├── printing/        #    Printing Dept dashboards
-│   └── teacher/         #    Teacher dashboards
+│   └── employee/        #    Employee dashboards
 ├── services/            # 🔌 Axios instance & API calls
 └── App.jsx              # 🚦 Main routing configuration
 ```

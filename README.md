@@ -1,4 +1,4 @@
-# School ERP - Printing Management System 🖨️
+# PrintPortal - Printing Management System 🖨️
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Node.js](https://img.shields.io/badge/Node.js-18-339933?logo=nodedotjs&logoColor=white)
@@ -25,7 +25,7 @@ The documentation suite includes:
 
 ## 🌟 Key Features
 
-### 👨‍🏫 For Teachers
+### 👨‍🏫 For Employee
 - **Easy Requests**: Upload files and specify print details (copies, double-sided, etc.) in seconds.
 - **Real-time Status**: Get instant notifications when your request is Approved, Printed, or Rejected.
 - **History**: View past requests and track current job progress.
@@ -54,8 +54,8 @@ Follow these steps to set up the project locally.
 
 #### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/school-erp-printing.git
-cd school-erp-printing
+git clone https://github.com/sh1vam-03/printportal.git
+cd printportal
 ```
 
 #### 2. Backend Setup
@@ -65,7 +65,7 @@ npm install
 
 # Create a .env file
 echo "PORT=5000" >> .env
-echo "MONGO_URI=mongodb://localhost:27017/school-erp" >> .env
+echo "MONGO_URI=mongodb://localhost:27017/printportal" >> .env
 echo "JWT_SECRET=your_super_secret_key" >> .env
 
 # Start Server
@@ -90,7 +90,7 @@ Visit `http://localhost:5173` to view the application!
 The project is organized as a monorepo with separate client and server directories.
 
 ```text
-school-erp-printing/
+printportal/
 ├── client/              # React Frontend (Vite + Tailwind)
 │   ├── src/
 │   │   ├── components/  # Reusable UI & Layouts

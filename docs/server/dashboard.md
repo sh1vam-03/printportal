@@ -14,7 +14,7 @@ Calculates counts for:
 ## Logic (`dashboard.controller.js`)
 The response is personalized based on `req.user.role`:
 
-- **Teacher**: Returns stats ONLY for their own requests (`{ teacher: userId }`).
+- **Employee**: Returns stats ONLY for their own requests (`{ Employee: userId }`).
 - **Printing**: Returns stats for active jobs (`APPROVED`, `IN_PROGRESS`, `COMPLETED`).
 - **Admin**: Returns global stats for the entire school.
 

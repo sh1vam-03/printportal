@@ -9,14 +9,14 @@ All endpoints are prefixed with `/api` (configured in `app.js`).
 ## Authentication (`/auth`)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| POST | `/register` | Register a new Teacher | Public |
+| POST | `/register` | Register a new Employee | Public |
 | POST | `/login` | Login for all roles | Public |
 
 ## Print Requests (`/print-requests`)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| POST | `/` | Create a new print request | `TEACHER` |
-| GET | `/` | Get list of requests | `TEACHER` (own), `ADMIN`, `PRINTING` |
+| POST | `/` | Create a new print request | `Employee` |
+| GET | `/` | Get list of requests | `Employee` (own), `ADMIN`, `PRINTING` |
 | PUT | `/:id/approve` | Approve a request | `ADMIN` |
 | PUT | `/:id/reject` | Reject a request | `ADMIN` |
 | PUT | `/:id/status` | Update status (Start/Complete) | `PRINTING` |
@@ -25,4 +25,4 @@ All endpoints are prefixed with `/api` (configured in `app.js`).
 ## Dashboard (`/dashboard`)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/stats` | Get analytics counts | `TEACHER`, `ADMIN`, `PRINTING` |
+| GET | `/stats` | Get analytics counts | `Employee`, `ADMIN`, `PRINTING` |

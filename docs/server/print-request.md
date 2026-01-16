@@ -3,7 +3,7 @@
 This document explains the core business logic for managing print jobs.
 
 ## Data Model (`PrintRequest`)
-- **teacher**: ObjectId (User reference).
+- **Employee**: ObjectId (User reference).
 - **fileUrl**: Path to the uploaded file.
 - **copies**: Number of copies.
 - **printType**: `SINGLE_SIDE` or `DOUBLE_SIDE`.
@@ -15,7 +15,7 @@ The print request lifecycle is strictly linear, ensuring clear accountability at
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PENDING: Created by Teacher
+    [*] --> PENDING: Created by Employee
     PENDING --> APPROVED: Admin Approves
     PENDING --> REJECTED: Admin Rejects
     
@@ -29,8 +29,8 @@ stateDiagram-v2
 ## Detailed States
 
 1. **PENDING (Initial)**
-   - **Trigger**: Teacher submits form.
-   - **Visibility**: Teacher (My Requests), Admin (Approve Queue).
+   - **Trigger**: Employee submits form.
+   - **Visibility**: Employee (My Requests), Admin (Approve Queue).
    
 2. **APPROVED**
    - **Trigger**: Admin clicks "Approve".
