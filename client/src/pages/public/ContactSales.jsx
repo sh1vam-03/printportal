@@ -12,7 +12,7 @@ const ContactSales = () => {
         // Simulate form submission
         setTimeout(() => {
             setSubmitted(true);
-        }, 1000);
+        }, 700);
     };
 
     return (
