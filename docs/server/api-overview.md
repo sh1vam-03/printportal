@@ -1,6 +1,6 @@
 # API Overview 📡
 
-The API is built with **Express.js** and follows RESTful conventions.
+The **PrintPortal** API is built with **Express.js** and follows RESTful conventions.
 All endpoints are prefixed with `/api` (configured in `app.js`).
 
 ## Base URL

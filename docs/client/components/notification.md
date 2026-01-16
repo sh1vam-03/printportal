@@ -1,6 +1,6 @@
 # Notification System 🔔
 
-The application features a robust notification system powered by `ToastContext`.
+**PrintPortal** features a robust notification system powered by `ToastContext`.
 
 ## components/ui/Toast.jsx
 The visual component that renders the notification.

@@ -1,6 +1,6 @@
 # Print Request Lifecycle 🔄
 
-This document explains the core business logic for managing print jobs.
+This document explains the core business logic for managing print jobs in **PrintPortal**.
 
 ## Data Model (`PrintRequest`)
 - **Employee**: ObjectId (User reference).

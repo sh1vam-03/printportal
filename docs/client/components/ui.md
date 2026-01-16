@@ -1,6 +1,6 @@
 # UI Components 🎨
 
-Located in `src/components/ui`, these components are the foundational building blocks of the application. They are atomic, stateless, and styled with Tailwind CSS.
+Located in `src/components/ui`, these components are the foundational building blocks of the **PrintPortal** application. They are atomic, stateless, and styled with Tailwind CSS.
 
 ## `Button.jsx`
 Standard interactive element with support for variants and loading states.

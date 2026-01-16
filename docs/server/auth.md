@@ -1,6 +1,6 @@
 # Authentication System 🔐
 
-The system uses **JSON Web Tokens (JWT)** for stateless authentication.
+**PrintPortal** uses **JSON Web Tokens (JWT)** for stateless authentication.
 
 ## User Model
 The `User` schema supports three roles:

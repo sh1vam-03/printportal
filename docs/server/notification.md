@@ -1,6 +1,6 @@
 # Real-time Notification System 🔔
 
-The server uses **Socket.io** to broadcast real-time events to connected clients.
+**PrintPortal** uses **Socket.io** to broadcast real-time events to connected clients.
 This eliminates the need for manual refreshing by users.
 
 ## Architecture

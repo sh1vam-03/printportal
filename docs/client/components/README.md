@@ -1,6 +1,6 @@
 # Components Documentation 🧩
 
-The `src/components` directory contains all shared building blocks for the application.
+The **PrintPortal** `src/components` directory contains all shared building blocks for the application.
 
 ## 📂 Directory Structure
 

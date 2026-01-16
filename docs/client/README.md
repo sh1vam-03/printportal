@@ -4,7 +4,7 @@
 ![Vite](https://img.shields.io/badge/Vite-Bundler-646CFF?logo=vite&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)
 
-The client is a responsive, single-page application (SPA) designed with a premium, mobile-first aesthetic.
+The **PrintPortal** client is a responsive, single-page application (SPA) designed with a premium, mobile-first aesthetic.
 
 ---
 

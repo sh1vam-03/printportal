@@ -4,7 +4,7 @@
 ![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Headless-47A248?logo=mongodb&logoColor=white)
 
-The backend is a robust REST API built with **Express.js**, serving as the central nervous system for the School ERP. It handles data persistence, authentication, and real-time event broadcasting.
+The backend is a robust REST API built with **Express.js**, serving as the central nervous system for **PrintPortal**. It handles data persistence, authentication, and real-time event broadcasting.
 
 ---
 

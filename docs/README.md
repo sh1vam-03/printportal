@@ -3,7 +3,7 @@
 ![Status](https://img.shields.io/badge/Documentation-Up_to_Date-success)
 ![Scope](https://img.shields.io/badge/Scope-Full_Stack-blueviolet)
 
-Welcome to the technical documentation for the **School ERP Printing Management System**.
+Welcome to the technical documentation for **PrintPortal - A WEB-BASED PRINT MANAGEMENT SYSTEM (MINI SAAS PLATFORM)**.
 This hub serves as the central reference for developers, system administrators, and contributors.
 
 > **[⬅️ Back to Project Dashboard](../README.md)**

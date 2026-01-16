@@ -1,6 +1,6 @@
 # Routing & Access Control 🚦
 
-Routing is managed by `react-router-dom` and secured by a custom `ProtectedRoutes` wrapper.
+Routing in **PrintPortal** is managed by `react-router-dom` and secured by a custom `ProtectedRoutes` wrapper.
 
 ## Security Model
 Routes are protected based on the `user.role` stored in the Auth Context.

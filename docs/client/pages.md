@@ -1,6 +1,6 @@
 # Pages & Dashboards 📄
 
-The application is divided into distinct dashboards for each user role.
+**PrintPortal** is divided into distinct dashboards for each user role.
 
 ## Public Pages
 - **Login (`/login`)**: Entry point. Users select their role to sign in.

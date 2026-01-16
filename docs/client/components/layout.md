@@ -1,6 +1,6 @@
 # Layout System 📐
 
-The application uses a persistent layout wrapper to ensure navigation consistency across all pages.
+**PrintPortal** uses a persistent layout wrapper to ensure navigation consistency across all pages.
 
 ## Layout (`Layout.jsx`)
 The main wrapper component used in `ProtectedRoutes`.
