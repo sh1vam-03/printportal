@@ -1,4 +1,4 @@
-# PrintPortal - Printing Management System 🖨️
+# PrintPortal - A WEB-BASED PRINT MANAGEMENT SYSTEM (MINI SAAS PLATFORM) 🖨️
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Node.js](https://img.shields.io/badge/Node.js-18-339933?logo=nodedotjs&logoColor=white)
@@ -6,7 +6,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Headless-47A248?logo=mongodb&logoColor=white)
 ![Socket.io](https://img.shields.io/badge/Real--Time-Socket.io-010101?logo=socketdotio&logoColor=white)
 
-> A comprehensive, role-based print job management module designed for educational institutions. streamline requests, approvals, and fulfillment in real-time.
+> **PrintPortal** is a Mini SaaS & comprehensive Printing Management System. Designed for educational institutions, corporate offices, and varied industries, it streamlines print requests, approval workflows, and fulfillment processes in a centralized, real-time, and identity-secure platform.
 
 ---
 
@@ -105,6 +105,16 @@ printportal/
 │   └── uploads/         # Storage for print files
 └── docs/                # 📚 Comprehensive Documentation
 ```
+
+---
+
+## 👥 Team Information & Role Distribution
+
+| Team Member | Role | Responsibilities |
+| :--- | :--- | :--- |
+| [**Gajanan Dhembare**](https://github.com/gajanandhembare680-ui) | Backend Developer | Node.js/Express API development, MongoDB schema design, Authentication & authorization system, Database optimization, API endpoint testing with Postman, Server deployment |
+| [**Dinesh More**](https://github.com/Dinesh-more99) | Frontend Developer | React.js UI component development, Responsive design with Tailwind CSS, State management (Redux/Context), API integration, User experience optimization, Form handling and validation |
+| [**Shyam Nagargoje**](https://github.com/sham-02) | Full-Stack & Database | System architecture planning, Database design and optimization, API documentation, Cloud deployment setup, Testing and quality assurance, Documentation and guides |
 
 ---
 
