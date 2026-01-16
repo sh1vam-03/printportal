@@ -12,6 +12,7 @@ const PublicLayout = ({ children }) => {
         { name: "Help Center", path: "/help" },
         { name: "Privacy Policy", path: "/privacy" },
         { name: "Terms of Service", path: "/terms" },
+        { name: "Contact Sales", path: "/contact-sales" },
     ];
 
     return (
@@ -136,6 +137,7 @@ const PublicLayout = ({ children }) => {
                                 <li><button onClick={() => navigate('/help')} className="hover:text-brand-600 transition-colors">Help Center</button></li>
                                 <li><button onClick={() => navigate('/privacy')} className="hover:text-brand-600 transition-colors">Privacy Policy</button></li>
                                 <li><button onClick={() => navigate('/terms')} className="hover:text-brand-600 transition-colors">Terms of Service</button></li>
+                                <li><button onClick={() => navigate('/contact-sales')} className="hover:text-brand-600 transition-colors">Contact Sales</button></li>
                             </ul>
                         </div>
                     </div>
