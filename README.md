@@ -108,16 +108,6 @@ printportal/
 
 ---
 
-## 👥 Team Information & Role Distribution
-
-| Team Member | Role | Responsibilities |
-| :--- | :--- | :--- |
-| [**Gajanan Dhembare**](https://github.com/gajanandhembare680-ui) | Backend Developer | Node.js/Express API development, MongoDB schema design, Authentication & authorization system, Database optimization, API endpoint testing with Postman, Server deployment |
-| [**Dinesh More**](https://github.com/Dinesh-more99) | Frontend Developer | React.js UI component development, Responsive design with Tailwind CSS, State management (Redux/Context), API integration, User experience optimization, Form handling and validation |
-| [**Shyam Nagargoje**](https://github.com/sham-02) | Full-Stack & Database | System architecture planning, Database design and optimization, API documentation, Cloud deployment setup, Testing and quality assurance, Documentation and guides |
-
----
-
 ## 📜 License
 
 This project is licensed under the MIT License.
