@@ -39,7 +39,7 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         printType,
         deliveryType,
         deliveryRoom,
-        dueDateTime,
+        dueDateTime : new Date(dueDateTime),
     });
 
     res.status(201).json({
