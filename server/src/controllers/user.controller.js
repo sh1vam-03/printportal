@@ -109,7 +109,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    // Optional: Prevent deleting other admins if needed, but requirements say "delete specific teacher account"
+    // Optional: Prevent deleting other admins if needed, but requirements say "delete specific employee account"
     // We will allow deleting anyone except self (handled by exclusion in getUsers or explicit check)
     if (id === req.user.userId) {
         throw new ApiError(400, "Cannot delete your own account");

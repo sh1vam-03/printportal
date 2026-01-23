@@ -150,7 +150,7 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-50 to-brand-100 text-sm font-bold text-brand-600 shadow-inner">
-                                            {req.teacher?.name?.charAt(0) || "?"}
+                                            {req.employee?.name?.charAt(0) || "?"}
                                         </div>
                                         <div className="overflow-hidden">
                                             <div className="font-bold text-gray-900 truncate" title={req.title}>
@@ -217,9 +217,9 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
                                     <td className="px-6 py-4 align-middle">
                                         <div className="flex items-center gap-3">
                                             <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 ring-2 ring-white shadow-sm">
-                                                {req.teacher?.name?.charAt(0) || "T"}
+                                                {req.employee?.name?.charAt(0) || "E"}
                                             </div>
-                                            <span className="text-sm font-medium text-gray-700">{req.teacher?.name}</span>
+                                            <span className="text-sm font-medium text-gray-700">{req.employee?.name}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-right align-middle">

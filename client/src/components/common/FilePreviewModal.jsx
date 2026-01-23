@@ -201,10 +201,10 @@ const FilePreviewModal = ({
                             <div className="flex flex-row items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-brand-100 to-indigo-100 flex items-center justify-center text-brand-700 font-bold text-sm ring-2 ring-white shadow-sm">
-                                        {requestData?.teacher?.name?.charAt(0) || "?"}
+                                        {requestData?.employee?.name?.charAt(0) || "?"}
                                     </div>
                                     <div className="flex flex-col min-w-0">
-                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[140px]">{requestData?.teacher?.name || "Unknown"}</p>
+                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[140px]">{requestData?.employee?.name || "Unknown"}</p>
                                         <p className="text-xs text-gray-500 font-medium truncate">Request Owner</p>
                                     </div>
                                 </div>

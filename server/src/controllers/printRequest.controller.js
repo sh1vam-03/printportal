@@ -9,7 +9,7 @@ import { ApiError } from "../utils/ApiError.js";
 export const createPrintRequest = asyncHandler(async (req, res) => {
 
     const {
-        // teacherId removed, using req.user.userId
+        // employeeId removed, using req.user.userId
         title,
         copies,
         printType,
@@ -28,7 +28,7 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
 
 
     const newRequest = await PrintRequest.create({
-        teacher: req.user.userId,
+        employee: req.user.userId,
         organization: req.user.organizationId,
         title,
         fileUrl: `/uploads/${req.file.filename}`,
@@ -90,7 +90,7 @@ export const getPrintFile = asyncHandler(async (req, res) => {
         canAccess = true;
     }
     // Employee can only access their own
-    else if (role === "EMPLOYEE" && request.teacher.toString() === userId) {
+    else if (role === "EMPLOYEE" && request.employee.toString() === userId) {
         canAccess = true;
     }
 
@@ -128,7 +128,7 @@ export const getPrintFile = asyncHandler(async (req, res) => {
 });
 
 /* ----------------------------------------
-   DELETE PRINT REQUEST (Admin & Teacher)
+   DELETE PRINT REQUEST (Admin & employee)
 ----------------------------------------- */
 import fs from "fs";
 
@@ -145,9 +145,9 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
     // Authorization Check with Status Rules
     let canDelete = false;
 
-    if (role === "EMPLOYEE" && request.teacher.toString() === userId) {
-        // Teacher can delete: PENDING, REJECTED, COMPLETED
-        // Teacher CANNOT delete: APPROVED, IN_PROGRESS (Printing dept needs it)
+    if (role === "EMPLOYEE" && request.employee.toString() === userId) {
+        // Employee can delete: PENDING, REJECTED, COMPLETED
+        // Employee CANNOT delete: APPROVED, IN_PROGRESS (Printing dept needs it)
         if (["PENDING", "REJECTED", "COMPLETED"].includes(request.status)) {
             canDelete = true;
         } else {
@@ -195,9 +195,7 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
 
     let filter = {};
 
-    if (role === "EMPLOYEE") {
-        filter.teacher = userId;
-    }
+    if (role === "EMPLOYEE" && (filter.employee = userId));
 
     if (role === "PRINTING") {
         filter.status = { $in: ["APPROVED", "IN_PROGRESS"] };
@@ -208,7 +206,7 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
     filter.organization = req.user.organizationId;
 
     const requests = await PrintRequest.find(filter)
-        .populate("teacher", "name email")
+        .populate("employee", "name email")
         .sort({ createdAt: -1 });
 
     res.json({
@@ -236,15 +234,15 @@ export const approvePrintRequest = asyncHandler(async (req, res) => {
 
     const io = getIO();
 
-    // Notify Teacher
-    // Notify Teacher - Targeted
+    // Notify employee
+    // Notify employee - Targeted
     // In a real app we might join user-specific rooms "user_ID"
     // For now, if we emit to Org room, everyone in Org gets it, but frontend filters?
     // BETTER: Emit to organization room, let frontend decide or backend smarts.
-    // Ideally: io.to(request.teacher.toString()).emit(...) 
+    // Ideally: io.to(request.employee.toString()).emit(...) 
     // BUT we are keeping it simple: Emit to ORG room.
 
-    // Notify EVERYONE in the ORG (Teacher + Admin + Printing)
+    // Notify EVERYONE in the ORG (Employee + Admin + Printing)
     io.to(req.user.organizationId).emit("notify_employee", {
         type: "APPROVED",
         requestId: request._id,
@@ -280,7 +278,7 @@ export const rejectPrintRequest = asyncHandler(async (req, res) => {
     request.status = "REJECTED";
     await request.save();
 
-    // Notificaton Only Teacher
+    // Notificaton Only Employee
     const io = getIO();
 
     io.to(req.user.organizationId).emit("notify_employee", {
@@ -324,7 +322,7 @@ export const updatePrintStatus = asyncHandler(async (req, res) => {
     request.status = status;
     await request.save();
 
-    // Notification Only Teacher
+    // Notification Only Employee
 
     const io = getIO();
 
@@ -351,7 +349,7 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const request = await PrintRequest.findById(id).populate(
-        "teacher",
+        "employee",
         "name email"
     );
 
@@ -359,7 +357,7 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Print request not found");
     }
 
-    // Notification Only Teacher
+    // Notification Only Employee
     const io = getIO();
 
     io.to(req.user.organizationId).emit("notify_employee", {

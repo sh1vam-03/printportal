@@ -19,7 +19,7 @@ export const getDashboardStats = async (req, res) => {
 
         // Employee: only see their own requests
         if (role === "EMPLOYEE") {
-            filter.teacher = new mongoose.Types.ObjectId(userId);
+            filter.employee = new mongoose.Types.ObjectId(userId);
         }
         // Printing: only see approved/processing/completed (usually they don't care about pending/rejected)
         // But for "stats" we might just show them what they have worked on or what is available.

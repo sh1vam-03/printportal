@@ -191,7 +191,7 @@ const LandingPage = () => {
                     <div className="flex flex-col md:flex-row gap-8 justify-center items-center md:items-start">
                         {[
                             { step: "1", title: "Setup", desc: "Admin creates users roles & permissions." },
-                            { step: "2", title: "Request", desc: "Teachers/Staff submit print files & details." },
+                            { step: "2", title: "Request", desc: "Employees/Staff submit print files & details." },
                             { step: "3", title: "Process", desc: "Printing Dept. approves & prints the job." },
                             { step: "4", title: "Track", desc: "Everyone gets real-time status updates." }
                         ].map((s, i) => (

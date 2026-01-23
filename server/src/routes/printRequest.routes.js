@@ -5,8 +5,8 @@ import * as printRequestController from "../controllers/printRequest.controller.
 
 const router = express.Router();
 
-/* ---------------- Teacher ---------------- */
-// Teacher creates print request
+/* ---------------- Employee ---------------- */
+// Employee creates print request
 router.post(
     "/",
     requireRole(["EMPLOYEE"]),
@@ -14,7 +14,7 @@ router.post(
     printRequestController.createPrintRequest
 );
 
-// Teacher / Admin / Printing can view requests (filtered by role in controller)
+// Employee / Admin / Printing can view requests (filtered by role in controller)
 router.get(
     "/",
     requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
@@ -58,7 +58,7 @@ router.get(
     printRequestController.downloadPrintFile
 );
 
-// Delete Request (Admin or Teacher)
+// Delete Request (Admin or Employee)
 router.delete(
     "/:id",
     requireRole(["ADMIN", "EMPLOYEE"]),
