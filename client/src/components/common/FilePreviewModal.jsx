@@ -212,7 +212,7 @@ const FilePreviewModal = ({
                                 <div className="flex flex-col items-center justify-center shrink-0">
                                     <StatusBadge status={requestData?.status} />
                                     <span className="text-xs text-gray-400 mt-1 font-medium text-center">
-                                        {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                     </span>
                                 </div>
                             </div>
@@ -283,7 +283,7 @@ const FilePreviewModal = ({
                                         Due {new Date(requestData?.dueDateTime).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                     </p>
                                     <p className="text-xs text-indigo-600/80 font-medium uppercase tracking-wide mt-1">
-                                        by {new Date(requestData?.dueDateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                        by {new Date(requestData?.dueDateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })}
                                     </p>
                                     <div className="mt-2 text-xs text-gray-600 flex items-center gap-1">
                                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
