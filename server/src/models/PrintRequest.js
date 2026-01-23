@@ -1,17 +1,6 @@
 import mongoose from "mongoose";
 
-// SAFE helper: converts only real Date -> India time string
-function toIndiaTimeSafe(value) {
-  // If already a string, do NOT reconvert
-  if (typeof value === "string") return value;
 
-  // If not a valid Date, return as is
-  if (!(value instanceof Date) || isNaN(value)) return value;
-
-  return value.toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-  });
-}
 
 const printRequestSchema = new mongoose.Schema(
   {
@@ -103,24 +92,7 @@ const printRequestSchema = new mongoose.Schema(
   {
     timestamps: true,
 
-    toJSON: {
-      transform: function (doc, ret) {
-        // Convert ONLY if real Date, never reconvert strings
-        if (ret.dueDateTime) {
-          ret.dueDateTime = toIndiaTimeSafe(ret.dueDateTime);
-        }
-
-        if (ret.createdAt) {
-          ret.createdAt = toIndiaTimeSafe(ret.createdAt);
-        }
-
-        if (ret.updatedAt) {
-          ret.updatedAt = toIndiaTimeSafe(ret.updatedAt);
-        }
-
-        return ret;
-      },
-    },
+    timestamps: true,
   }
 );
 
