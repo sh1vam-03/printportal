@@ -1,10 +1,14 @@
 import mongoose from "mongoose";
 
-// Helper to convert UTC Date -> India Time string when sending to frontend
-function toIndiaTime(date) {
-  if (!date) return date;
+// SAFE helper: converts only real Date -> India time string
+function toIndiaTimeSafe(value) {
+  // If already a string, do NOT reconvert
+  if (typeof value === "string") return value;
 
-  return new Date(date).toLocaleString("en-IN", {
+  // If not a valid Date, return as is
+  if (!(value instanceof Date) || isNaN(value)) return value;
+
+  return value.toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
   });
 }
@@ -35,12 +39,12 @@ const printRequestSchema = new mongoose.Schema(
     },
 
     fileType: {
-      type: String, // MIME type
+      type: String,
       required: true,
     },
 
     fileSize: {
-      type: Number, // Bytes
+      type: Number,
       required: true,
     },
 
@@ -72,10 +76,16 @@ const printRequestSchema = new mongoose.Schema(
       default: null,
     },
 
-    // IMPORTANT: Always store as Date (UTC), interpret input as local time
+    // Always store as Date (UTC)
     dueDateTime: {
       type: Date,
       required: true,
+      validate: {
+        validator: function (v) {
+          return v instanceof Date && !isNaN(v);
+        },
+        message: "Invalid dueDateTime format",
+      },
     },
 
     status: {
@@ -91,21 +101,21 @@ const printRequestSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // creates createdAt & updatedAt in UTC
+    timestamps: true,
 
-    // This ensures all Date fields are converted to India time when sent as JSON
     toJSON: {
       transform: function (doc, ret) {
+        // Convert ONLY if real Date, never reconvert strings
         if (ret.dueDateTime) {
-          ret.dueDateTime = toIndiaTime(ret.dueDateTime);
+          ret.dueDateTime = toIndiaTimeSafe(ret.dueDateTime);
         }
 
         if (ret.createdAt) {
-          ret.createdAt = toIndiaTime(ret.createdAt);
+          ret.createdAt = toIndiaTimeSafe(ret.createdAt);
         }
 
         if (ret.updatedAt) {
-          ret.updatedAt = toIndiaTime(ret.updatedAt);
+          ret.updatedAt = toIndiaTimeSafe(ret.updatedAt);
         }
 
         return ret;
