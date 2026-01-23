@@ -282,7 +282,7 @@ const LandingPage = () => {
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> 1 Admin Panel</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> 1 Printing Department</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Up to 20 Users</li>
-                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Basic Reporting</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Reporting & Analytics</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Email Support</li>
                             </ul>
                         </div>
@@ -300,7 +300,7 @@ const LandingPage = () => {
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> 1 Admin Panel</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> 1 Printing Department</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Up to 100 Users</li>
-                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Advanced Analytics</li>
+                                <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Reporting & Analytics</li>
                                 <li className="flex items-center gap-2"><svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Priority Support</li>
                             </ul>
                         </div>
@@ -331,6 +331,7 @@ const LandingPage = () => {
                         {/* Mock Logos */}
                         <div className="text-2xl font-black text-gray-800">EDU<span className="text-brand-600">CORP</span></div>
                         <div className="text-2xl font-serif font-bold text-gray-800">Uni<span className="italic">Tech</span></div>
+                        <div className="text-2xl font-black text-gray-800">TAB<span className="text-brand-600">SYE</span></div>
                         <div className="text-2xl font-mono font-bold text-gray-800">Global<span className="text-brand-600">School</span></div>
                         <div className="text-2xl font-bold text-gray-800 tracking-tighter">FUTURE<span className="font-light">ACADEMY</span></div>
                     </div>
@@ -347,7 +348,7 @@ const LandingPage = () => {
                     <div className="space-y-4">
                         {[
                             { q: "Is PrintPortal cloud-based?", a: "Yes! PrintPortal is fully cloud-based, meaning you can access it from any device without installing complex servers." },
-                            { q: "Can workflows be customized?", a: "Absolutely. Admins can configure approval rules, user roles, and department settings to fit your specific needs." },
+                            { q: "Can workflows be customized?", a: "Yes. User management is handled exclusively by the administrator, who is responsible for adding, deleting, and maintaining user accounts." },
                             { q: "Is our data secure?", a: "Security is our priority. We use industry-standard encryption and role-based access control to protect your sensitive documents." },
                             { q: "Do you provide training?", a: "Yes, our Enterprise and Pro plans include dedicated onboarding sessions to get your team up and running quickly." }
                         ].map((faq, i) => (

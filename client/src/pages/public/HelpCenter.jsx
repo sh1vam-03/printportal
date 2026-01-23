@@ -45,7 +45,7 @@ const HelpCenter = () => {
                 <div className="bg-gradient-to-br from-brand-50 to-indigo-50 rounded-3xl p-8 md:p-12 text-center space-y-6 border border-brand-100">
                     <div className="space-y-2">
                         <h3 className="text-2xl font-bold text-gray-900">Still need help?</h3>
-                        <p className="text-gray-600 text-lg">Contact the IT department or visit the Printing Room (Room 101).</p>
+                        <p className="text-gray-600 text-lg">Contact the IT department or visit the Printing Room.</p>
                     </div>
                     <div className="pt-2 flex justify-center gap-4">
                         <Button onClick={() => navigate('/')} variant="primary" className="shadow-xl shadow-brand-500/20">
