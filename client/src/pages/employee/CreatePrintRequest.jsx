@@ -47,7 +47,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                 return;
             }
 
-            // formData.append("teacherId", user.userId); // Backend now takes from token
+            // formData.append("employeeId", user.userId); // Backend now takes from token
 
             await api.post("/print-requests", formData);
             showToast("Print request submitted successfully!", "success");
