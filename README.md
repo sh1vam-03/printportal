@@ -78,7 +78,7 @@ To enable file storage, you must provide Cloudinary credentials in `server/.env`
 CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 ```
 
-#### 3. Frontend Setup
+#### 4. Frontend Setup
 ```bash
 cd client
 npm install
