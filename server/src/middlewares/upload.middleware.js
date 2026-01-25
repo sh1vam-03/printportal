@@ -20,10 +20,20 @@ const storage = new CloudinaryStorage({
         if (isImage) {
             params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
         } else {
-            // For 'raw' files, use original filename to preserve extension, 
-            // and unique_filename to prevent collisions.
-            params.use_filename = true;
-            params.unique_filename = true;
+            // Manual ID generation to ensure file extension is preserved in the URL
+            // This is critical for Microsoft Office Viewer to work.
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            // Robust extension extraction
+            const parts = file.originalname.split('.');
+            const ext = parts.length > 1 ? parts.pop() : '';
+            const name = parts.join('_').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+            // Set public_id explicitly with extension
+            params.public_id = `${name}-${uniqueSuffix}${ext ? '.' + ext : ''}`;
+
+            // Disable Cloudinary's auto-naming features to prevent conflicts/slowness
+            params.use_filename = false;
+            params.unique_filename = false;
         }
 
         return params;
