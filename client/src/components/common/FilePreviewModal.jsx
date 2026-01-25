@@ -42,9 +42,11 @@ const FilePreviewModal = ({
             // Ensure we actually have an extension (more than 1 part) and it's not a path
             if (parts.length > 1) {
                 const ext = parts.pop()?.toUpperCase();
-                // Basic validation for extension (length < 6, no slashes)
-                if (ext && ext.length < 6 && !ext.includes('/')) {
-                    return `${ext} File`;
+                // Basic validation for extension
+                if (ext) {
+                    if (["DOC", "DOCX"].includes(ext)) return "Word Document";
+                    if (["MD", "MARKDOWN"].includes(ext)) return "Markdown File";
+                    if (ext.length < 6 && !ext.includes('/')) return `${ext} File`;
                 }
             }
         }
@@ -70,7 +72,7 @@ const FilePreviewModal = ({
                     createdUrl = URL.createObjectURL(blob);
                     setBlobUrl(createdUrl);
 
-                    if (fileType === "text/plain") {
+                    if (fileType === "text/plain" || fileUrl?.toLowerCase().endsWith(".md") || fileType === "text/markdown") {
                         const reader = new FileReader();
                         reader.onload = () => { if (active) setTextContent(reader.result); };
                         reader.readAsText(blob);
@@ -154,16 +156,20 @@ const FilePreviewModal = ({
                                 <iframe src={blobUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
                             ) : fileType?.startsWith("image/") ? (
                                 <img src={blobUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
-                            ) : fileType === "text/plain" ? (
-                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent}</pre>
+                            ) : (fileType === "text/plain" || fileUrl?.toLowerCase().endsWith(".md") || fileType === "text/markdown") ? (
+                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent || "Loading text..."}</pre>
                             ) : (
                                 <div className="text-gray-400 flex flex-col items-center p-6 text-center">
                                     <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    <span className="font-medium">
-                                        {getReadableFileType(fileType, fileUrl) === "Unknown Type"
-                                            ? "Unknown File Type can't be preview"
-                                            : "No preview available"}
+                                    <span className="font-medium text-lg text-gray-500 mb-1">
+                                        No Preview Available
                                     </span>
+                                    <span className="text-sm text-gray-400 mb-4">
+                                        This file type cannot be previewed directly.
+                                    </span>
+                                    <button onClick={handleDownload} className="px-4 py-2 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-lg text-sm font-semibold transition-colors">
+                                        Download to View
+                                    </button>
                                 </div>
                             )}
                         </div>

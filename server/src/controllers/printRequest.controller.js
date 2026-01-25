@@ -2,6 +2,7 @@ import PrintRequest from "../models/PrintRequest.js";
 import { getIO } from "../config/socket.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
+import cloudinary from "../config/cloudinary.config.js";
 
 /* ----------------------------------------
    CREATE PRINT REQUEST (Employee)
@@ -31,7 +32,8 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         employee: req.user.userId,
         organization: req.user.organizationId,
         title,
-        fileUrl: `/uploads/${req.file.filename}`,
+        fileUrl: req.file.path, // Cloudinary secure URL
+        cloudinaryId: req.file.filename, // Cloudinary public_id
         fileType: req.file.mimetype,
         fileSize: req.file.size,
         originalName: req.file.originalname,
@@ -98,12 +100,14 @@ export const getPrintFile = asyncHandler(async (req, res) => {
         throw new ApiError(403, "Access denied to this file");
     }
 
-    // Serve file inline for preview
-    // request.fileUrl is like "/uploads/filename.ext"
-    // Remove leading slash for safe join
-    const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
+    // Cloudinary files: Redirect to Cloudinary URL
+    if (request.cloudinaryId) {
+        console.log(`[Preview] Redirecting to Cloudinary URL: ${request.fileUrl}`);
+        return res.redirect(request.fileUrl);
+    }
 
-    // Path: CWD/src/uploads/file
+    // Backward compatibility: Serve local files
+    const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
     const filePath = path.join(process.cwd(), "src", relativeUrl);
 
     console.log(`[Preview] Request ID: ${id}`);
@@ -115,7 +119,6 @@ export const getPrintFile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "File not found on server");
     }
 
-    // Fallback for old files without metadata
     const contentType = request.fileType || getMimeType(request.fileUrl);
     const downloadName = request.originalName || path.basename(request.fileUrl);
 
@@ -167,10 +170,21 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
         throw new ApiError(403, "Not authorized to delete this request");
     }
 
-    // Delete File from storage
-    const filePath = `./src${request.fileUrl}`;
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+    // Delete File from Cloudinary
+    if (request.cloudinaryId) {
+        try {
+            await cloudinary.uploader.destroy(request.cloudinaryId);
+            console.log(`✅ Deleted file from Cloudinary: ${request.cloudinaryId}`);
+        } catch (err) {
+            console.error('⚠️  Failed to delete file from Cloudinary:', err);
+            // Continue with request deletion even if Cloudinary deletion fails
+        }
+    } else {
+        // Backward compatibility: Delete local file if no cloudinaryId
+        const filePath = `./src${request.fileUrl}`;
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
     }
 
     // Delete Record
@@ -366,8 +380,14 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
         message: "Your document has been downloaded by the printing department",
     });
 
-    // Serve file
-    // fileUrl is stored as "/uploads/filename", but files are in "src/uploads"
+    // Cloudinary files: Redirect to Cloudinary URL with download disposition
+    if (request.cloudinaryId) {
+        // Add download flag to Cloudinary URL
+        const downloadUrl = request.fileUrl.replace('/upload/', '/upload/fl_attachment/');
+        return res.redirect(downloadUrl);
+    }
+
+    // Backward compatibility: Serve local file
     const filePath = `./src${request.fileUrl}`;
     res.download(filePath);
 });

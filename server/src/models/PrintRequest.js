@@ -42,6 +42,11 @@ const printRequestSchema = new mongoose.Schema(
       required: true,
     },
 
+    cloudinaryId: {
+      type: String,
+      default: null, // For backward compatibility with local files
+    },
+
     copies: {
       type: Number,
       required: true,

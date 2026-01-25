@@ -77,6 +77,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                         type="file"
                         name="file"
                         required
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.md"
                         onChange={handleFileChange}
                         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
