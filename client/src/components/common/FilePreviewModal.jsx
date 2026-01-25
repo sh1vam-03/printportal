@@ -264,7 +264,7 @@ const FilePreviewModal = ({
                                     <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent || "Loading text..."}</pre>
                                 </div>
                             ) : (
-                                // Google Docs Viewer for Office documents (DOCX, Excel, PowerPoint)
+                                // Microsoft Office Online Viewer (More reliable for DOCX/PPTX/XLSX)
                                 fileType === "application/msword" ||
                                 fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
                                 fileType === "application/vnd.ms-excel" ||
@@ -276,7 +276,7 @@ const FilePreviewModal = ({
                                 actualFileUrl?.toLowerCase().endsWith(".ppt") || actualFileUrl?.toLowerCase().endsWith(".pptx")
                             ) ? (
                                 <iframe
-                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(actualFileUrl)}&embedded=true`}
+                                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(actualFileUrl)}`}
                                     className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none"
                                     title="Document Preview"
                                 />

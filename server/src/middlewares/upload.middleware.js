@@ -19,6 +19,12 @@ const storage = new CloudinaryStorage({
         // Only apply allowed_formats for images (doesn't work for 'raw' resource_type)
         if (isImage) {
             params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
+        } else {
+            // For 'raw' files (documents), we must manually ensure extension is in public_id
+            // otherwise Cloudinary won't serve it with the correct extension, breaking viewers.
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            const ext = file.originalname.split('.').pop();
+            params.public_id = `${file.fieldname}-${uniqueSuffix}.${ext}`;
         }
 
         return params;
