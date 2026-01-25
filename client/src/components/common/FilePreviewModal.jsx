@@ -4,8 +4,9 @@ import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Configure PDF.js worker (Local Public Asset)
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+// Configure PDF.js worker (Vite Asset Import)
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 // Import standard styles for react-pdf
 import 'react-pdf/dist/Page/AnnotationLayer.css';
