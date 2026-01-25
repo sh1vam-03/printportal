@@ -117,8 +117,8 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // GOOGLE DOCS VIEWER STRATEGY (Requested by User)
-                // Reliable iframe-based viewer that behaves like DOCX/PPT preview.
+                // MICROSOFT OFFICE VIEWER STRATEGY
+                // Reliable iframe-based viewer.
                 // Requires a publicly accessible URL, so we fetch a temporary SIGNED URL from the backend.
 
                 const fetchSignedUrl = async () => {
@@ -216,8 +216,9 @@ const FilePreviewModal = ({
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
                                 <div className="w-full h-full bg-gray-100 flex justify-center items-center">
+                                    {/* Use Microsoft Office Viewer for PDF (Consistent with DOCX) */}
                                     <iframe
-                                        src={`https://docs.google.com/gview?url=${encodeURIComponent(blobUrl)}&embedded=true`}
+                                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(blobUrl)}`}
                                         className="w-full h-full border-0"
                                         title="PDF Preview"
                                     >
@@ -480,7 +481,7 @@ const FilePreviewModal = ({
                     </div>
                 </div>
             </div>
-        </Modal>
+        </Modal >
     );
 };
 

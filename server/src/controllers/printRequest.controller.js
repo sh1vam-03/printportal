@@ -117,7 +117,7 @@ export const getPrintFile = asyncHandler(async (req, res) => {
             // Generate signed URL with Cloudinary SDK
             const signedUrl = cloudinary.url(request.cloudinaryId, {
                 resource_type: resourceType,
-                type: 'authenticated', // Try 'authenticated' for private files
+                // type: 'authenticated', // REMOVED: Match upload type
                 sign_url: true,
                 secure: true,
                 expires_at: Math.floor(Date.now() / 1000) + 3600 // Valid for 1 hour
@@ -197,7 +197,7 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
 
         const signedUrl = cloudinary.url(request.cloudinaryId, {
             resource_type: resourceType,
-            type: 'authenticated',
+            // type: 'authenticated', // REMOVED: Middleware defaults to 'upload', so we must sign for 'upload'
             sign_url: true,
             secure: true,
             expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
