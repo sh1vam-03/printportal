@@ -220,9 +220,9 @@ const FilePreviewModal = ({
                     )}
 
                     {!loading && !error && (
-                        <div className="w-full h-auto min-h-full flex items-start justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0 overflow-y-auto">
+                        <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
-                                <div className="w-full h-auto flex justify-center py-8" ref={pdfWrapperRef}>
+                                <div className="w-full h-full overflow-y-auto bg-gray-100 p-4 flex justify-center" ref={pdfWrapperRef}>
                                     <Document
                                         file={actualFileUrl}
                                         onLoadSuccess={onDocumentLoadSuccess}
@@ -232,7 +232,7 @@ const FilePreviewModal = ({
                                             setLoading(false);
                                         }}
                                         loading={
-                                            <div className="flex items-center space-x-2 text-gray-500">
+                                            <div className="flex items-center space-x-2 text-gray-500 mt-10">
                                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
                                                 <span>Loading PDF...</span>
                                             </div>
@@ -254,14 +254,14 @@ const FilePreviewModal = ({
                                     </Document>
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
-                                <div className="w-full h-full flex items-center justify-center p-4">
-                                    <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
+                                <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">
+                                    <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-none shadow-xl rounded-lg" />
                                 </div>
                             ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                                 actualFileUrl?.toLowerCase().endsWith(".md") || actualFileUrl?.toLowerCase().endsWith(".csv") ||
                                 actualFileUrl?.toLowerCase().endsWith(".txt")) ? (
-                                <div className="w-full h-auto p-4 lg:p-8">
-                                    <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent || "Loading text..."}</pre>
+                                <div className="w-full h-full overflow-y-auto p-4 lg:p-8">
+                                    <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent || "Loading text..."}</pre>
                                 </div>
                             ) : (
                                 // Microsoft Office Online Viewer (More reliable for DOCX/PPTX/XLSX)
@@ -275,23 +275,27 @@ const FilePreviewModal = ({
                                 actualFileUrl?.toLowerCase().endsWith(".xls") || actualFileUrl?.toLowerCase().endsWith(".xlsx") ||
                                 actualFileUrl?.toLowerCase().endsWith(".ppt") || actualFileUrl?.toLowerCase().endsWith(".pptx")
                             ) ? (
-                                <iframe
-                                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(actualFileUrl)}`}
-                                    className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none"
-                                    title="Document Preview"
-                                />
+                                <div className="w-full h-full overflow-hidden">
+                                    <iframe
+                                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(actualFileUrl)}`}
+                                        className="w-full h-full border-0"
+                                        title="Document Preview"
+                                    />
+                                </div>
                             ) : (
-                                <div className="text-gray-400 flex flex-col items-center p-6 text-center">
-                                    <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    <span className="font-medium text-lg text-gray-500 mb-1">
-                                        No Preview Available
-                                    </span>
-                                    <span className="text-sm text-gray-400 mb-4">
-                                        This file type cannot be previewed directly.
-                                    </span>
-                                    <button onClick={handleDownload} className="px-4 py-2 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-lg text-sm font-semibold transition-colors">
-                                        Download to View
-                                    </button>
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <div className="text-gray-400 flex flex-col items-center p-6 text-center">
+                                        <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        <span className="font-medium text-lg text-gray-500 mb-1">
+                                            No Preview Available
+                                        </span>
+                                        <span className="text-sm text-gray-400 mb-4">
+                                            This file type cannot be previewed directly.
+                                        </span>
+                                        <button onClick={handleDownload} className="px-4 py-2 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-lg text-sm font-semibold transition-colors">
+                                            Download to View
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
