@@ -243,7 +243,11 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
             <FilePreviewModal
                 isOpen={!!previewFile}
                 onClose={() => setPreviewFile(null)}
-                fileUrl={previewFile ? `/print-requests/${previewFile._id}/preview` : ""}
+                fileUrl={
+                    previewFile?.cloudinaryId
+                        ? previewFile.fileUrl
+                        : (previewFile ? `/print-requests/${previewFile._id}/preview` : "")
+                }
                 fileType={previewFile?.fileType || (() => {
                     if (!previewFile?.fileUrl) return "application/octet-stream";
                     const ext = previewFile.fileUrl.split('.').pop().toLowerCase();
