@@ -117,54 +117,23 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // PDF Fetching Strategy:
-                // 1. Try Secure Proxy (Proxy streams content, solves CORS for private files)
-                // 2. If Proxy fails, try Direct Fetch WITHOUT Auth Headers (For Public/Old files)
+                // SIMPLIFIED STRATEGY: Direct Cloudinary URL (Industry Standard)
+                // Use the direct URL to the PDF. This works best for "native" browser viewers.
+                // If the URL is missing the .pdf extension, we append it to hint the browser.
 
-                const fetchPdf = async () => {
-                    // Strategy 1: Secure Proxy via API (includes Auth Token)
-                    // Only use proxy if we have an ID to reference
-                    if (requestData?._id) {
-                        try {
-                            const response = await api.get(`/print-requests/${requestData._id}/preview`, {
-                                responseType: "blob"
-                            });
-                            const blob = new Blob([response.data], { type: "application/pdf" });
-                            return window.URL.createObjectURL(blob);
-                        } catch (err) {
-                            console.warn("Secure Proxy Fetch failed, attempting direct fetch...", err);
-                        }
-                    }
+                let pdfUrl = actualFileUrl;
 
-                    // Strategy 2: Direct Fetch (No Auth Headers)
-                    // Use standard fetch or axios without interceptors to avoid CORS preflight issues on public URLs
-                    if (actualFileUrl) {
-                        try {
-                            const response = await fetch(actualFileUrl);
-                            if (!response.ok) throw new Error("Direct fetch failed");
-                            const blob = await response.blob();
-                            return window.URL.createObjectURL(blob);
-                        } catch (err) {
-                            console.error("Direct Fetch failed:", err);
-                            throw err;
-                        }
-                    }
+                // Ensure URL ends in .pdf for best browser compatibility
+                if (pdfUrl && !pdfUrl.toLowerCase().endsWith('.pdf')) {
+                    // Clean query params if any
+                    const cleanUrl = pdfUrl.split('?')[0];
+                    // Cloudinary trick: append .pdf to the resource path if it's missing
+                    // Does not change the actual file, just the served header/extension
+                    pdfUrl = cleanUrl + '.pdf';
+                }
 
-                    throw new Error("No valid URL found for PDF");
-                };
-
-                fetchPdf()
-                    .then((url) => {
-                        if (!active) return;
-                        setBlobUrl(url);
-                        setLoading(false);
-                    })
-                    .catch((err) => {
-                        if (!active) return;
-                        console.error("All PDF fetch strategies failed:", err);
-                        setError("Failed to load PDF document.");
-                        setLoading(false);
-                    });
+                setBlobUrl(pdfUrl);
+                setLoading(false);
             } else {
                 // For all other files (DOCX, images), use direct URLs
                 setLoading(false);
