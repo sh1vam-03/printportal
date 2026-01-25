@@ -72,6 +72,12 @@ echo "JWT_SECRET=your_super_secret_key" >> .env
 npm run dev
 ```
 
+#### 3. Cloudinary Setup (Required)
+To enable file storage, you must provide Cloudinary credentials in `server/.env`:
+```env
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+```
+
 #### 3. Frontend Setup
 ```bash
 cd client

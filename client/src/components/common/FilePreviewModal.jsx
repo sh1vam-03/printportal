@@ -1,7 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Modal from "../ui/Modal";
 import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+// Import standard styles for react-pdf
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 const FilePreviewModal = ({
     isOpen,
@@ -19,6 +27,37 @@ const FilePreviewModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
+
+    // PDF State
+    const [numPages, setNumPages] = useState(null);
+    const [pdfContainerWidth, setPdfContainerWidth] = useState(null);
+    const pdfWrapperRef = useRef(null);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+        setLoading(false);
+    }
+
+    // Measure container width for responsive PDF
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const updateWidth = () => {
+            if (pdfWrapperRef.current) {
+                setPdfContainerWidth(pdfWrapperRef.current.clientWidth);
+            }
+        };
+
+        // Initial measure
+        // Small delay to allow modal to render
+        const timer = setTimeout(updateWidth, 100);
+
+        window.addEventListener('resize', updateWidth);
+        return () => {
+            window.removeEventListener('resize', updateWidth);
+            clearTimeout(timer);
+        };
+    }, [isOpen, pdfWrapperRef.current]);
 
     // Helper to format file size
     const formatFileSize = (bytes) => {
@@ -180,7 +219,37 @@ const FilePreviewModal = ({
                     {!loading && !error && (
                         <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
                             {fileType === "application/pdf" ? (
-                                <iframe src={actualFileUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
+                                <div className="w-full h-full overflow-y-auto bg-gray-100 p-4 flex justify-center" ref={pdfWrapperRef}>
+                                    <Document
+                                        file={actualFileUrl}
+                                        onLoadSuccess={onDocumentLoadSuccess}
+                                        onLoadError={(err) => {
+                                            console.error("PDF Load Error:", err);
+                                            setError("Failed to load PDF document.");
+                                            setLoading(false);
+                                        }}
+                                        loading={
+                                            <div className="flex items-center space-x-2 text-gray-500">
+                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
+                                                <span>Loading PDF...</span>
+                                            </div>
+                                        }
+                                        className="shadow-lg"
+                                    >
+                                        {Array.from(new Array(numPages), (el, index) => (
+                                            <div key={`page_${index + 1}`} className="mb-4 last:mb-0">
+                                                <Page
+                                                    pageNumber={index + 1}
+                                                    width={pdfContainerWidth ? Math.min(pdfContainerWidth - 32, 800) : 600} // Responsive width with max limit
+                                                    renderTextLayer={false}
+                                                    renderAnnotationLayer={false}
+                                                    className="bg-white shadow-sm"
+                                                />
+                                                <p className="text-center text-xs text-gray-400 mt-1">Page {index + 1} of {numPages}</p>
+                                            </div>
+                                        ))}
+                                    </Document>
+                                </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
                             ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
