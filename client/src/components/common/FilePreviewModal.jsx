@@ -129,30 +129,22 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // PDF.JS CLIENT-SIDE RENDER STRATEGY
-                // Robust client-side rendering using react-pdf.
-                // Uses a Signed URL to fetch the PDF securely.
+                // REACT-PDF STRATEGY WITH BACKEND PROXY
+                // We use the backend proxy to stream the file.
+                // This solves two massive problems:
+                // 1. CORS: The browser fetches from OUR domain, not Cloudinary.
+                // 2. Auth: The backend handles the signed URL generation/retries for private files.
 
-
-                const fetchSignedUrl = async () => {
-                    if (requestData?._id) {
-                        try {
-                            const res = await api.get(`/print-requests/${requestData._id}/signed-url`);
-                            if (res.data.success) {
-                                return res.data.url;
-                            }
-                        } catch (err) {
-                            console.warn("Failed to get signed URL, falling back...", err);
-                        }
-                    }
-                    // Fallback to direct URL if public or signing fails
-                    return actualFileUrl;
-                };
-
-                fetchSignedUrl().then(url => {
-                    setBlobUrl(url); // We recycle 'blobUrl' state to store the display URL
+                const token = localStorage.getItem("token");
+                if (requestData?._id && token) {
+                    const proxyUrl = `${api.defaults.baseURL}/print-requests/${requestData._id}/preview?token=${token}`;
+                    setBlobUrl(proxyUrl);
                     setLoading(false);
-                });
+                } else {
+                    // Fallback
+                    setBlobUrl(actualFileUrl);
+                    setLoading(false);
+                }
             } else {
                 // For all other files (DOCX, images), use direct URLs
                 setLoading(false);

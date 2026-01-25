@@ -108,44 +108,51 @@ export const getPrintFile = asyncHandler(async (req, res) => {
         try {
             // Generate a SIGNED URL to access private/authenticated resources
             // We must match the resource_type used during upload ('raw' for docs/PDFs using Blob logic)
-            // If the fileUrl contains 'image/upload', it might be an image, but PDF uploads in middleware were 'raw'.
             // Safest check: look at fileType or just try 'raw' first for PDFs.
 
             const isPdf = request.fileType === 'application/pdf' || request.fileUrl.endsWith('.pdf');
             const resourceType = isPdf ? 'raw' : 'image';
 
-            // Generate signed URL with Cloudinary SDK
-            const signedUrl = cloudinary.url(request.cloudinaryId, {
-                resource_type: resourceType,
-                // type: 'authenticated', // REMOVED: Match upload type
-                sign_url: true,
-                secure: true,
-                expires_at: Math.floor(Date.now() / 1000) + 3600 // Valid for 1 hour
-            });
+            // Strategy 1: Try as 'upload' (standard/public but signed)
+            // This works for most files unless they were explicitly uploaded as 'authenticated'
+            const tryFetch = async (type) => {
+                const signedUrl = cloudinary.url(request.cloudinaryId, {
+                    resource_type: resourceType,
+                    type: type,
+                    sign_url: true,
+                    secure: true,
+                    expires_at: Math.floor(Date.now() / 1000) + 3600
+                });
+                console.log(`[Preview] Trying Proxy (${type}): ${signedUrl}`);
+                return await axios.get(signedUrl, { responseType: 'stream' });
+            };
 
-            console.log(`[Preview] Proxying via Signed URL: ${signedUrl}`);
-
-            // Fetch the signed URL
-            const response = await axios.get(signedUrl, {
-                responseType: 'stream'
-            });
+            let response;
+            try {
+                // Attempt 1: 'upload' type (Default)
+                response = await tryFetch('upload');
+            } catch (err1) {
+                console.warn(`[Preview] Failed as 'upload' (${err1.response?.status}), retrying as 'authenticated'...`);
+                try {
+                    // Attempt 2: 'authenticated' type (Private)
+                    response = await tryFetch('authenticated');
+                } catch (err2) {
+                    console.error(`[Preview] Failed as 'authenticated' too (${err2.response?.status})`);
+                    throw new ApiError(502, "Failed to fetch file from storage provider");
+                }
+            }
 
             // Set appropriate headers
             const contentType = request.fileType || response.headers['content-type'] || 'application/pdf';
             res.setHeader('Content-Type', contentType);
-            // Inline disposition to display in browser (not download)
             res.setHeader('Content-Disposition', `inline; filename="${request.originalName || 'document.pdf'}"`);
 
             // Pipe data to response
             response.data.pipe(res);
             return;
         } catch (error) {
-            console.error('[Preview] Failed to proxy file:', error.message, error.response?.status);
-
-            // If the first attempt failed (maybe it was 'upload' type not 'authenticated'?), try fallback?
-            // Usually 401/404 means wrong type. But strictly speaking, we should just fail safely.
-
-            throw new ApiError(502, "Failed to fetch file from storage provider");
+            console.error('[Preview] Critical Proxy Error:', error.message);
+            throw new ApiError(502, "Failed to proxy file");
         }
     }
 
