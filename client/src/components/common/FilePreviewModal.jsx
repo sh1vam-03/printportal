@@ -117,23 +117,28 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // SIMPLIFIED STRATEGY: Direct Cloudinary URL (Industry Standard)
-                // Use the direct URL to the PDF. This works best for "native" browser viewers.
-                // If the URL is missing the .pdf extension, we append it to hint the browser.
+                // AUTHENTICATED PROXY STRATEGY:
+                // Use the backend proxy with the token in the query string.
+                // This allows the browser <object> tag to fetch the file securely from our domain,
+                // bypassing Cloudinary CORS and Auth header limitations.
 
-                let pdfUrl = actualFileUrl;
-
-                // Ensure URL ends in .pdf for best browser compatibility
-                if (pdfUrl && !pdfUrl.toLowerCase().endsWith('.pdf')) {
-                    // Clean query params if any
-                    const cleanUrl = pdfUrl.split('?')[0];
-                    // Cloudinary trick: append .pdf to the resource path if it's missing
-                    // Does not change the actual file, just the served header/extension
-                    pdfUrl = cleanUrl + '.pdf';
+                const token = localStorage.getItem("token");
+                if (requestData?._id && token) {
+                    const proxyUrl = `${api.defaults.baseURL}/print-requests/${requestData._id}/preview?token=${token}`;
+                    setBlobUrl(proxyUrl);
+                    setLoading(false);
+                } else if (actualFileUrl) {
+                    // Fallback for public files (no ID)
+                    let pdfUrl = actualFileUrl;
+                    if (pdfUrl && !pdfUrl.toLowerCase().endsWith('.pdf')) {
+                        pdfUrl = pdfUrl.split('?')[0] + '.pdf';
+                    }
+                    setBlobUrl(pdfUrl);
+                    setLoading(false);
+                } else {
+                    setError("Unable to load PDF: No file source.");
+                    setLoading(false);
                 }
-
-                setBlobUrl(pdfUrl);
-                setLoading(false);
             } else {
                 // For all other files (DOCX, images), use direct URLs
                 setLoading(false);
