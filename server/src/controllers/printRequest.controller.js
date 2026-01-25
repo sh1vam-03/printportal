@@ -150,21 +150,66 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     }
 
     // Backward compatibility: Serve local files
-    const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
-    const filePath = path.join(process.cwd(), "src", relativeUrl);
+    if (request.fileUrl.startsWith('/')) { // Local file check
+        const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
+        const filePath = path.join(process.cwd(), "src", relativeUrl);
 
-    if (!fs.existsSync(filePath)) {
-        throw new ApiError(404, "File not found on server");
+        if (!fs.existsSync(filePath)) {
+            throw new ApiError(404, "File not found on server");
+        }
+
+        const contentType = request.fileType || getMimeType(request.fileUrl);
+        const downloadName = request.originalName || path.basename(request.fileUrl);
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
+
+        return res.sendFile(filePath);
+    }
+});
+
+/* ----------------------------------------
+   GET SIGNED URL (For External Viewers)
+----------------------------------------- */
+export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { role, userId } = req.user;
+
+    const request = await PrintRequest.findById(id);
+    if (!request) throw new ApiError(404, "Print request not found");
+
+    // Organization Check
+    if (request.organization.toString() !== req.user.organizationId) {
+        throw new ApiError(403, "Access denied");
     }
 
-    const contentType = request.fileType || getMimeType(request.fileUrl);
-    const downloadName = request.originalName || path.basename(request.fileUrl);
+    // Role Access Check
+    let canAccess = false;
+    if (role === "ADMIN" || role === "PRINTING") canAccess = true;
+    else if (role === "EMPLOYEE" && request.employee.toString() === userId) canAccess = true;
 
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
+    if (!canAccess) throw new ApiError(403, "Access denied");
 
-    res.sendFile(filePath);
+    if (request.cloudinaryId) {
+        // Generate Signed URL
+        const isPdf = request.fileType === 'application/pdf' || request.fileUrl.endsWith('.pdf');
+        const resourceType = isPdf ? 'raw' : 'image';
+
+        const signedUrl = cloudinary.url(request.cloudinaryId, {
+            resource_type: resourceType,
+            type: 'authenticated',
+            sign_url: true,
+            secure: true,
+            expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+        });
+
+        return res.json({ success: true, url: signedUrl });
+    }
+
+    // Local files not supported for external viewers
+    throw new ApiError(400, "Local files cannot be viewed externally");
 });
+
 
 /* ----------------------------------------
    DELETE PRINT REQUEST (Admin & employee)

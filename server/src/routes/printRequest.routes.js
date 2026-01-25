@@ -28,6 +28,13 @@ router.get(
     printRequestController.getPrintFile
 );
 
+// Get Signed URL (for external viewers like Google Docs)
+router.get(
+    "/:id/signed-url",
+    requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
+    printRequestController.getPrintFileSignedUrl
+);
+
 /* ---------------- Admin ---------------- */
 // Admin approves request
 router.put(
