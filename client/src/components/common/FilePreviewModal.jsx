@@ -71,23 +71,27 @@ const FilePreviewModal = ({
         return "Document";
     };
 
+    // Get the actual file URL - prioritize Cloudinary URL from requestData
+    const actualFileUrl = requestData?.fileUrl || fileUrl;
+
     // Reset state when file changes
     useEffect(() => {
         let active = true;
 
-        if (isOpen && fileUrl) {
+        if (isOpen && actualFileUrl) {
             setLoading(true);
             setError(null);
             setTextContent(null);
 
             // Check if this is a text file that needs content reading
             const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
-                fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
-                fileUrl?.toLowerCase().endsWith(".txt");
+                actualFileUrl?.toLowerCase().endsWith(".md") || actualFileUrl?.toLowerCase().endsWith(".csv") ||
+                actualFileUrl?.toLowerCase().endsWith(".txt");
 
             if (isTextFile) {
                 // Only fetch as blob for text files to read content
-                api.get(fileUrl, { responseType: "blob" })
+                // Use the API endpoint for fetching (fileUrl) to ensure proper auth
+                api.get(actualFileUrl, { responseType: "blob" })
                     .then((response) => {
                         if (!active) return;
                         const blob = new Blob([response.data], { type: fileType || 'text/plain' });
@@ -110,7 +114,7 @@ const FilePreviewModal = ({
         return () => {
             active = false;
         };
-    }, [isOpen, fileUrl, fileType]);
+    }, [isOpen, actualFileUrl, fileType]);
 
     const handlePrint = () => {
         if (!blobUrl) return;
@@ -121,12 +125,11 @@ const FilePreviewModal = ({
     };
 
     const handleDownload = () => {
-        // Use the actual Cloudinary URL from requestData
-        const downloadUrl = requestData?.fileUrl || fileUrl;
-        if (!downloadUrl) return;
+        // Use the actual Cloudinary URL
+        if (!actualFileUrl) return;
 
         const link = document.createElement("a");
-        link.href = downloadUrl;
+        link.href = actualFileUrl;
         link.download = originalName || "download";
         link.target = "_blank";
         document.body.appendChild(link);
@@ -177,12 +180,12 @@ const FilePreviewModal = ({
                     {!loading && !error && (
                         <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
                             {fileType === "application/pdf" ? (
-                                <iframe src={requestData?.fileUrl || fileUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
+                                <iframe src={actualFileUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
-                                <img src={requestData?.fileUrl || fileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
+                                <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
                             ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
-                                fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
-                                fileUrl?.toLowerCase().endsWith(".txt")) ? (
+                                actualFileUrl?.toLowerCase().endsWith(".md") || actualFileUrl?.toLowerCase().endsWith(".csv") ||
+                                actualFileUrl?.toLowerCase().endsWith(".txt")) ? (
                                 <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent || "Loading text..."}</pre>
                             ) : (
                                 // Google Docs Viewer for Office documents (DOCX, Excel, PowerPoint)
@@ -192,12 +195,12 @@ const FilePreviewModal = ({
                                 fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
                                 fileType === "application/vnd.ms-powerpoint" ||
                                 fileType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
-                                fileUrl?.toLowerCase().endsWith(".doc") || fileUrl?.toLowerCase().endsWith(".docx") ||
-                                fileUrl?.toLowerCase().endsWith(".xls") || fileUrl?.toLowerCase().endsWith(".xlsx") ||
-                                fileUrl?.toLowerCase().endsWith(".ppt") || fileUrl?.toLowerCase().endsWith(".pptx")
+                                actualFileUrl?.toLowerCase().endsWith(".doc") || actualFileUrl?.toLowerCase().endsWith(".docx") ||
+                                actualFileUrl?.toLowerCase().endsWith(".xls") || actualFileUrl?.toLowerCase().endsWith(".xlsx") ||
+                                actualFileUrl?.toLowerCase().endsWith(".ppt") || actualFileUrl?.toLowerCase().endsWith(".pptx")
                             ) ? (
                                 <iframe
-                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(requestData?.fileUrl || fileUrl)}&embedded=true`}
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(actualFileUrl)}&embedded=true`}
                                     className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none"
                                     title="Document Preview"
                                 />
