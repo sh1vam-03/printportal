@@ -112,8 +112,12 @@ const FilePreviewModal = ({
         return "Document";
     };
 
-    // Get the actual file URL - prioritize Cloudinary URL from requestData
-    const actualFileUrl = requestData?.fileUrl || fileUrl;
+    // Get the actual file URL
+    // For PDFs, we use the backend PROXY url to avoid CORS/Cloudinary issues with the native viewer.
+    // For others, we try to use the direct URL for speed, unless it's a private file.
+    const actualFileUrl = (fileType === "application/pdf" && requestData?._id)
+        ? `${api.defaults.baseURL || "http://localhost:5000/api"}/print-requests/${requestData._id}/preview`
+        : (requestData?.fileUrl || fileUrl);
 
     // Reset state when file changes
     useEffect(() => {

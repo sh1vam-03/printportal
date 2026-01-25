@@ -69,6 +69,8 @@ const getMimeType = (filename) => {
     }
 };
 
+import axios from "axios";
+
 export const getPrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { role, userId } = req.user; // Securely get from token
@@ -100,29 +102,41 @@ export const getPrintFile = asyncHandler(async (req, res) => {
         throw new ApiError(403, "Access denied to this file");
     }
 
-    // Cloudinary files: Redirect to Cloudinary URL
+    // Cloudinary files: PROXY content instead of redirecting (Solves CORS/Viewer issues)
     if (request.cloudinaryId) {
-        console.log(`[Preview] Redirecting to Cloudinary URL: ${request.fileUrl}`);
-        return res.redirect(request.fileUrl);
+        try {
+            console.log(`[Preview] Proxying Cloudinary file: ${request.fileUrl}`);
+
+            const response = await axios.get(request.fileUrl, {
+                responseType: 'stream'
+            });
+
+            // Set appropriate headers
+            const contentType = request.fileType || response.headers['content-type'];
+            res.setHeader('Content-Type', contentType);
+            // Inline disposition to display in browser (not download)
+            res.setHeader('Content-Disposition', `inline; filename="${request.originalName || 'document.pdf'}"`);
+
+            // Pipe data to response
+            response.data.pipe(res);
+            return;
+        } catch (error) {
+            console.error('[Preview] Failed to proxy file:', error.message);
+            // Fallback to redirect if proxy fails
+            return res.redirect(request.fileUrl);
+        }
     }
 
     // Backward compatibility: Serve local files
     const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
     const filePath = path.join(process.cwd(), "src", relativeUrl);
 
-    console.log(`[Preview] Request ID: ${id}`);
-    console.log(`[Preview] fileUrl in DB: ${request.fileUrl}`);
-    console.log(`[Preview] Resolved Path: ${filePath}`);
-
     if (!fs.existsSync(filePath)) {
-        console.error(`[Preview] File NOT FOUND at ${filePath}`);
         throw new ApiError(404, "File not found on server");
     }
 
     const contentType = request.fileType || getMimeType(request.fileUrl);
     const downloadName = request.originalName || path.basename(request.fileUrl);
-
-    console.log(`[Preview] Content-Type: ${contentType}`);
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
