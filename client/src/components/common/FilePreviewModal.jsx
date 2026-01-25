@@ -117,28 +117,29 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // AUTHENTICATED PROXY STRATEGY:
-                // Use the backend proxy with the token in the query string.
-                // This allows the browser <object> tag to fetch the file securely from our domain,
-                // bypassing Cloudinary CORS and Auth header limitations.
+                // GOOGLE DOCS VIEWER STRATEGY (Requested by User)
+                // Reliable iframe-based viewer that behaves like DOCX/PPT preview.
+                // Requires a publicly accessible URL, so we fetch a temporary SIGNED URL from the backend.
 
-                const token = localStorage.getItem("token");
-                if (requestData?._id && token) {
-                    const proxyUrl = `${api.defaults.baseURL}/print-requests/${requestData._id}/preview?token=${token}`;
-                    setBlobUrl(proxyUrl);
-                    setLoading(false);
-                } else if (actualFileUrl) {
-                    // Fallback for public files (no ID)
-                    let pdfUrl = actualFileUrl;
-                    if (pdfUrl && !pdfUrl.toLowerCase().endsWith('.pdf')) {
-                        pdfUrl = pdfUrl.split('?')[0] + '.pdf';
+                const fetchSignedUrl = async () => {
+                    if (requestData?._id) {
+                        try {
+                            const res = await api.get(`/print-requests/${requestData._id}/signed-url`);
+                            if (res.data.success) {
+                                return res.data.url;
+                            }
+                        } catch (err) {
+                            console.warn("Failed to get signed URL, falling back...", err);
+                        }
                     }
-                    setBlobUrl(pdfUrl);
+                    // Fallback to direct URL if public or signing fails
+                    return actualFileUrl;
+                };
+
+                fetchSignedUrl().then(url => {
+                    setBlobUrl(url); // We recycle 'blobUrl' state to store the display URL
                     setLoading(false);
-                } else {
-                    setError("Unable to load PDF: No file source.");
-                    setLoading(false);
-                }
+                });
             } else {
                 // For all other files (DOCX, images), use direct URLs
                 setLoading(false);
@@ -215,24 +216,24 @@ const FilePreviewModal = ({
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
                                 <div className="w-full h-full bg-gray-100 flex justify-center items-center">
-                                    <object
-                                        data={blobUrl} // Use the BLOB URL here
-                                        type="application/pdf"
-                                        className="w-full h-full block"
+                                    <iframe
+                                        src={`https://docs.google.com/gview?url=${encodeURIComponent(blobUrl)}&embedded=true`}
+                                        className="w-full h-full border-0"
+                                        title="PDF Preview"
                                     >
                                         <div className="flex flex-col items-center justify-center h-full p-6 text-center">
                                             <p className="text-gray-500 mb-4">
-                                                Your browser does not support inline PDF viewing.
+                                                Preview not available.
                                             </p>
                                             <a
-                                                href={blobUrl} // Download blob directly
+                                                href={blobUrl}
                                                 download={originalName || "document.pdf"}
                                                 className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
                                             >
-                                                Download PDF to View
+                                                Download PDF
                                             </a>
                                         </div>
-                                    </object>
+                                    </iframe>
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">
