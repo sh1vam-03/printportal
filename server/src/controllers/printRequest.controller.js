@@ -2,7 +2,7 @@ import PrintRequest from "../models/PrintRequest.js";
 import { getIO } from "../config/socket.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import cloudinary from "../config/cloudinary.config.js";
+
 
 /* ----------------------------------------
    CREATE PRINT REQUEST (Employee)
@@ -70,6 +70,7 @@ const getMimeType = (filename) => {
 };
 
 import axios from "axios";
+import cloudinary from "../config/cloudinary.config.js";
 
 export const getPrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -105,14 +106,32 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     // Cloudinary files: PROXY content instead of redirecting (Solves CORS/Viewer issues)
     if (request.cloudinaryId) {
         try {
-            console.log(`[Preview] Proxying Cloudinary file: ${request.fileUrl}`);
+            // Generate a SIGNED URL to access private/authenticated resources
+            // We must match the resource_type used during upload ('raw' for docs/PDFs using Blob logic)
+            // If the fileUrl contains 'image/upload', it might be an image, but PDF uploads in middleware were 'raw'.
+            // Safest check: look at fileType or just try 'raw' first for PDFs.
 
-            const response = await axios.get(request.fileUrl, {
+            const isPdf = request.fileType === 'application/pdf' || request.fileUrl.endsWith('.pdf');
+            const resourceType = isPdf ? 'raw' : 'image';
+
+            // Generate signed URL with Cloudinary SDK
+            const signedUrl = cloudinary.url(request.cloudinaryId, {
+                resource_type: resourceType,
+                type: 'authenticated', // Try 'authenticated' for private files
+                sign_url: true,
+                secure: true,
+                expires_at: Math.floor(Date.now() / 1000) + 3600 // Valid for 1 hour
+            });
+
+            console.log(`[Preview] Proxying via Signed URL: ${signedUrl}`);
+
+            // Fetch the signed URL
+            const response = await axios.get(signedUrl, {
                 responseType: 'stream'
             });
 
             // Set appropriate headers
-            const contentType = request.fileType || response.headers['content-type'];
+            const contentType = request.fileType || response.headers['content-type'] || 'application/pdf';
             res.setHeader('Content-Type', contentType);
             // Inline disposition to display in browser (not download)
             res.setHeader('Content-Disposition', `inline; filename="${request.originalName || 'document.pdf'}"`);
@@ -121,9 +140,11 @@ export const getPrintFile = asyncHandler(async (req, res) => {
             response.data.pipe(res);
             return;
         } catch (error) {
-            console.error('[Preview] Failed to proxy file:', error.message);
-            // DO NOT Redirect. Redirecting with Auth headers causes CORS errors on Client.
-            // Return gateway error so client can try fallback strategy.
+            console.error('[Preview] Failed to proxy file:', error.message, error.response?.status);
+
+            // If the first attempt failed (maybe it was 'upload' type not 'authenticated'?), try fallback?
+            // Usually 401/404 means wrong type. But strictly speaking, we should just fail safely.
+
             throw new ApiError(502, "Failed to fetch file from storage provider");
         }
     }
