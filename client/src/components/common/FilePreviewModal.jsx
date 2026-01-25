@@ -283,7 +283,7 @@ const FilePreviewModal = ({
                                     <div>
                                         <span className="block text-xs text-gray-500 mb-0.5">Last Modified</span>
                                         <span className="font-semibold text-gray-900 text-sm">
-                                            {new Date(requestData?.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                            {new Date(requestData?.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </span>
                                     </div>
                                 </div>
