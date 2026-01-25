@@ -106,40 +106,48 @@ export const getPrintFile = asyncHandler(async (req, res) => {
     // Cloudinary files: PROXY content instead of redirecting (Solves CORS/Viewer issues)
     if (request.cloudinaryId) {
         try {
-            // Generate a SIGNED URL to access private/authenticated resources
-            // We must match the resource_type used during upload ('raw' for docs/PDFs using Blob logic)
-            // Safest check: look at fileType or just try 'raw' first for PDFs.
+            // EXHAUSTIVE FETCH STRATEGY
+            // We don't know for sure if the file is 'raw' or 'image', or 'upload' or 'authenticated',
+            // because Cloudinary/Multer behavior depends on many factors (and past code versions).
+            // We will try ALL reasonable combinations until one works.
 
-            const isPdf = request.fileType === 'application/pdf' || request.fileUrl.endsWith('.pdf');
-            const resourceType = isPdf ? 'raw' : 'image';
+            const combinations = [
+                { resource_type: 'raw', type: 'upload' },       // Most likely for new PDFs
+                { resource_type: 'image', type: 'upload' },     // Fallback for PDFs saved as images
+                { resource_type: 'raw', type: 'authenticated' }, // If Access Control is strict
+                { resource_type: 'image', type: 'authenticated' } // Strict + Image
+            ];
 
-            // Strategy 1: Try as 'upload' (standard/public but signed)
-            // This works for most files unless they were explicitly uploaded as 'authenticated'
-            const tryFetch = async (type) => {
-                const signedUrl = cloudinary.url(request.cloudinaryId, {
-                    resource_type: resourceType,
-                    type: type,
-                    sign_url: true,
-                    secure: true,
-                    expires_at: Math.floor(Date.now() / 1000) + 3600
-                });
-                console.log(`[Preview] Trying Proxy (${type}): ${signedUrl}`);
-                return await axios.get(signedUrl, { responseType: 'stream' });
-            };
+            let lastError = null;
+            let response = null;
+            let successConfig = null;
 
-            let response;
-            try {
-                // Attempt 1: 'upload' type (Default)
-                response = await tryFetch('upload');
-            } catch (err1) {
-                console.warn(`[Preview] Failed as 'upload' (${err1.response?.status}), retrying as 'authenticated'...`);
+            for (const config of combinations) {
                 try {
-                    // Attempt 2: 'authenticated' type (Private)
-                    response = await tryFetch('authenticated');
-                } catch (err2) {
-                    console.error(`[Preview] Failed as 'authenticated' too (${err2.response?.status})`);
-                    throw new ApiError(502, "Failed to fetch file from storage provider");
+                    const signedUrl = cloudinary.url(request.cloudinaryId, {
+                        resource_type: config.resource_type,
+                        type: config.type,
+                        sign_url: true,
+                        secure: true,
+                        // expires_at: Math.floor(Date.now() / 1000) + 3600 // Optional, mostly for 'authenticated'
+                    });
+
+                    // Simple HEAD request first? No, just GET stream. If it fails, axios throws.
+                    response = await axios.get(signedUrl, { responseType: 'stream' });
+                    successConfig = config;
+                    console.log(`[Preview] Success using: ${JSON.stringify(config)} -> ${signedUrl}`);
+                    break; // Found it!
+                } catch (err) {
+                    // Log but continue
+                    // console.log(`[Preview] Failed: ${JSON.stringify(config)} - ${err.response?.status}`);
+                    lastError = err;
                 }
+            }
+
+            if (!response) {
+                console.error(`[Preview] All fetch attempts failed. Last status: ${lastError?.response?.status}`);
+                // Return detailed info for user debugging
+                throw new ApiError(502, `Cloudinary Unavailable: ${lastError?.message || "Unknown Error"}`);
             }
 
             // Set appropriate headers
@@ -151,8 +159,11 @@ export const getPrintFile = asyncHandler(async (req, res) => {
             response.data.pipe(res);
             return;
         } catch (error) {
+            // If it's already an ApiError, rethrow it
+            if (error instanceof ApiError) throw error;
+
             console.error('[Preview] Critical Proxy Error:', error.message);
-            throw new ApiError(502, "Failed to proxy file");
+            throw new ApiError(502, `Proxy Handshake Failed: ${error.message}`);
         }
     }
 
