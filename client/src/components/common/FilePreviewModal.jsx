@@ -4,8 +4,11 @@ import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Configure PDF.js worker (Vite compatible)
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url,
+).toString();
 
 // Import standard styles for react-pdf
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -217,9 +220,9 @@ const FilePreviewModal = ({
                     )}
 
                     {!loading && !error && (
-                        <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
+                        <div className="w-full h-auto min-h-full flex items-start justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0 overflow-y-auto">
                             {fileType === "application/pdf" ? (
-                                <div className="w-full h-full overflow-y-auto bg-gray-100 p-4 flex justify-center" ref={pdfWrapperRef}>
+                                <div className="w-full h-auto flex justify-center py-8" ref={pdfWrapperRef}>
                                     <Document
                                         file={actualFileUrl}
                                         onLoadSuccess={onDocumentLoadSuccess}
@@ -251,11 +254,15 @@ const FilePreviewModal = ({
                                     </Document>
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
-                                <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
+                                <div className="w-full h-full flex items-center justify-center p-4">
+                                    <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
+                                </div>
                             ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                                 actualFileUrl?.toLowerCase().endsWith(".md") || actualFileUrl?.toLowerCase().endsWith(".csv") ||
                                 actualFileUrl?.toLowerCase().endsWith(".txt")) ? (
-                                <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent || "Loading text..."}</pre>
+                                <div className="w-full h-auto p-4 lg:p-8">
+                                    <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent || "Loading text..."}</pre>
+                                </div>
                             ) : (
                                 // Google Docs Viewer for Office documents (DOCX, Excel, PowerPoint)
                                 fileType === "application/msword" ||
