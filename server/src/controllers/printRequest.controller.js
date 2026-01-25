@@ -209,19 +209,50 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
     if (!canAccess) throw new ApiError(403, "Access denied");
 
     if (request.cloudinaryId) {
-        // Generate Signed URL
-        const isPdf = request.fileType === 'application/pdf' || request.fileUrl.endsWith('.pdf');
-        const resourceType = isPdf ? 'raw' : 'image';
+        // EXHAUSTIVE URL DISCOVERY
+        // To support external viewers (Office/Google), we need a PUBLICLY ACCESSIBLE URL.
+        // We iterate through possible storage types to find the one that works.
 
-        const signedUrl = cloudinary.url(request.cloudinaryId, {
-            resource_type: resourceType,
-            // type: 'authenticated', // REMOVED: Middleware defaults to 'upload', so we must sign for 'upload'
-            sign_url: true,
-            secure: true,
-            expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
-        });
+        const combinations = [
+            { resource_type: 'raw', type: 'upload' },       // Standard public PDF
+            { resource_type: 'image', type: 'upload' },     // Saved as image
+            { resource_type: 'raw', type: 'authenticated' }, // Private PDF
+            { resource_type: 'image', type: 'authenticated' } // Private Legacy
+        ];
 
-        return res.json({ success: true, url: signedUrl });
+        let validUrl = null;
+
+        // We must actually CHECK if the URL works because external viewers will fail blindly.
+        // We do a HEAD request or fast GET to verify.
+        for (const config of combinations) {
+            try {
+                const signedUrl = cloudinary.url(request.cloudinaryId, {
+                    resource_type: config.resource_type,
+                    type: config.type,
+                    sign_url: true,
+                    secure: true,
+                    // expires_at: Math.floor(Date.now() / 1000) + 3600 // Adding expiry might break some strict viewers if clock skew
+                });
+
+                // Verify connectivity (Lightweight check)
+                // axios head/get stream
+                await axios.head(signedUrl);
+
+                validUrl = signedUrl;
+                console.log(`[SignedURL] Found valid URL: ${JSON.stringify(config)}`);
+                break;
+            } catch (err) {
+                // Continue searching
+            }
+        }
+
+        if (validUrl) {
+            return res.json({ success: true, url: validUrl });
+        }
+
+        // If exhaustive search failed, return the 'safest' guess (usually raw/upload) but warn
+        // or throw 404.
+        throw new ApiError(404, "File could not be located on storage");
     }
 
     // Local files not supported for external viewers
