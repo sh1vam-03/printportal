@@ -122,8 +122,9 @@ export const getPrintFile = asyncHandler(async (req, res) => {
             return;
         } catch (error) {
             console.error('[Preview] Failed to proxy file:', error.message);
-            // Fallback to redirect if proxy fails
-            return res.redirect(request.fileUrl);
+            // DO NOT Redirect. Redirecting with Auth headers causes CORS errors on Client.
+            // Return gateway error so client can try fallback strategy.
+            throw new ApiError(502, "Failed to fetch file from storage provider");
         }
     }
 

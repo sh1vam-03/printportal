@@ -117,24 +117,52 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // FETCH PDF AS BLOB to handle Authentication Headers!
-                // The <object> tag cannot send headers, so we must fetch it first.
-                // We use the proxy endpoint to avoid CORS, and api.get to add the Token.
-                const pdfEndpoint = requestData?._id
-                    ? `/print-requests/${requestData._id}/preview`
-                    : actualFileUrl;
+                // PDF Fetching Strategy:
+                // 1. Try Secure Proxy (Proxy streams content, solves CORS for private files)
+                // 2. If Proxy fails, try Direct Fetch WITHOUT Auth Headers (For Public/Old files)
 
-                api.get(pdfEndpoint, { responseType: "blob" })
-                    .then((response) => {
+                const fetchPdf = async () => {
+                    // Strategy 1: Secure Proxy via API (includes Auth Token)
+                    // Only use proxy if we have an ID to reference
+                    if (requestData?._id) {
+                        try {
+                            const response = await api.get(`/print-requests/${requestData._id}/preview`, {
+                                responseType: "blob"
+                            });
+                            const blob = new Blob([response.data], { type: "application/pdf" });
+                            return window.URL.createObjectURL(blob);
+                        } catch (err) {
+                            console.warn("Secure Proxy Fetch failed, attempting direct fetch...", err);
+                        }
+                    }
+
+                    // Strategy 2: Direct Fetch (No Auth Headers)
+                    // Use standard fetch or axios without interceptors to avoid CORS preflight issues on public URLs
+                    if (actualFileUrl) {
+                        try {
+                            const response = await fetch(actualFileUrl);
+                            if (!response.ok) throw new Error("Direct fetch failed");
+                            const blob = await response.blob();
+                            return window.URL.createObjectURL(blob);
+                        } catch (err) {
+                            console.error("Direct Fetch failed:", err);
+                            throw err;
+                        }
+                    }
+
+                    throw new Error("No valid URL found for PDF");
+                };
+
+                fetchPdf()
+                    .then((url) => {
                         if (!active) return;
-                        const blob = new Blob([response.data], { type: "application/pdf" });
-                        const url = window.URL.createObjectURL(blob);
-                        setBlobUrl(url); // Store blob URL
+                        setBlobUrl(url);
                         setLoading(false);
                     })
                     .catch((err) => {
-                        console.error("PDF Blob Fetch Error:", err);
-                        setError("Failed to load secure PDF document.");
+                        if (!active) return;
+                        console.error("All PDF fetch strategies failed:", err);
+                        setError("Failed to load PDF document.");
                         setLoading(false);
                     });
             } else {
