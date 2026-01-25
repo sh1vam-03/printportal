@@ -2,15 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Modal from "../ui/Modal";
 import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
-import { Document, Page, pdfjs } from 'react-pdf';
 
-// Configure PDF.js worker (Vite Asset Import)
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
-
-// Import standard styles for react-pdf
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
 
 const FilePreviewModal = ({
     isOpen,
@@ -28,38 +20,18 @@ const FilePreviewModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
-    const [usePdfFallback, setUsePdfFallback] = useState(false);
 
-    // PDF State
-    const [numPages, setNumPages] = useState(null);
-    const [pdfContainerWidth, setPdfContainerWidth] = useState(null);
-    const pdfWrapperRef = useRef(null);
 
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages);
-        setLoading(false);
-    }
 
-    // Measure container width for responsive PDF
+
+    // Clean up Blob URL to prevent memory leaks
     useEffect(() => {
-        if (!isOpen) return;
-
-        const updateWidth = () => {
-            if (pdfWrapperRef.current) {
-                setPdfContainerWidth(pdfWrapperRef.current.clientWidth);
+        return () => {
+            if (blobUrl) {
+                window.URL.revokeObjectURL(blobUrl);
             }
         };
-
-        // Initial measure
-        // Small delay to allow modal to render
-        const timer = setTimeout(updateWidth, 100);
-
-        window.addEventListener('resize', updateWidth);
-        return () => {
-            window.removeEventListener('resize', updateWidth);
-            clearTimeout(timer);
-        };
-    }, [isOpen, pdfWrapperRef.current]);
+    }, [blobUrl]);
 
     // Helper to format file size
     const formatFileSize = (bytes) => {
@@ -124,7 +96,7 @@ const FilePreviewModal = ({
             setLoading(true);
             setLoading(true);
             setError(null);
-            setUsePdfFallback(false);
+
             setTextContent(null);
 
             // Check if this is a text file that needs content reading

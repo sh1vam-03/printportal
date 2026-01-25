@@ -7,15 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "postinstall": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "axios": "^1.13.2",
-    "pdfjs-dist": "^4.8.69",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-pdf": "^10.3.0",
     "react-router-dom": "^7.11.0",
     "socket.io-client": "^4.8.3"
   },
