@@ -8,8 +8,13 @@ const storage = new CloudinaryStorage({
         // Extract organization from authenticated user
         const orgId = req.user?.organizationId || 'default';
 
+        // Determine resource type: 'image' for images, 'raw' for all documents
+        const isImage = file.mimetype.startsWith('image/');
+        const resourceType = isImage ? 'image' : 'raw';
+
         return {
             folder: `printportal/${orgId}`,
+            resource_type: resourceType, // Critical: 'raw' for documents, 'image' for images
             allowed_formats: [
                 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp',
                 'pdf', 'doc', 'docx', 'odt', 'rtf',
@@ -18,7 +23,6 @@ const storage = new CloudinaryStorage({
                 'txt', 'md',
                 'zip'
             ],
-            resource_type: 'auto', // Handles both images and raw files (PDFs, docs)
         };
     },
 });

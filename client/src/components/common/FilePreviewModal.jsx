@@ -122,6 +122,17 @@ const FilePreviewModal = ({
     };
 
     const handleDownload = () => {
+        if (!blobUrl && fileUrl) {
+            // For files we can't create blob URLs for, use direct Cloudinary URL
+            const link = document.createElement("a");
+            link.href = fileUrl;
+            link.download = originalName || "download";
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+        }
         if (!blobUrl) return;
         const link = document.createElement("a");
         link.href = blobUrl;
@@ -171,16 +182,33 @@ const FilePreviewModal = ({
                         </div>
                     )}
 
-                    {!loading && !error && blobUrl && (
+                    {!loading && !error && (
                         <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
-                            {fileType === "application/pdf" ? (
+                            {fileType === "application/pdf" && blobUrl ? (
                                 <iframe src={blobUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
-                            ) : fileType?.startsWith("image/") || fileType === "image/svg+xml" ? (
+                            ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") && blobUrl ? (
                                 <img src={blobUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
                             ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                                 fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
-                                fileUrl?.toLowerCase().endsWith(".txt")) ? (
+                                fileUrl?.toLowerCase().endsWith(".txt")) && blobUrl ? (
                                 <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent || "Loading text..."}</pre>
+                            ) : (
+                                // Google Docs Viewer for Office documents (DOCX, Excel, PowerPoint)
+                                fileType === "application/msword" ||
+                                fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+                                fileType === "application/vnd.ms-excel" ||
+                                fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                                fileType === "application/vnd.ms-powerpoint" ||
+                                fileType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+                                fileUrl?.toLowerCase().endsWith(".doc") || fileUrl?.toLowerCase().endsWith(".docx") ||
+                                fileUrl?.toLowerCase().endsWith(".xls") || fileUrl?.toLowerCase().endsWith(".xlsx") ||
+                                fileUrl?.toLowerCase().endsWith(".ppt") || fileUrl?.toLowerCase().endsWith(".pptx")
+                            ) ? (
+                                <iframe
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`}
+                                    className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none"
+                                    title="Document Preview"
+                                />
                             ) : (
                                 <div className="text-gray-400 flex flex-col items-center p-6 text-center">
                                     <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
