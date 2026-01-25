@@ -256,9 +256,6 @@ const FilePreviewModal = ({
                                         </Document>
                                     ) : (
                                         <div className="w-full h-full flex flex-col">
-                                            <div className="bg-yellow-50 p-2 text-center text-xs text-yellow-700 border-b border-yellow-100">
-                                                Advanced preview failed. Using basic viewer.
-                                            </div>
                                             <iframe
                                                 src={`https://docs.google.com/viewer?url=${encodeURIComponent(actualFileUrl)}&embedded=true`}
                                                 className="w-full flex-1 border-0 shadow-sm"
