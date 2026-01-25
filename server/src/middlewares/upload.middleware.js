@@ -10,20 +10,18 @@ const storage = new CloudinaryStorage({
 
         // Determine resource type: 'image' for images, 'raw' for all documents
         const isImage = file.mimetype.startsWith('image/');
-        const resourceType = isImage ? 'image' : 'raw';
 
-        return {
+        const params = {
             folder: `printportal/${orgId}`,
-            resource_type: resourceType, // Critical: 'raw' for documents, 'image' for images
-            allowed_formats: [
-                'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp',
-                'pdf', 'doc', 'docx', 'odt', 'rtf',
-                'xls', 'xlsx', 'csv',
-                'ppt', 'pptx',
-                'txt', 'md',
-                'zip'
-            ],
+            resource_type: isImage ? 'image' : 'raw',
         };
+
+        // Only apply allowed_formats for images (doesn't work for 'raw' resource_type)
+        if (isImage) {
+            params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
+        }
+
+        return params;
     },
 });
 
@@ -83,9 +81,11 @@ export const handleUpload = (req, res, next) => {
                 message: err.message
             });
         } else if (err) {
-            return res.status(500).json({
+            // Show actual error message for debugging
+            console.error('Upload error:', err);
+            return res.status(400).json({
                 success: false,
-                message: 'Error uploading file'
+                message: err.message || 'Error uploading file'
             });
         }
         next();
