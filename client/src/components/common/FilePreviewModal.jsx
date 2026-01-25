@@ -28,6 +28,7 @@ const FilePreviewModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
+    const [usePdfFallback, setUsePdfFallback] = useState(false);
 
     // PDF State
     const [numPages, setNumPages] = useState(null);
@@ -120,7 +121,9 @@ const FilePreviewModal = ({
 
         if (isOpen && actualFileUrl) {
             setLoading(true);
+            setLoading(true);
             setError(null);
+            setUsePdfFallback(false);
             setTextContent(null);
 
             // Check if this is a text file that needs content reading
@@ -221,35 +224,48 @@ const FilePreviewModal = ({
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
                                 <div className="w-full h-full overflow-y-auto bg-gray-100 p-4 flex justify-center" ref={pdfWrapperRef}>
-                                    <Document
-                                        file={actualFileUrl}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                        onLoadError={(err) => {
-                                            console.error("PDF Load Error:", err);
-                                            setError("Failed to load PDF document.");
-                                            setLoading(false);
-                                        }}
-                                        loading={
-                                            <div className="flex items-center space-x-2 text-gray-500 mt-10">
-                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
-                                                <span>Loading PDF...</span>
+                                    {!usePdfFallback ? (
+                                        <Document
+                                            file={actualFileUrl}
+                                            onLoadSuccess={onDocumentLoadSuccess}
+                                            onLoadError={(err) => {
+                                                console.error("PDF Load Error:", err);
+                                                // Fallback to Google Docs Viewer
+                                                setUsePdfFallback(true);
+                                            }}
+                                            loading={
+                                                <div className="flex items-center space-x-2 text-gray-500 mt-10">
+                                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
+                                                    <span>Loading PDF...</span>
+                                                </div>
+                                            }
+                                            className="shadow-lg"
+                                        >
+                                            {Array.from(new Array(numPages), (el, index) => (
+                                                <div key={`page_${index + 1}`} className="mb-4 last:mb-0">
+                                                    <Page
+                                                        pageNumber={index + 1}
+                                                        width={pdfContainerWidth ? Math.min(pdfContainerWidth - 32, 800) : 600} // Responsive width with max limit
+                                                        renderTextLayer={false}
+                                                        renderAnnotationLayer={false}
+                                                        className="bg-white shadow-sm"
+                                                    />
+                                                    <p className="text-center text-xs text-gray-400 mt-1">Page {index + 1} of {numPages}</p>
+                                                </div>
+                                            ))}
+                                        </Document>
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col">
+                                            <div className="bg-yellow-50 p-2 text-center text-xs text-yellow-700 border-b border-yellow-100">
+                                                Advanced preview failed. Using basic viewer.
                                             </div>
-                                        }
-                                        className="shadow-lg"
-                                    >
-                                        {Array.from(new Array(numPages), (el, index) => (
-                                            <div key={`page_${index + 1}`} className="mb-4 last:mb-0">
-                                                <Page
-                                                    pageNumber={index + 1}
-                                                    width={pdfContainerWidth ? Math.min(pdfContainerWidth - 32, 800) : 600} // Responsive width with max limit
-                                                    renderTextLayer={false}
-                                                    renderAnnotationLayer={false}
-                                                    className="bg-white shadow-sm"
-                                                />
-                                                <p className="text-center text-xs text-gray-400 mt-1">Page {index + 1} of {numPages}</p>
-                                            </div>
-                                        ))}
-                                    </Document>
+                                            <iframe
+                                                src={`https://docs.google.com/viewer?url=${encodeURIComponent(actualFileUrl)}&embedded=true`}
+                                                className="w-full flex-1 border-0 shadow-sm"
+                                                title="PDF Fallback Preview"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">
