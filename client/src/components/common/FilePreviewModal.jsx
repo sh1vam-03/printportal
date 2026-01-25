@@ -35,22 +35,40 @@ const FilePreviewModal = ({
         if (mimeType === "application/pdf") return "PDF Document";
         if (mimeType?.startsWith("image/")) return "Image File";
         if (mimeType === "text/plain") return "Text File";
+        if (mimeType === "text/csv") return "CSV Spreadsheet";
+
+        // Excel
+        if (mimeType === "application/vnd.ms-excel") return "Excel Spreadsheet";
+        if (mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") return "Excel Spreadsheet";
+
+        // PowerPoint
+        if (mimeType === "application/vnd.ms-powerpoint") return "PowerPoint Presentation";
+        if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") return "PowerPoint Presentation";
+
+        // Archives
+        if (mimeType === "application/zip" || mimeType === "application/x-zip-compressed") return "ZIP Archive";
 
         // Fallback to extension
         if (url) {
             const parts = url.split('.');
-            // Ensure we actually have an extension (more than 1 part) and it's not a path
             if (parts.length > 1) {
                 const ext = parts.pop()?.toUpperCase();
-                // Basic validation for extension
                 if (ext) {
                     if (["DOC", "DOCX"].includes(ext)) return "Word Document";
                     if (["MD", "MARKDOWN"].includes(ext)) return "Markdown File";
+                    if (["XLS", "XLSX"].includes(ext)) return "Excel Spreadsheet";
+                    if (["PPT", "PPTX"].includes(ext)) return "PowerPoint Presentation";
+                    if (["CSV"].includes(ext)) return "CSV Spreadsheet";
+                    if (["RTF"].includes(ext)) return "Rich Text Document";
+                    if (["ODT"].includes(ext)) return "OpenDocument Text";
+                    if (["SVG"].includes(ext)) return "SVG Image";
+                    if (["BMP"].includes(ext)) return "BMP Image";
+                    if (["ZIP"].includes(ext)) return "ZIP Archive";
                     if (ext.length < 6 && !ext.includes('/')) return `${ext} File`;
                 }
             }
         }
-        return "Unknown Type";
+        return "Document";
     };
 
     // Reset state when file changes
@@ -72,7 +90,10 @@ const FilePreviewModal = ({
                     createdUrl = URL.createObjectURL(blob);
                     setBlobUrl(createdUrl);
 
-                    if (fileType === "text/plain" || fileUrl?.toLowerCase().endsWith(".md") || fileType === "text/markdown") {
+                    // Text content for text files, markdown, and CSV
+                    if (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
+                        fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
+                        fileUrl?.toLowerCase().endsWith(".txt")) {
                         const reader = new FileReader();
                         reader.onload = () => { if (active) setTextContent(reader.result); };
                         reader.readAsText(blob);
@@ -154,9 +175,11 @@ const FilePreviewModal = ({
                         <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
                             {fileType === "application/pdf" ? (
                                 <iframe src={blobUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
-                            ) : fileType?.startsWith("image/") ? (
+                            ) : fileType?.startsWith("image/") || fileType === "image/svg+xml" ? (
                                 <img src={blobUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
-                            ) : (fileType === "text/plain" || fileUrl?.toLowerCase().endsWith(".md") || fileType === "text/markdown") ? (
+                            ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
+                                fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
+                                fileUrl?.toLowerCase().endsWith(".txt")) ? (
                                 <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent || "Loading text..."}</pre>
                             ) : (
                                 <div className="text-gray-400 flex flex-col items-center p-6 text-center">
@@ -248,6 +271,20 @@ const FilePreviewModal = ({
                                     <div>
                                         <span className="block text-xs text-gray-500 mb-0.5">Type</span>
                                         <span className="font-semibold text-gray-900 text-sm">{getReadableFileType(fileType, fileUrl)}</span>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span className="block text-xs text-gray-500 mb-0.5">Uploaded On</span>
+                                        <span className="font-semibold text-gray-900 text-sm">
+                                            {new Date(requestData?.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-xs text-gray-500 mb-0.5">Last Modified</span>
+                                        <span className="font-semibold text-gray-900 text-sm">
+                                            {new Date(requestData?.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

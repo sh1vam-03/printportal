@@ -77,7 +77,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                         type="file"
                         name="file"
                         required
-                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.md"
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.pdf,.doc,.docx,.odt,.rtf,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.md,.zip"
                         onChange={handleFileChange}
                         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
@@ -97,7 +97,7 @@ const CreatePrintRequest = ({ onSuccess }) => {
                         </p>
 
                         <p className="mt-2 text-sm text-gray-600">
-                            Drag and drop your PNG, PDF, DOC, DOCX, JPG here or browse
+                            Supported: Images, PDFs, Word, Excel, PowerPoint, Text files
                         </p>
                         <p className="mt-1 text-xs font-medium text-red-600">
                             Maximum allowed size 10MB

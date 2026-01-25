@@ -10,7 +10,14 @@ const storage = new CloudinaryStorage({
 
         return {
             folder: `printportal/${orgId}`,
-            allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'txt', 'md'],
+            allowed_formats: [
+                'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp',
+                'pdf', 'doc', 'docx', 'odt', 'rtf',
+                'xls', 'xlsx', 'csv',
+                'ppt', 'pptx',
+                'txt', 'md',
+                'zip'
+            ],
             resource_type: 'auto', // Handles both images and raw files (PDFs, docs)
         };
     },
@@ -24,22 +31,35 @@ const upload = multer({
     fileFilter: (req, file, cb) => {
         const allowedMimes = [
             // Images
-            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp',
             // Documents
             'application/pdf',
             'application/msword', // .doc
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+            'application/vnd.oasis.opendocument.text', // .odt
+            'application/rtf', // .rtf
+            // Spreadsheets
+            'application/vnd.ms-excel', // .xls
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+            'text/csv', // .csv
+            // Presentations
+            'application/vnd.ms-powerpoint', // .ppt
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
             // Text/Code
-            'text/plain', 'text/markdown'
+            'text/plain', 'text/markdown',
+            // Archives
+            'application/zip', 'application/x-zip-compressed'
         ];
 
-        // Also check extensions for md files which might have varied mime types
-        const isMd = file.originalname.toLowerCase().endsWith('.md');
+        // Also check extensions for files with varied/unknown mime types
+        const fileName = file.originalname.toLowerCase();
+        const allowedExtensions = ['.md', '.csv', '.txt', '.rtf', '.zip'];
+        const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
 
-        if (allowedMimes.includes(file.mimetype) || isMd) {
+        if (allowedMimes.includes(file.mimetype) || hasAllowedExtension) {
             cb(null, true);
         } else {
-            cb(new Error('Invalid file type. Only images, PDFs, Word docs, and text files are allowed.'));
+            cb(new Error('Invalid file type. Audio and video files are not allowed. Only documents, images, and spreadsheets are supported.'));
         }
     }
 });
