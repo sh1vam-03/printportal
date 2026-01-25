@@ -2,7 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import Modal from "../ui/Modal";
 import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
-
+import { Document, Page, pdfjs } from 'react-pdf';
+// Vite-compatible worker loader
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Import react-pdf styles if needed, but we used custom styles.
 
 const FilePreviewModal = ({
     isOpen,
@@ -20,6 +23,15 @@ const FilePreviewModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
+
+    // PDF State
+    const [numPages, setNumPages] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+        setPageNumber(1);
+    }
 
 
 
@@ -117,9 +129,10 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // MICROSOFT OFFICE VIEWER STRATEGY
-                // Reliable iframe-based viewer.
-                // Requires a publicly accessible URL, so we fetch a temporary SIGNED URL from the backend.
+                // PDF.JS CLIENT-SIDE RENDER STRATEGY
+                // Robust client-side rendering using react-pdf.
+                // Uses a Signed URL to fetch the PDF securely.
+
 
                 const fetchSignedUrl = async () => {
                     if (requestData?._id) {
@@ -215,26 +228,56 @@ const FilePreviewModal = ({
                     {!loading && !error && (
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
-                                <div className="w-full h-full bg-gray-100 flex justify-center items-center">
-                                    {/* Use Microsoft Office Viewer for PDF (Consistent with DOCX) */}
-                                    <iframe
-                                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(blobUrl)}`}
-                                        className="w-full h-full border-0"
-                                        title="PDF Preview"
+                                <div className="w-full h-full bg-gray-100 flex flex-col items-center justify-start overflow-y-auto p-4">
+                                    {/* PDF.js Viewer */}
+                                    <Document
+                                        file={blobUrl} // Can be a URL or Blob
+                                        onLoadSuccess={onDocumentLoadSuccess}
+                                        loading={
+                                            <div className="flex flex-col items-center justify-center p-12">
+                                                <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-brand-200 border-t-brand-600"></div>
+                                                <span className="mt-4 text-sm font-semibold text-gray-600 animate-pulse">Rendering PDF...</span>
+                                            </div>
+                                        }
+                                        error={
+                                            <div className="flex flex-col items-center justify-center text-center p-8 text-red-500">
+                                                <svg className="w-12 h-12 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                                <p className="font-medium">Failed to load PDF</p>
+                                                <a href={blobUrl} download={originalName || "document.pdf"} className="mt-4 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition">Download File</a>
+                                            </div>
+                                        }
+                                        className="shadow-lg border border-gray-200"
                                     >
-                                        <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                                            <p className="text-gray-500 mb-4">
-                                                Preview not available.
-                                            </p>
-                                            <a
-                                                href={blobUrl}
-                                                download={originalName || "document.pdf"}
-                                                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                                        <Page
+                                            pageNumber={pageNumber}
+                                            width={Math.min(600, window.innerWidth - 64)}
+                                            renderTextLayer={false}
+                                            renderAnnotationLayer={false}
+                                        />
+                                    </Document>
+
+                                    {/* PDF Pagination Controls */}
+                                    {numPages && numPages > 1 && (
+                                        <div className="flex items-center gap-4 mt-6 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200 sticky bottom-4">
+                                            <button
+                                                disabled={pageNumber <= 1}
+                                                onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                                                className="p-1.5 text-gray-500 hover:text-brand-600 disabled:opacity-30 disabled:hover:text-gray-500 transition"
                                             >
-                                                Download PDF
-                                            </a>
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                            </button>
+                                            <span className="text-sm font-medium text-gray-700">
+                                                Page {pageNumber} of {numPages}
+                                            </span>
+                                            <button
+                                                disabled={pageNumber >= numPages}
+                                                onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
+                                                className="p-1.5 text-gray-500 hover:text-brand-600 disabled:opacity-30 disabled:hover:text-gray-500 transition"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                            </button>
                                         </div>
-                                    </iframe>
+                                    )}
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">
