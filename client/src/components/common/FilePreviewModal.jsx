@@ -74,44 +74,43 @@ const FilePreviewModal = ({
     // Reset state when file changes
     useEffect(() => {
         let active = true;
-        let createdUrl = null;
 
         if (isOpen && fileUrl) {
             setLoading(true);
             setError(null);
-            setBlobUrl(null);
             setTextContent(null);
 
-            api.get(fileUrl, { responseType: "blob" })
-                .then((response) => {
-                    if (!active) return;
-                    const type = response.headers['content-type'] || fileType;
-                    const blob = new Blob([response.data], { type });
-                    createdUrl = URL.createObjectURL(blob);
-                    setBlobUrl(createdUrl);
+            // Check if this is a text file that needs content reading
+            const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
+                fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
+                fileUrl?.toLowerCase().endsWith(".txt");
 
-                    // Text content for text files, markdown, and CSV
-                    if (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
-                        fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
-                        fileUrl?.toLowerCase().endsWith(".txt")) {
+            if (isTextFile) {
+                // Only fetch as blob for text files to read content
+                api.get(fileUrl, { responseType: "blob" })
+                    .then((response) => {
+                        if (!active) return;
+                        const blob = new Blob([response.data], { type: fileType || 'text/plain' });
                         const reader = new FileReader();
                         reader.onload = () => { if (active) setTextContent(reader.result); };
                         reader.readAsText(blob);
-                    }
-                })
-                .catch((err) => {
-                    if (!active) return;
-                    console.error("Error loading preview:", err);
-                    setError("Failed to load file preview. You may not have permission.");
-                })
-                .finally(() => { if (active) setLoading(false); });
+                    })
+                    .catch((err) => {
+                        if (!active) return;
+                        console.error("Error loading text file:", err);
+                        setError("Failed to load file content.");
+                    })
+                    .finally(() => { if (active) setLoading(false); });
+            } else {
+                // For all other files (PDF, DOCX, images), use direct URLs - no blob fetch needed
+                setLoading(false);
+            }
         }
 
         return () => {
             active = false;
-            if (createdUrl) URL.revokeObjectURL(createdUrl);
         };
-    }, [isOpen, fileUrl]);
+    }, [isOpen, fileUrl, fileType]);
 
     const handlePrint = () => {
         if (!blobUrl) return;
@@ -122,21 +121,14 @@ const FilePreviewModal = ({
     };
 
     const handleDownload = () => {
-        if (!blobUrl && fileUrl) {
-            // For files we can't create blob URLs for, use direct Cloudinary URL
-            const link = document.createElement("a");
-            link.href = fileUrl;
-            link.download = originalName || "download";
-            link.target = "_blank";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            return;
-        }
-        if (!blobUrl) return;
+        // Use the actual Cloudinary URL from requestData
+        const downloadUrl = requestData?.fileUrl || fileUrl;
+        if (!downloadUrl) return;
+
         const link = document.createElement("a");
-        link.href = blobUrl;
+        link.href = downloadUrl;
         link.download = originalName || "download";
+        link.target = "_blank";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -184,13 +176,13 @@ const FilePreviewModal = ({
 
                     {!loading && !error && (
                         <div className="w-full h-auto min-h-full flex items-center justify-center bg-neutral-100/50 backdrop-blur-sm p-4 lg:p-0">
-                            {fileType === "application/pdf" && blobUrl ? (
-                                <iframe src={blobUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
-                            ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") && blobUrl ? (
-                                <img src={blobUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
+                            {fileType === "application/pdf" ? (
+                                <iframe src={requestData?.fileUrl || fileUrl} className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none" title="PDF Preview" />
+                            ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
+                                <img src={requestData?.fileUrl || fileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-[70vh] lg:max-h-full object-contain shadow-xl rounded-lg" />
                             ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                                 fileUrl?.toLowerCase().endsWith(".md") || fileUrl?.toLowerCase().endsWith(".csv") ||
-                                fileUrl?.toLowerCase().endsWith(".txt")) && blobUrl ? (
+                                fileUrl?.toLowerCase().endsWith(".txt")) ? (
                                 <pre className="p-8 text-sm font-mono whitespace-pre-wrap text-left w-full h-auto overflow-visible text-gray-800 bg-white rounded-lg shadow-sm">{textContent || "Loading text..."}</pre>
                             ) : (
                                 // Google Docs Viewer for Office documents (DOCX, Excel, PowerPoint)
@@ -205,7 +197,7 @@ const FilePreviewModal = ({
                                 fileUrl?.toLowerCase().endsWith(".ppt") || fileUrl?.toLowerCase().endsWith(".pptx")
                             ) ? (
                                 <iframe
-                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`}
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(requestData?.fileUrl || fileUrl)}&embedded=true`}
                                     className="w-full h-[50dvh] lg:h-full shadow-inner rounded-lg lg:rounded-none"
                                     title="Document Preview"
                                 />
