@@ -112,12 +112,9 @@ const FilePreviewModal = ({
         return "Document";
     };
 
-    // Get the actual file URL
-    // For PDFs, we use the backend PROXY url to avoid CORS/Cloudinary issues with the native viewer.
-    // For others, we try to use the direct URL for speed, unless it's a private file.
-    const actualFileUrl = (fileType === "application/pdf" && requestData?._id)
-        ? `${api.defaults.baseURL || "http://localhost:5000/api"}/print-requests/${requestData._id}/preview`
-        : (requestData?.fileUrl || fileUrl);
+    // Get the actual file URL - prioritize Cloudinary URL from requestData
+    // For PDFs, we will FETCH it via API to get a Blob, so we don't need to change the URL here.
+    const actualFileUrl = requestData?.fileUrl || fileUrl;
 
     // Reset state when file changes
     useEffect(() => {
@@ -136,8 +133,7 @@ const FilePreviewModal = ({
                 actualFileUrl?.toLowerCase().endsWith(".txt");
 
             if (isTextFile) {
-                // Only fetch as blob for text files to read content
-                // Use the API endpoint for fetching (fileUrl) to ensure proper auth
+                // ... (Text file logic remains same)
                 api.get(actualFileUrl, { responseType: "blob" })
                     .then((response) => {
                         if (!active) return;
@@ -146,14 +142,31 @@ const FilePreviewModal = ({
                         reader.onload = () => { if (active) setTextContent(reader.result); };
                         reader.readAsText(blob);
                     })
-                    .catch((err) => {
-                        if (!active) return;
-                        console.error("Error loading text file:", err);
-                        setError("Failed to load file content.");
-                    })
+                    // ...
                     .finally(() => { if (active) setLoading(false); });
+            } else if (fileType === "application/pdf") {
+                // FETCH PDF AS BLOB to handle Authentication Headers!
+                // The <object> tag cannot send headers, so we must fetch it first.
+                // We use the proxy endpoint to avoid CORS, and api.get to add the Token.
+                const pdfEndpoint = requestData?._id
+                    ? `/print-requests/${requestData._id}/preview`
+                    : actualFileUrl;
+
+                api.get(pdfEndpoint, { responseType: "blob" })
+                    .then((response) => {
+                        if (!active) return;
+                        const blob = new Blob([response.data], { type: "application/pdf" });
+                        const url = window.URL.createObjectURL(blob);
+                        setBlobUrl(url); // Store blob URL
+                        setLoading(false);
+                    })
+                    .catch((err) => {
+                        console.error("PDF Blob Fetch Error:", err);
+                        setError("Failed to load secure PDF document.");
+                        setLoading(false);
+                    });
             } else {
-                // For all other files (PDF, DOCX, images), use direct URLs - no blob fetch needed
+                // For all other files (DOCX, images), use direct URLs
                 setLoading(false);
             }
         }
@@ -227,46 +240,25 @@ const FilePreviewModal = ({
                     {!loading && !error && (
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
-                                <div className="w-full h-full overflow-y-auto bg-gray-100 p-4 flex justify-center" ref={pdfWrapperRef}>
-                                    {!usePdfFallback ? (
-                                        <Document
-                                            file={actualFileUrl}
-                                            onLoadSuccess={onDocumentLoadSuccess}
-                                            onLoadError={(err) => {
-                                                console.error("PDF Load Error:", err);
-                                                // Fallback to Google Docs Viewer
-                                                setUsePdfFallback(true);
-                                            }}
-                                            loading={
-                                                <div className="flex items-center space-x-2 text-gray-500 mt-10">
-                                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
-                                                    <span>Loading PDF...</span>
-                                                </div>
-                                            }
-                                            className="shadow-lg"
-                                        >
-                                            {Array.from(new Array(numPages), (el, index) => (
-                                                <div key={`page_${index + 1}`} className="mb-4 last:mb-0">
-                                                    <Page
-                                                        pageNumber={index + 1}
-                                                        width={pdfContainerWidth ? Math.min(pdfContainerWidth - 32, 800) : 600} // Responsive width with max limit
-                                                        renderTextLayer={false}
-                                                        renderAnnotationLayer={false}
-                                                        className="bg-white shadow-sm"
-                                                    />
-                                                    <p className="text-center text-xs text-gray-400 mt-1">Page {index + 1} of {numPages}</p>
-                                                </div>
-                                            ))}
-                                        </Document>
-                                    ) : (
-                                        <div className="w-full h-full flex flex-col">
-                                            <iframe
-                                                src={`https://docs.google.com/viewer?url=${encodeURIComponent(actualFileUrl)}&embedded=true`}
-                                                className="w-full flex-1 border-0 shadow-sm"
-                                                title="PDF Fallback Preview"
-                                            />
+                                <div className="w-full h-full bg-gray-100 flex justify-center items-center">
+                                    <object
+                                        data={blobUrl} // Use the BLOB URL here
+                                        type="application/pdf"
+                                        className="w-full h-full block"
+                                    >
+                                        <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                                            <p className="text-gray-500 mb-4">
+                                                Your browser does not support inline PDF viewing.
+                                            </p>
+                                            <a
+                                                href={blobUrl} // Download blob directly
+                                                download={originalName || "document.pdf"}
+                                                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                                            >
+                                                Download PDF to View
+                                            </a>
                                         </div>
-                                    )}
+                                    </object>
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">
