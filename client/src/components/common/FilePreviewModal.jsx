@@ -87,28 +87,28 @@ const FilePreviewModal = ({
                 setTextContent(null);
                 setSecureUrl(null);
 
-                // 1. Get the Secure Serving URL from Backend
-                const res = await api.get(`/print-requests/${requestData._id}/signed-url`);
-
-                if (!res.data.success || !res.data.url) {
-                    throw new Error("Failed to generate secure link");
-                }
-
-                const serverUrl = res.data.url;
+                // Use relative path directly to ensure API instance handles it with Auth headers
+                const fileEndpoint = `/print-requests/${requestData._id}/file`;
 
                 if (active) {
-                    // 2. Fetch the File Content as BLOB (Authenticated)
-                    // We use 'api' instance so it attaches the Bearer Token automatically.
-                    // This is crucial because standard <iframe> or <img> tags cannot send Auth headers.
-                    const blobRes = await api.get(serverUrl, {
+                    console.log("[Preview] Fetching blob from:", fileEndpoint);
+
+                    // 1. Fetch the File Content as BLOB (Authenticated)
+                    const blobRes = await api.get(fileEndpoint, {
                         responseType: 'blob'
                     });
 
                     const blob = blobRes.data;
+                    console.log("[Preview] Blob received, size:", blob.size, "type:", blob.type);
+
+                    if (blob.size === 0) {
+                        throw new Error("Received empty file");
+                    }
+
                     const objectUrl = window.URL.createObjectURL(blob);
                     setSecureUrl(objectUrl);
 
-                    // 3. Text Content Handling
+                    // 2. Text Content Handling
                     const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                         fileType?.startsWith("text/") ||
                         originalName?.toLowerCase().endsWith(".md") ||
@@ -124,11 +124,18 @@ const FilePreviewModal = ({
                             if (active) setError("Failed to read text content");
                         }
                     }
-
-                    // PDF & IMAGES: URL is sufficient for iframe/img src
                 }
             } catch (err) {
                 console.error("Preview setup failed:", err);
+                // Try to parse blob error as JSON
+                if (err.response?.data instanceof Blob && err.response.data.type === "application/json") {
+                    try {
+                        const jsonText = await err.response.data.text();
+                        const jsonError = JSON.parse(jsonText);
+                        console.error("Backend Error JSON:", jsonError);
+                    } catch (e) { /* ignore */ }
+                }
+
                 if (active) setError("Failed to load file preview. Ensure you are logged in.");
             } finally {
                 if (active) setLoading(false);
