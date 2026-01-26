@@ -242,7 +242,7 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
                 console.log(`[SignedURL] Found valid URL: ${JSON.stringify(config)}`);
                 break;
             } catch (err) {
-                // Continue searching
+                console.log(`[SignedURL] Failed check for ${JSON.stringify(config)}: ${err.message} (Status: ${err.response?.status})`);
             }
         }
 
@@ -260,6 +260,8 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
             sign_url: true,
             secure: true,
         });
+
+        console.log(`[SignedURL] Fallback URL generated: ${fallbackUrl}`);
 
         return res.json({ success: true, url: fallbackUrl });
     }
