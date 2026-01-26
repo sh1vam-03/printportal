@@ -241,19 +241,22 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
         // We do a HEAD request or fast GET to verify.
         for (const config of combinations) {
             try {
-                const urlOptions = {
+                let pid = request.cloudinaryId;
+                let options = {
                     resource_type: config.resource_type,
                     type: config.type,
                     secure: true,
-                    version: version // Explicitly use version
+                    version: version
                 };
 
-                // Only add sign_url if true (explicitly)
-                if (config.sign_url) {
-                    urlOptions.sign_url = true;
+                if (config.sign_url) options.sign_url = true;
+
+                if (config.strip_extension) {
+                    // Remove extension from ID if present
+                    pid = pid.replace(/\.[^/.]+$/, "");
                 }
 
-                const signedUrl = cloudinary.url(request.cloudinaryId, urlOptions);
+                const signedUrl = cloudinary.url(pid, options);
 
                 // Verify connectivity (Lightweight check)
                 // axios head/get stream
@@ -283,7 +286,7 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
             version: version // Explicitly use version
         });
 
-        // console.log(`[SignedURL] Fallback URL generated: ${fallbackUrl}`);
+        console.log(`[SignedURL] Fallback generated: ${fallbackUrl}`);
 
         return res.json({ success: true, url: fallbackUrl });
     }
