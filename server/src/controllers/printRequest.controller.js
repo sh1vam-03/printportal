@@ -227,21 +227,34 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
 
         // 2. Determine Resource Type
         // We generate based on mime type stored in DB to be accurate.
-        let resourceType = 'raw'; // Default for PDFs/Docs
-        if (request.fileType?.startsWith('image/')) {
+        // 2. Determine Resource Type
+        // We extract this from the stored URL because Cloudinary's "auto" upload 
+        // might store PDFs as 'image' or 'raw' unpredictably.
+        let resourceType = 'raw'; // fallback
+        if (request.fileUrl.includes('/image/')) {
             resourceType = 'image';
+        } else if (request.fileUrl.includes('/raw/')) {
+            resourceType = 'raw';
+        } else if (request.fileUrl.includes('/video/')) {
+            resourceType = 'video';
         }
 
         // 3. Generate Signed URL
-        // We use 'authenticated' type to enforce security restrictions.
-        // Cloudinary will check signature + expiration.
-        const signedUrl = cloudinary.url(request.cloudinaryId, {
+        const options = {
             resource_type: resourceType,
             type: 'authenticated',
             sign_url: true,
             secure: true,
             version: version
-        });
+        };
+
+        // Special handling for PDFs stored as Images
+        // We must ensure the URL ends in .pdf so browsers handle it correctly.
+        if (resourceType === 'image' && request.fileType === 'application/pdf') {
+            options.format = 'pdf';
+        }
+
+        const signedUrl = cloudinary.url(request.cloudinaryId, options);
 
         // console.log(`[SignedURL] Generated Standard URL: ${signedUrl}`);
 
