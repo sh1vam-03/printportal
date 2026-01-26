@@ -16,24 +16,9 @@ const FilePreviewModal = ({
     onNext = null,
     onPrev = null,
 }) => {
-    const [blobUrl, setBlobUrl] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
-
-
-
-
-
-
-    // Clean up Blob URL to prevent memory leaks
-    useEffect(() => {
-        return () => {
-            if (blobUrl) {
-                window.URL.revokeObjectURL(blobUrl);
-            }
-        };
-    }, [blobUrl]);
 
     // Helper to format file size
     const formatFileSize = (bytes) => {
@@ -96,9 +81,6 @@ const FilePreviewModal = ({
         const fetchSecureUrl = async () => {
             if (!requestData?._id) return;
 
-            // If we already have a direct blob/local url passed (unlikely in this flow), use it.
-            // But we prefer fetching fresh signed/secure URL.
-
             try {
                 setLoading(true);
                 setError(null);
@@ -112,14 +94,21 @@ const FilePreviewModal = ({
                     throw new Error("Failed to generate secure link");
                 }
 
-                const url = res.data.url;
+                const serverUrl = res.data.url;
 
                 if (active) {
-                    setSecureUrl(url);
+                    // 2. Fetch the File Content as BLOB (Authenticated)
+                    // We use 'api' instance so it attaches the Bearer Token automatically.
+                    // This is crucial because standard <iframe> or <img> tags cannot send Auth headers.
+                    const blobRes = await api.get(serverUrl, {
+                        responseType: 'blob'
+                    });
 
-                    // 2. Content Handling based on Type
+                    const blob = blobRes.data;
+                    const objectUrl = window.URL.createObjectURL(blob);
+                    setSecureUrl(objectUrl);
 
-                    // TEXT FILES: Fetch content to display
+                    // 3. Text Content Handling
                     const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                         fileType?.startsWith("text/") ||
                         originalName?.toLowerCase().endsWith(".md") ||
@@ -128,20 +117,19 @@ const FilePreviewModal = ({
 
                     if (isTextFile) {
                         try {
-                            const textRes = await api.get(url, { responseType: 'text' });
-                            if (active) setTextContent(textRes.data);
+                            const textText = await blob.text();
+                            if (active) setTextContent(textText);
                         } catch (err) {
-                            console.error("Text fetch failed", err);
-                            if (active) setError("Failed to load text content");
+                            console.error("Text read failed", err);
+                            if (active) setError("Failed to read text content");
                         }
                     }
 
                     // PDF & IMAGES: URL is sufficient for iframe/img src
-                    // OFFICE: Handled by download fallback in render
                 }
             } catch (err) {
                 console.error("Preview setup failed:", err);
-                if (active) setError("Failed to load file preview. File might be missing.");
+                if (active) setError("Failed to load file preview. Ensure you are logged in.");
             } finally {
                 if (active) setLoading(false);
             }
