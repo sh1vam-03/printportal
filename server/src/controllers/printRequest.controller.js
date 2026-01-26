@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import fs from "fs";
 import path from "path";
+import cloudinary from "../config/cloudinary.js";
 
 /* ----------------------------------------
    CREATE PRINT REQUEST (Employee)
@@ -25,8 +26,8 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         employee: req.user.userId,
         organization: req.user.organizationId,
         title,
-        fileUrl: req.file.path, // Store local path
-        cloudinaryId: null, // No longer used
+        fileUrl: req.file.path, // Cloudinary URL
+        cloudinaryId: req.file.filename, // Cloudinary Public ID
         fileType: req.file.mimetype,
         fileSize: req.file.size,
         originalName: req.file.originalname,
@@ -240,12 +241,51 @@ export const servePrintFile = asyncHandler(async (req, res) => {
         return res.status(403).send("Denied");
     }
 
-    // Legacy Cloudinary Handover
+    // Cloudinary Serve (Primary - Private & Signed)
+    if (request.cloudinaryId) {
+        // Generate Signed URL dynamically
+        // Note: For PDFs/Docs 'resource_type' handles the switch between 'image' and 'raw/video' etc.
+        // 'auto' might not solve it for url() method as nicely as upload().
+        // We can infer from fileUrl or attempt 'auto'.
+        // However, cloudinary.url default resource_type is 'image'.
+
+        let resourceType = 'image';
+        if (request.fileType === 'application/pdf') resourceType = 'image'; // Cloudinary treats PDF as image for delivery often, but 'raw' for others.
+        // Actually, for creating a link to the original file:
+        // Use 'auto' if possible, or infer.
+        // Safest is to check fileType.
+
+        if (!request.fileType.startsWith('image/') && request.fileType !== 'application/pdf') {
+            resourceType = 'raw';
+            // Note: PDFs are 'image' resource_type in Cloudinary typically? 
+            // Actually, PDF upload as 'auto' -> usually 'image'.
+            // Docx/Zip upload as 'auto' -> 'raw'.
+        }
+
+        // Better heuristic: if URL contains '/raw/', it is raw.
+        if (request.fileUrl && request.fileUrl.includes('/raw/')) {
+            resourceType = 'raw';
+        }
+
+        const url = cloudinary.url(request.cloudinaryId, {
+            resource_type: resourceType,
+            type: 'private',
+            sign_url: true,
+            secure: true,
+            expires_in: 3600 // 1 hour access
+        });
+
+        console.log(`[ServeFile] Redirecting to Signed URL: ${url}`);
+        return res.redirect(url);
+    }
+
+    // Legacy Public/Local Fallback
     if (request.fileUrl && request.fileUrl.startsWith('http')) {
-        console.log(`[ServeFile] Redirecting to Cloudinary: ${request.fileUrl}`);
+        console.log(`[ServeFile] Redirecting to Public Cloudinary: ${request.fileUrl}`);
         return res.redirect(request.fileUrl);
     }
 
+    // Local File Fallback (For legacy files)
     console.log(`[ServeFile] DB stored path: ${request.fileUrl}`);
 
     const filePath = path.resolve(request.fileUrl);
@@ -313,7 +353,16 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
 
     if (!canDelete) throw new ApiError(403, "Not authorized to delete this request");
 
-    if (request.fileUrl && !request.fileUrl.startsWith('http')) {
+    // Delete from Cloudinary if it exists
+    if (request.cloudinaryId) {
+        try {
+            await cloudinary.uploader.destroy(request.cloudinaryId);
+            console.log(`[Delete] Removed Cloudinary file: ${request.cloudinaryId}`);
+        } catch (err) {
+            console.error("Failed to delete Cloudinary file:", err);
+        }
+    } else if (request.fileUrl && !request.fileUrl.startsWith('http')) {
+        // Local file deletion fallback
         const filePath = path.resolve(request.fileUrl);
         if (fs.existsSync(filePath)) {
             try {

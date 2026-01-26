@@ -8,18 +8,26 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        // Unique filename: TIMESTAMP-SAFE_ORIGINAL_NAME
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        const name = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-        cb(null, `${name}-${uniqueSuffix}${ext}`);
-    }
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: async (req, file) => {
+        // Generate a unique public_id
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const name = path.basename(file.originalname, path.extname(file.originalname))
+            .replace(/[^a-z0-9]/gi, '_')
+            .toLowerCase();
+
+        return {
+            folder: 'print_portal_uploads',
+            resource_type: 'auto', // Important for PDFs, Docs, etc.
+            type: 'private', // Access control: Private
+            public_id: `${name}-${uniqueSuffix}`,
+            // format: path.extname(file.originalname).substring(1) // optional: force format or keep original
+        };
+    },
 });
 
 const upload = multer({
