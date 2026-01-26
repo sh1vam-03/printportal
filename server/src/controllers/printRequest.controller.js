@@ -27,12 +27,6 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Missing required fields");
     }
 
-    // DEBUG: Inspect Cloudinary Upload Response
-    console.log("------------------------------------------------");
-    console.log("CLOUDINARY UPLOAD DEBUG:");
-    console.log(JSON.stringify(req.file, null, 2));
-    console.log("------------------------------------------------");
-
     const newRequest = await PrintRequest.create({
         employee: req.user.userId,
         organization: req.user.organizationId,
@@ -215,8 +209,15 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
 
     if (request.cloudinaryId) {
         // STANDARD SECURE URL GENERATION
-        // All new files are uploaded as 'authenticated'.
-        // We generate a deterministic Signed URL.
+
+        // OPTIMIZATION: If the stored URL is already an 'authenticated' Signed URL 
+        // (which is returned by Cloudinary during upload), just use it!
+        // This avoids signature mismatch issues due to parameter guessing.
+        if (request.fileUrl.includes('/authenticated/') && request.fileUrl.includes('/s--')) {
+            return res.json({ success: true, url: request.fileUrl });
+        }
+
+        // GENERATION FALLBACK (For older files or if URL structure changes)
 
         // 1. Extract Version (Critical for invalidating cache/valid signature)
         let version = undefined;
@@ -225,8 +226,6 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
             version = versionMatch[1];
         }
 
-        // 2. Determine Resource Type
-        // We generate based on mime type stored in DB to be accurate.
         // 2. Determine Resource Type
         // We extract this from the stored URL because Cloudinary's "auto" upload 
         // might store PDFs as 'image' or 'raw' unpredictably.
@@ -255,8 +254,6 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
         }
 
         const signedUrl = cloudinary.url(request.cloudinaryId, options);
-
-        // console.log(`[SignedURL] Generated Standard URL: ${signedUrl}`);
 
         return res.json({ success: true, url: signedUrl });
     }
