@@ -232,8 +232,6 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
         let resourceType = 'raw'; // fallback
         if (request.fileUrl.includes('/image/')) {
             resourceType = 'image';
-        } else if (request.fileUrl.includes('/raw/')) {
-            resourceType = 'raw';
         } else if (request.fileUrl.includes('/video/')) {
             resourceType = 'video';
         }
@@ -246,12 +244,6 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
             secure: true,
             version: version
         };
-
-        // Special handling for PDFs stored as Images
-        // We must ensure the URL ends in .pdf so browsers handle it correctly.
-        if (resourceType === 'image' && request.fileType === 'application/pdf') {
-            options.format = 'pdf';
-        }
 
         const signedUrl = cloudinary.url(request.cloudinaryId, options);
 

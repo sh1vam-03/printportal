@@ -8,17 +8,42 @@ const storage = new CloudinaryStorage({
         // Extract organization from authenticated user
         const orgId = req.user?.organizationId || 'default';
 
-        return {
-            folder: `printportal/${orgId}`,
-            // "auto" automatically detects if it's image, video (n/a), or raw (pdf/doc)
-            resource_type: "auto",
-            // "authenticated" means strict private access (requires signed URL)
-            type: "authenticated",
+        // Determine resource type: 'image' for images, 'raw' for ALL documents (PDF, Docs, etc.)
+        // We FORCE 'raw' for PDFs to avoid Cloudinary treating them as images (thumbnails),
+        // which causes issues with signed URLs and "404" on full downloads because of strict transformations.
+        const isImage = file.mimetype.startsWith('image/');
 
-            // Keep original filename if possible, but Cloudinary might sanitize it.
-            use_filename: true,
-            unique_filename: true, // Let Cloudinary add random suffix
+        const params = {
+            folder: `printportal/${orgId}`,
+            resource_type: isImage ? 'image' : 'raw',
+            type: "authenticated", // Strict private access
         };
+
+        if (isImage) {
+            // Let Cloudinary handle images (formats, etc.)
+            params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
+            params.use_filename = true;
+            params.unique_filename = true;
+        } else {
+            // For RAW files (PDF, DOCX), we MUST preserve the extension in the public_id
+            // so the generated URL ends in .pdf/.docx (vital for browsers/viewers).
+
+            // Robust extension extraction
+            const parts = file.originalname.split('.');
+            const ext = parts.length > 1 ? parts.pop() : '';
+            // Sanitize filename
+            const name = parts.join('_').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+
+            // Explicit public_id with extension
+            params.public_id = `${name}-${uniqueSuffix}${ext ? '.' + ext : ''}`;
+
+            // Disable auto-naming since we provided public_id
+            params.use_filename = false;
+            params.unique_filename = false;
+        }
+
+        return params;
     },
 });
 
