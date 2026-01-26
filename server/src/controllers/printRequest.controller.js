@@ -218,23 +218,52 @@ export const servePrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { role, userId } = req.user;
 
-    const request = await PrintRequest.findById(id);
-    if (!request) return res.status(404).send("File not found");
+    console.log(`[ServeFile] Request for ID: ${id} by User: ${userId} (${role})`);
 
-    if (request.organization.toString() !== req.user.organizationId) return res.status(403).send("Denied");
+    const request = await PrintRequest.findById(id);
+    if (!request) {
+        console.error(`[ServeFile] Request ${id} not found in DB`);
+        return res.status(404).send("File not found");
+    }
+
+    if (request.organization.toString() !== req.user.organizationId) {
+        console.error(`[ServeFile] Org mismatch`);
+        return res.status(403).send("Denied");
+    }
 
     let canAccess = false;
     if (role === "ADMIN" || role === "PRINTING") canAccess = true;
     else if (role === "EMPLOYEE" && request.employee.toString() === userId) canAccess = true;
 
-    if (!canAccess) return res.status(403).send("Denied");
+    if (!canAccess) {
+        console.error(`[ServeFile] Access Denied for role ${role}`);
+        return res.status(403).send("Denied");
+    }
 
-    if (request.fileUrl.startsWith('http')) {
+    // Legacy Cloudinary Handover
+    if (request.fileUrl && request.fileUrl.startsWith('http')) {
+        console.log(`[ServeFile] Redirecting to Cloudinary: ${request.fileUrl}`);
         return res.redirect(request.fileUrl);
     }
 
+    console.log(`[ServeFile] DB stored path: ${request.fileUrl}`);
+
     const filePath = path.resolve(request.fileUrl);
-    if (!fs.existsSync(filePath)) return res.status(404).send("File missing on disk");
+    console.log(`[ServeFile] Resolved FS Path: ${filePath}`);
+
+    if (!fs.existsSync(filePath)) {
+        console.error(`[ServeFile] FILE MISSING AT PATH: ${filePath}`);
+        // Fallback: Try looking in 'uploads' relative to cwd if absolute failed?
+        const fallbackPath = path.join(process.cwd(), 'uploads', path.basename(request.fileUrl));
+        if (fs.existsSync(fallbackPath)) {
+            console.log(`[ServeFile] Found at fallback path: ${fallbackPath}`);
+            res.setHeader('Content-Type', request.fileType || 'application/octet-stream');
+            res.setHeader('Content-Disposition', `inline; filename="${request.originalName}"`);
+            return res.sendFile(fallbackPath);
+        }
+
+        return res.status(404).send("File missing on disk");
+    }
 
     res.setHeader('Content-Type', request.fileType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `inline; filename="${request.originalName}"`);
