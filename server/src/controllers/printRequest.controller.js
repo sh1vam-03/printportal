@@ -213,6 +213,14 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
         // To support external viewers (Office/Google), we need a PUBLICLY ACCESSIBLE URL.
         // We iterate through possible storage types to find the one that works.
 
+        // Extract version from fileUrl if possible (e.g. .../v1769373087/...)
+        // This is CRITICAL for correct signature generation.
+        let version = undefined;
+        const versionMatch = request.fileUrl.match(/\/v(\d+)\//);
+        if (versionMatch && versionMatch[1]) {
+            version = versionMatch[1];
+        }
+
         const combinations = [
             { resource_type: 'raw', type: 'upload' },       // Standard public PDF
             { resource_type: 'image', type: 'upload' },     // Saved as image
@@ -231,6 +239,7 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
                     type: config.type,
                     sign_url: true,
                     secure: true,
+                    version: version // Explicitly use version
                     // expires_at: Math.floor(Date.now() / 1000) + 3600 // Adding expiry might break some strict viewers if clock skew
                 });
 
@@ -252,16 +261,17 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
 
         // If exhaustive search failed, return the 'safest' guess (raw/upload) as a fallback
         // This ensures we always return a Signed URL, which is required for 'Authenticated' access modes.
-        console.warn("[SignedURL] Verification failed for all types. Returning fallback signed URL (raw/upload).");
+        console.warn("[SignedURL] Verification failed for all types. Returning fallback signed URL (raw/upload)." + (version ? ` With version: ${version}` : ""));
 
         const fallbackUrl = cloudinary.url(request.cloudinaryId, {
             resource_type: 'raw',
             type: 'upload',
             sign_url: true,
             secure: true,
+            version: version // Explicitly use version
         });
 
-        console.log(`[SignedURL] Fallback URL generated: ${fallbackUrl}`);
+        // console.log(`[SignedURL] Fallback URL generated: ${fallbackUrl}`);
 
         return res.json({ success: true, url: fallbackUrl });
     }
