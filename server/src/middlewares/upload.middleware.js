@@ -8,35 +8,17 @@ const storage = new CloudinaryStorage({
         // Extract organization from authenticated user
         const orgId = req.user?.organizationId || 'default';
 
-        // Determine resource type: 'image' for images, 'raw' for all documents
-        const isImage = file.mimetype.startsWith('image/');
-
-        const params = {
+        return {
             folder: `printportal/${orgId}`,
-            resource_type: isImage ? 'image' : 'raw',
+            // "auto" automatically detects if it's image, video (n/a), or raw (pdf/doc)
+            resource_type: "auto",
+            // "authenticated" means strict private access (requires signed URL)
+            type: "authenticated",
+
+            // Keep original filename if possible, but Cloudinary might sanitize it.
+            use_filename: true,
+            unique_filename: true, // Let Cloudinary add random suffix
         };
-
-        // Only apply allowed_formats for images (doesn't work for 'raw' resource_type)
-        if (isImage) {
-            params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
-        } else {
-            // Manual ID generation to ensure file extension is preserved in the URL
-            // This is critical for Microsoft Office Viewer to work.
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-            // Robust extension extraction
-            const parts = file.originalname.split('.');
-            const ext = parts.length > 1 ? parts.pop() : '';
-            const name = parts.join('_').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
-            // Set public_id explicitly with extension
-            params.public_id = `${name}-${uniqueSuffix}${ext ? '.' + ext : ''}`;
-
-            // Disable Cloudinary's auto-naming features to prevent conflicts/slowness
-            params.use_filename = false;
-            params.unique_filename = false;
-        }
-
-        return params;
     },
 });
 

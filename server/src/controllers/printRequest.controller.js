@@ -209,86 +209,38 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
     if (!canAccess) throw new ApiError(403, "Access denied");
 
     if (request.cloudinaryId) {
-        // EXHAUSTIVE URL DISCOVERY
-        // To support external viewers (Office/Google), we need a PUBLICLY ACCESSIBLE URL.
-        // We iterate through possible storage types to find the one that works.
+        // STANDARD SECURE URL GENERATION
+        // All new files are uploaded as 'authenticated'.
+        // We generate a deterministic Signed URL.
 
-        // Extract version from fileUrl if possible (e.g. .../v1769373087/...)
-        // This is CRITICAL for correct signature generation.
+        // 1. Extract Version (Critical for invalidating cache/valid signature)
         let version = undefined;
         const versionMatch = request.fileUrl.match(/\/v(\d+)\//);
         if (versionMatch && versionMatch[1]) {
             version = versionMatch[1];
         }
 
-        console.log(`[SignedURL] Debug - ID: ${request.cloudinaryId}, URL: ${request.fileUrl}, Version: ${version}`);
-
-        const combinations = [
-            // Try UNSIGNED first (Standard Public Access)
-            { resource_type: 'raw', type: 'upload', sign_url: false },
-            { resource_type: 'image', type: 'upload', sign_url: false },
-
-            // Then Try SIGNED (If public access is restricted or file is private)
-            { resource_type: 'raw', type: 'upload', sign_url: true },       // Standard public PDF
-            { resource_type: 'image', type: 'upload', sign_url: true },     // Saved as image
-            { resource_type: 'raw', type: 'authenticated', sign_url: true }, // Private PDF
-            { resource_type: 'image', type: 'authenticated', sign_url: true } // Private Legacy
-        ];
-
-        let validUrl = null;
-
-        // We must actually CHECK if the URL works because external viewers will fail blindly.
-        // We do a HEAD request or fast GET to verify.
-        for (const config of combinations) {
-            try {
-                let pid = request.cloudinaryId;
-                let options = {
-                    resource_type: config.resource_type,
-                    type: config.type,
-                    secure: true,
-                    version: version
-                };
-
-                if (config.sign_url) options.sign_url = true;
-
-                if (config.strip_extension) {
-                    // Remove extension from ID if present
-                    pid = pid.replace(/\.[^/.]+$/, "");
-                }
-
-                const signedUrl = cloudinary.url(pid, options);
-
-                // Verify connectivity (Lightweight check)
-                // axios head/get stream
-                await axios.head(signedUrl);
-
-                validUrl = signedUrl;
-                console.log(`[SignedURL] Found valid URL: ${JSON.stringify(config)}`);
-                break;
-            } catch (err) {
-                console.log(`[SignedURL] Failed check for ${JSON.stringify(config)}: ${err.message} (Status: ${err.response?.status})`);
-            }
+        // 2. Determine Resource Type
+        // We generate based on mime type stored in DB to be accurate.
+        let resourceType = 'raw'; // Default for PDFs/Docs
+        if (request.fileType?.startsWith('image/')) {
+            resourceType = 'image';
         }
 
-        if (validUrl) {
-            return res.json({ success: true, url: validUrl });
-        }
-
-        // If exhaustive search failed, return the 'safest' guess (raw/upload) as a fallback
-        // This ensures we always return a Signed URL, which is required for 'Authenticated' access modes.
-        console.warn("[SignedURL] Verification failed for all types. Returning fallback signed URL (raw/upload)." + (version ? ` With version: ${version}` : ""));
-
-        const fallbackUrl = cloudinary.url(request.cloudinaryId, {
-            resource_type: 'raw',
-            type: 'upload',
+        // 3. Generate Signed URL
+        // We use 'authenticated' type to enforce security restrictions.
+        // Cloudinary will check signature + expiration.
+        const signedUrl = cloudinary.url(request.cloudinaryId, {
+            resource_type: resourceType,
+            type: 'authenticated',
             sign_url: true,
             secure: true,
-            version: version // Explicitly use version
+            version: version
         });
 
-        console.log(`[SignedURL] Fallback generated: ${fallbackUrl}`);
+        // console.log(`[SignedURL] Generated Standard URL: ${signedUrl}`);
 
-        return res.json({ success: true, url: fallbackUrl });
+        return res.json({ success: true, url: signedUrl });
     }
 
     // Local files not supported for external viewers
