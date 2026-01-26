@@ -221,11 +221,18 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
             version = versionMatch[1];
         }
 
+        console.log(`[SignedURL] Debug - ID: ${request.cloudinaryId}, URL: ${request.fileUrl}, Version: ${version}`);
+
         const combinations = [
-            { resource_type: 'raw', type: 'upload' },       // Standard public PDF
-            { resource_type: 'image', type: 'upload' },     // Saved as image
-            { resource_type: 'raw', type: 'authenticated' }, // Private PDF
-            { resource_type: 'image', type: 'authenticated' } // Private Legacy
+            // Try UNSIGNED first (Standard Public Access)
+            { resource_type: 'raw', type: 'upload', sign_url: false },
+            { resource_type: 'image', type: 'upload', sign_url: false },
+
+            // Then Try SIGNED (If public access is restricted or file is private)
+            { resource_type: 'raw', type: 'upload', sign_url: true },       // Standard public PDF
+            { resource_type: 'image', type: 'upload', sign_url: true },     // Saved as image
+            { resource_type: 'raw', type: 'authenticated', sign_url: true }, // Private PDF
+            { resource_type: 'image', type: 'authenticated', sign_url: true } // Private Legacy
         ];
 
         let validUrl = null;
@@ -234,14 +241,19 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
         // We do a HEAD request or fast GET to verify.
         for (const config of combinations) {
             try {
-                const signedUrl = cloudinary.url(request.cloudinaryId, {
+                const urlOptions = {
                     resource_type: config.resource_type,
                     type: config.type,
-                    sign_url: true,
                     secure: true,
                     version: version // Explicitly use version
-                    // expires_at: Math.floor(Date.now() / 1000) + 3600 // Adding expiry might break some strict viewers if clock skew
-                });
+                };
+
+                // Only add sign_url if true (explicitly)
+                if (config.sign_url) {
+                    urlOptions.sign_url = true;
+                }
+
+                const signedUrl = cloudinary.url(request.cloudinaryId, urlOptions);
 
                 // Verify connectivity (Lightweight check)
                 // axios head/get stream
