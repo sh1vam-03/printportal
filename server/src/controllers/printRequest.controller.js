@@ -73,7 +73,7 @@ export const getPrintRequests = asyncHandler(async (req, res) => {
 
     res.json({
         success: true,
-        requests,
+        data: requests,
         pagination: {
             total,
             page: parseInt(page),
