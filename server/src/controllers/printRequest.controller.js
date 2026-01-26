@@ -250,9 +250,18 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
             return res.json({ success: true, url: validUrl });
         }
 
-        // If exhaustive search failed, return the 'safest' guess (usually raw/upload) but warn
-        // or throw 404.
-        throw new ApiError(404, "File could not be located on storage");
+        // If exhaustive search failed, return the 'safest' guess (raw/upload) as a fallback
+        // This ensures we always return a Signed URL, which is required for 'Authenticated' access modes.
+        console.warn("[SignedURL] Verification failed for all types. Returning fallback signed URL (raw/upload).");
+
+        const fallbackUrl = cloudinary.url(request.cloudinaryId, {
+            resource_type: 'raw',
+            type: 'upload',
+            sign_url: true,
+            secure: true,
+        });
+
+        return res.json({ success: true, url: fallbackUrl });
     }
 
     // Local files not supported for external viewers
