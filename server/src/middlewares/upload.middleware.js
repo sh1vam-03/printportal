@@ -1,50 +1,25 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "../config/cloudinary.config.js";
+import fs from "fs";
+import path from "path";
 
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: async (req, file) => {
-        // Extract organization from authenticated user
-        const orgId = req.user?.organizationId || 'default';
+// Ensure upload directory exists
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-        // Determine resource type: 'image' for images, 'raw' for ALL documents (PDF, Docs, etc.)
-        // We FORCE 'raw' for PDFs to avoid Cloudinary treating them as images (thumbnails),
-        // which causes issues with signed URLs and "404" on full downloads because of strict transformations.
-        const isImage = file.mimetype.startsWith('image/');
-
-        const params = {
-            folder: `printportal/${orgId}`,
-            resource_type: isImage ? 'image' : 'raw',
-            type: "authenticated", // Strict private access
-        };
-
-        if (isImage) {
-            // Let Cloudinary handle images (formats, etc.)
-            params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
-            params.use_filename = true;
-            params.unique_filename = true;
-        } else {
-            // For RAW files (PDF, DOCX), we MUST preserve the extension in the public_id
-            // so the generated URL ends in .pdf/.docx (vital for browsers/viewers).
-
-            // Robust extension extraction
-            const parts = file.originalname.split('.');
-            const ext = parts.length > 1 ? parts.pop() : '';
-            // Sanitize filename
-            const name = parts.join('_').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-
-            // Explicit public_id with extension
-            params.public_id = `${name}-${uniqueSuffix}${ext ? '.' + ext : ''}`;
-
-            // Disable auto-naming since we provided public_id
-            params.use_filename = false;
-            params.unique_filename = false;
-        }
-
-        return params;
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
     },
+    filename: (req, file, cb) => {
+        // Unique filename: TIMESTAMP-SAFE_ORIGINAL_NAME
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        const name = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+        cb(null, `${name}-${uniqueSuffix}${ext}`);
+    }
 });
 
 const upload = multer({
@@ -55,7 +30,7 @@ const upload = multer({
     fileFilter: (req, file, cb) => {
         const allowedMimes = [
             // Images
-            'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp',
+            'image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/bmp',
             // Documents
             'application/pdf',
             'application/msword', // .doc
@@ -71,19 +46,27 @@ const upload = multer({
             'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
             // Text/Code
             'text/plain', 'text/markdown',
-            // Archives
-            'application/zip', 'application/x-zip-compressed'
         ];
 
-        // Also check extensions for files with varied/unknown mime types
-        const fileName = file.originalname.toLowerCase();
-        const allowedExtensions = ['.md', '.csv', '.txt', '.rtf', '.zip'];
-        const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+        // Allowed Extensions (Double check)
+        const allowedExtensions = [
+            '.pdf', '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.csv',
+            '.txt', '.md', '.rtf', '.odt',
+            '.jpg', '.jpeg', '.png', '.webp', '.svg'
+        ];
 
-        if (allowedMimes.includes(file.mimetype) || hasAllowedExtension) {
+        const ext = path.extname(file.originalname).toLowerCase();
+
+        // EXPLICIT BLOCKS
+        const blockedExtensions = ['.zip', '.rar', '.7z', '.exe', '.sh', '.mp4', '.mp3', '.gif', '.wav', '.mov', '.avi'];
+        if (blockedExtensions.includes(ext)) {
+            return cb(new Error('File type not allowed. No Archives, Video, Audio, or GIF.'));
+        }
+
+        if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
             cb(null, true);
         } else {
-            cb(new Error('Invalid file type. Audio and video files are not allowed. Only documents, images, and spreadsheets are supported.'));
+            cb(new Error('Invalid file type. Only standard documents and images allowed.'));
         }
     }
 });
@@ -103,7 +86,6 @@ export const handleUpload = (req, res, next) => {
                 message: err.message
             });
         } else if (err) {
-            // Show actual error message for debugging
             console.error('Upload error:', err);
             return res.status(400).json({
                 success: false,

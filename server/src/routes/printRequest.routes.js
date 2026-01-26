@@ -21,18 +21,18 @@ router.get(
     printRequestController.getPrintRequests
 );
 
-// Preview File
-router.get(
-    "/:id/preview",
-    requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
-    printRequestController.getPrintFile
-);
-
-// Get Signed URL (for external viewers like Google Docs)
+// Get Signed URL (Returns URL to file serving endpoint)
 router.get(
     "/:id/signed-url",
     requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
     printRequestController.getPrintFileSignedUrl
+);
+
+// Serve File Content (Secure Stream)
+router.get(
+    "/:id/file",
+    requireRole(["EMPLOYEE", "ADMIN", "PRINTING"]),
+    printRequestController.servePrintFile
 );
 
 /* ---------------- Admin ---------------- */

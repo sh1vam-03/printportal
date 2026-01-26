@@ -86,88 +86,93 @@ const FilePreviewModal = ({
         return "Document";
     };
 
-    // Get the actual file URL - prioritize Cloudinary URL from requestData
-    // For PDFs, we will FETCH it via API to get a Blob, so we don't need to change the URL here.
-    const actualFileUrl = requestData?.fileUrl || fileUrl;
+    // State for the secure file URL fetched from backend
+    const [secureUrl, setSecureUrl] = useState(null);
 
     // Reset state when file changes
     useEffect(() => {
         let active = true;
 
-        if (isOpen && actualFileUrl) {
-            setLoading(true);
-            setLoading(true);
-            setError(null);
+        const fetchSecureUrl = async () => {
+            if (!requestData?._id) return;
 
-            setTextContent(null);
+            // If we already have a direct blob/local url passed (unlikely in this flow), use it.
+            // But we prefer fetching fresh signed/secure URL.
 
-            // Check if this is a text file that needs content reading
-            const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
-                actualFileUrl?.toLowerCase().endsWith(".md") || actualFileUrl?.toLowerCase().endsWith(".csv") ||
-                actualFileUrl?.toLowerCase().endsWith(".txt");
+            try {
+                setLoading(true);
+                setError(null);
+                setTextContent(null);
+                setSecureUrl(null);
 
-            if (isTextFile) {
-                // ... (Text file logic remains same)
-                api.get(actualFileUrl, { responseType: "blob" })
-                    .then((response) => {
-                        if (!active) return;
-                        const blob = new Blob([response.data], { type: fileType || 'text/plain' });
-                        const reader = new FileReader();
-                        reader.onload = () => { if (active) setTextContent(reader.result); };
-                        reader.readAsText(blob);
-                    })
-                    // ...
-                    .finally(() => { if (active) setLoading(false); });
-            } else if (fileType === "application/pdf") {
-                // DIRECT PDF STRATEGY
-                // Use native browser PDF viewer via iframe. 
-                // This is the most reliable method for modern browsers.
+                // 1. Get the Secure Serving URL from Backend
+                const res = await api.get(`/print-requests/${requestData._id}/signed-url`);
 
-                const fetchSignedUrl = async () => {
-                    if (requestData?._id) {
+                if (!res.data.success || !res.data.url) {
+                    throw new Error("Failed to generate secure link");
+                }
+
+                const url = res.data.url;
+
+                if (active) {
+                    setSecureUrl(url);
+
+                    // 2. Content Handling based on Type
+
+                    // TEXT FILES: Fetch content to display
+                    const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
+                        fileType?.startsWith("text/") ||
+                        originalName?.toLowerCase().endsWith(".md") ||
+                        originalName?.toLowerCase().endsWith(".txt") ||
+                        originalName?.toLowerCase().endsWith(".csv");
+
+                    if (isTextFile) {
                         try {
-                            const res = await api.get(`/print-requests/${requestData._id}/signed-url`);
-                            if (res.data.success) {
-                                return res.data.url;
-                            }
+                            const textRes = await api.get(url, { responseType: 'text' });
+                            if (active) setTextContent(textRes.data);
                         } catch (err) {
-                            console.warn("Failed to get signed URL, falling back...", err);
+                            console.error("Text fetch failed", err);
+                            if (active) setError("Failed to load text content");
                         }
                     }
-                    // Fallback to direct URL if public or signing fails
-                    return actualFileUrl;
-                };
 
-                fetchSignedUrl().then(url => {
-                    setBlobUrl(url); // We recycle 'blobUrl' state to store the display URL
-                    setLoading(false);
-                });
-            } else {
-                // For all other files (DOCX, images), use direct URLs
-                setLoading(false);
+                    // PDF & IMAGES: URL is sufficient for iframe/img src
+                    // OFFICE: Handled by download fallback in render
+                }
+            } catch (err) {
+                console.error("Preview setup failed:", err);
+                if (active) setError("Failed to load file preview. File might be missing.");
+            } finally {
+                if (active) setLoading(false);
             }
+        };
+
+        if (isOpen && requestData?._id) {
+            fetchSecureUrl();
         }
 
         return () => {
             active = false;
         };
-    }, [isOpen, actualFileUrl, fileType]);
+    }, [isOpen, requestData, fileType, originalName]);
 
     const handlePrint = () => {
-        if (!blobUrl) return;
-        const printWindow = window.open(blobUrl);
-        if (printWindow) {
+        if (!secureUrl) return;
+        // Open the secure URL in new window triggers native print or view
+        const printWindow = window.open(secureUrl);
+        // Printing programmatically is hard with direct stream unless we overload it.
+        // For PDF, browser viewer has print button. For others, Ctrl+P.
+        if (printWindow && fileType?.startsWith('image/')) {
             printWindow.onload = () => { printWindow.print(); };
         }
     };
 
     const handleDownload = () => {
-        // Use the actual Cloudinary URL
-        if (!actualFileUrl) return;
-
+        if (!secureUrl) return;
         const link = document.createElement("a");
-        link.href = actualFileUrl;
-        link.download = originalName || "download";
+        link.href = secureUrl + "?download=true"; // Append param if backend supported it, or just rely on Content-Disposition
+        // Actually, backend sends inline. We rely on <a download> attribute.
+        link.setAttribute('download', originalName || "download");
         link.target = "_blank";
         document.body.appendChild(link);
         link.click();
@@ -214,12 +219,12 @@ const FilePreviewModal = ({
                         </div>
                     )}
 
-                    {!loading && !error && (
+                    {!loading && !error && secureUrl && (
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
                                 <div className="w-full h-full bg-gray-100 flex justify-center items-center">
                                     <iframe
-                                        src={blobUrl}
+                                        src={secureUrl}
                                         className="w-full h-full border-0"
                                         title="PDF Preview"
                                     >
@@ -228,7 +233,7 @@ const FilePreviewModal = ({
                                                 Preview not available.
                                             </p>
                                             <a
-                                                href={blobUrl}
+                                                href={secureUrl}
                                                 download={originalName || "document.pdf"}
                                                 className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
                                             >
@@ -239,34 +244,16 @@ const FilePreviewModal = ({
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">
-                                    <img src={actualFileUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-none shadow-xl rounded-lg" />
+                                    <img src={secureUrl} alt="Preview" className="w-auto h-auto max-w-full max-h-none shadow-xl rounded-lg" />
                                 </div>
-                            ) : (fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
-                                actualFileUrl?.toLowerCase().endsWith(".md") || actualFileUrl?.toLowerCase().endsWith(".csv") ||
-                                actualFileUrl?.toLowerCase().endsWith(".txt")) ? (
+                            ) : (textContent) ? (
                                 <div className="w-full h-full overflow-y-auto p-4 lg:p-8">
-                                    <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent || "Loading text..."}</pre>
+                                    <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent}</pre>
                                 </div>
                             ) : (
-                                // Microsoft Office Online Viewer (More reliable for DOCX/PPTX/XLSX)
-                                fileType === "application/msword" ||
-                                fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-                                fileType === "application/vnd.ms-excel" ||
-                                fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-                                fileType === "application/vnd.ms-powerpoint" ||
-                                fileType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
-                                actualFileUrl?.toLowerCase().endsWith(".doc") || actualFileUrl?.toLowerCase().endsWith(".docx") ||
-                                actualFileUrl?.toLowerCase().endsWith(".xls") || actualFileUrl?.toLowerCase().endsWith(".xlsx") ||
-                                actualFileUrl?.toLowerCase().endsWith(".ppt") || actualFileUrl?.toLowerCase().endsWith(".pptx")
-                            ) ? (
-                                <div className="w-full h-full overflow-hidden">
-                                    <iframe
-                                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(actualFileUrl)}`}
-                                        className="w-full h-full border-0"
-                                        title="Document Preview"
-                                    />
-                                </div>
-                            ) : (
+                                // OFFICE / OTHER FILES
+                                // Local files cannot be previewed by external viewers.
+                                // We show generic download prompt.
                                 <div className="w-full h-full flex items-center justify-center">
                                     <div className="text-gray-400 flex flex-col items-center p-6 text-center">
                                         <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -274,11 +261,11 @@ const FilePreviewModal = ({
                                             No Preview Available
                                         </span>
                                         <span className="text-sm text-gray-400 mb-4">
-                                            This file type cannot be previewed directly.
+                                            This file type cannot be previewed directly in browser.
                                         </span>
-                                        <button onClick={handleDownload} className="px-4 py-2 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-lg text-sm font-semibold transition-colors">
+                                        <a href={secureUrl} download={originalName} target="_blank" rel="noreferrer" className="px-4 py-2 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-lg text-sm font-semibold transition-colors">
                                             Download to View
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             )}

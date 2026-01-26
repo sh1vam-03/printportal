@@ -2,37 +2,34 @@ import PrintRequest from "../models/PrintRequest.js";
 import { getIO } from "../config/socket.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-
+import fs from "fs";
+import path from "path";
 
 /* ----------------------------------------
    CREATE PRINT REQUEST (Employee)
 ----------------------------------------- */
 export const createPrintRequest = asyncHandler(async (req, res) => {
-
-    const {
-        // employeeId removed, using req.user.userId
-        title,
-        copies,
-        printType,
-        deliveryType,
-        deliveryRoom,
-        dueDateTime,
-    } = req.body;
+    const { title, copies, printType, deliveryType, deliveryRoom, dueDateTime } = req.body;
 
     if (!req.file) {
         throw new ApiError(400, "File is required");
     }
 
     if (!title || !copies || !printType || !deliveryType || !dueDateTime) {
+        // Clean up uploaded file if validation fails
+        if (req.file.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
         throw new ApiError(400, "Missing required fields");
     }
+
+    // Normalized path for storage (relative to project root)
+    // multer stores in 'uploads/', so req.file.path is relative.
 
     const newRequest = await PrintRequest.create({
         employee: req.user.userId,
         organization: req.user.organizationId,
         title,
-        fileUrl: req.file.path, // Cloudinary secure URL
-        cloudinaryId: req.file.filename, // Cloudinary public_id
+        fileUrl: req.file.path, // Store local path
+        cloudinaryId: null, // No longer used
         fileType: req.file.mimetype,
         fileSize: req.file.size,
         originalName: req.file.originalname,
@@ -40,153 +37,124 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         printType,
         deliveryType,
         deliveryRoom,
-        dueDateTime: new Date(dueDateTime + "+05:30"),
+        dueDateTime: new Date(dueDateTime),
     });
 
     res.status(201).json({
         success: true,
         message: "Print request created successfully",
-        data: newRequest,
+        request: newRequest,
     });
-
 });
 
 /* ----------------------------------------
-   GET PRINT FILE PREVIEW (Secure)
+   GET ALL PRINT REQUESTS
 ----------------------------------------- */
-import path from "path";
+export const getPrintRequests = asyncHandler(async (req, res) => {
+    const { role, userId } = req.user;
+    const { status, page = 1, limit = 10 } = req.query;
 
-const getMimeType = (filename) => {
-    const ext = path.extname(filename).toLowerCase();
-    switch (ext) {
-        case ".pdf": return "application/pdf";
-        case ".jpg":
-        case ".jpeg": return "image/jpeg";
-        case ".png": return "image/png";
-        case ".txt": return "text/plain";
-        default: return "application/octet-stream";
+    const query = {
+        organization: req.user.organizationId,
+    };
+
+    if (role === "EMPLOYEE") {
+        query.employee = userId;
     }
-};
 
-import axios from "axios";
-import cloudinary from "../config/cloudinary.config.js";
+    if (status) query.status = status;
 
-export const getPrintFile = asyncHandler(async (req, res) => {
+    const skip = (page - 1) * limit;
+
+    const requests = await PrintRequest.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate("employee", "name email");
+
+    const total = await PrintRequest.countDocuments(query);
+
+    res.json({
+        success: true,
+        requests,
+        pagination: {
+            total,
+            page: parseInt(page),
+            pages: Math.ceil(total / limit),
+        },
+    });
+});
+
+/* ----------------------------------------
+   GET SINGLE PRINT REQUEST
+----------------------------------------- */
+export const getPrintRequestById = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { role, userId } = req.user; // Securely get from token
+    const { role, userId } = req.user;
 
-    const request = await PrintRequest.findById(id);
+    const request = await PrintRequest.findById(id).populate("employee", "name email");
 
-    if (!request) {
-        throw new ApiError(404, "Print request not found");
-    }
+    if (!request) throw new ApiError(404, "Print request not found");
 
-    // Authorization Check
-    // 0. Organization Check (Crucial for SaaS)
     if (request.organization.toString() !== req.user.organizationId) {
-        throw new ApiError(403, "Access denied to this file");
+        throw new ApiError(403, "Access denied");
     }
 
     let canAccess = false;
+    if (role === "ADMIN" || role === "PRINTING") canAccess = true;
+    else if (role === "EMPLOYEE" && request.employee._id.toString() === userId) canAccess = true;
 
-    // Admin and Printing can access all
-    if (role === "ADMIN" || role === "PRINTING") {
-        canAccess = true;
-    }
-    // Employee can only access their own
-    else if (role === "EMPLOYEE" && request.employee.toString() === userId) {
-        canAccess = true;
-    }
+    if (!canAccess) throw new ApiError(403, "Access denied");
 
-    if (!canAccess) {
-        throw new ApiError(403, "Access denied to this file");
-    }
-
-    // Cloudinary files: PROXY content instead of redirecting (Solves CORS/Viewer issues)
-    if (request.cloudinaryId) {
-        try {
-            // EXHAUSTIVE FETCH STRATEGY
-            // We don't know for sure if the file is 'raw' or 'image', or 'upload' or 'authenticated',
-            // because Cloudinary/Multer behavior depends on many factors (and past code versions).
-            // We will try ALL reasonable combinations until one works.
-
-            const combinations = [
-                { resource_type: 'raw', type: 'upload' },       // Most likely for new PDFs
-                { resource_type: 'image', type: 'upload' },     // Fallback for PDFs saved as images
-                { resource_type: 'raw', type: 'authenticated' }, // If Access Control is strict
-                { resource_type: 'image', type: 'authenticated' } // Strict + Image
-            ];
-
-            let lastError = null;
-            let response = null;
-            let successConfig = null;
-
-            for (const config of combinations) {
-                try {
-                    const signedUrl = cloudinary.url(request.cloudinaryId, {
-                        resource_type: config.resource_type,
-                        type: config.type,
-                        sign_url: true,
-                        secure: true,
-                        // expires_at: Math.floor(Date.now() / 1000) + 3600 // Optional, mostly for 'authenticated'
-                    });
-
-                    // Simple HEAD request first? No, just GET stream. If it fails, axios throws.
-                    response = await axios.get(signedUrl, { responseType: 'stream' });
-                    successConfig = config;
-                    console.log(`[Preview] Success using: ${JSON.stringify(config)} -> ${signedUrl}`);
-                    break; // Found it!
-                } catch (err) {
-                    // Log but continue
-                    // console.log(`[Preview] Failed: ${JSON.stringify(config)} - ${err.response?.status}`);
-                    lastError = err;
-                }
-            }
-
-            if (!response) {
-                console.error(`[Preview] All fetch attempts failed. Last status: ${lastError?.response?.status}`);
-                // Return detailed info for user debugging
-                throw new ApiError(502, `Cloudinary Unavailable: ${lastError?.message || "Unknown Error"}`);
-            }
-
-            // Set appropriate headers
-            const contentType = request.fileType || response.headers['content-type'] || 'application/pdf';
-            res.setHeader('Content-Type', contentType);
-            res.setHeader('Content-Disposition', `inline; filename="${request.originalName || 'document.pdf'}"`);
-
-            // Pipe data to response
-            response.data.pipe(res);
-            return;
-        } catch (error) {
-            // If it's already an ApiError, rethrow it
-            if (error instanceof ApiError) throw error;
-
-            console.error('[Preview] Critical Proxy Error:', error.message);
-            throw new ApiError(502, `Proxy Handshake Failed: ${error.message}`);
-        }
-    }
-
-    // Backward compatibility: Serve local files
-    if (request.fileUrl.startsWith('/')) { // Local file check
-        const relativeUrl = request.fileUrl.startsWith('/') ? request.fileUrl.substring(1) : request.fileUrl;
-        const filePath = path.join(process.cwd(), "src", relativeUrl);
-
-        if (!fs.existsSync(filePath)) {
-            throw new ApiError(404, "File not found on server");
-        }
-
-        const contentType = request.fileType || getMimeType(request.fileUrl);
-        const downloadName = request.originalName || path.basename(request.fileUrl);
-
-        res.setHeader('Content-Type', contentType);
-        res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
-
-        return res.sendFile(filePath);
-    }
+    res.json({ success: true, request });
 });
 
 /* ----------------------------------------
-   GET SIGNED URL (For External Viewers)
+   UPDATE STATUS (Admin/Printing)
+----------------------------------------- */
+export const updatePrintRequestStatus = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const { role } = req.user;
+
+    if (role !== "ADMIN" && role !== "PRINTING") {
+        throw new ApiError(403, "Not authorized to update status");
+    }
+
+    const request = await PrintRequest.findById(id);
+    if (!request) throw new ApiError(404, "Print request not found");
+
+    if (request.organization.toString() !== req.user.organizationId) {
+        throw new ApiError(403, "Access denied");
+    }
+
+    request.status = status;
+    await request.save();
+
+    // Notifications...
+    const io = getIO();
+    io.to(req.user.organizationId).emit("notify_employee", {
+        type: "STATUS_UPDATE",
+        requestId: request._id,
+        status: request.status,
+        message: `Your print request status is now: ${status}`,
+    });
+
+    res.json({
+        success: true,
+        message: "Status updated successfully",
+        request,
+    });
+});
+
+/* ----------------------------------------
+   GET PREVIEW URL / SERVE FILE
+   This endpoint now serves two purposes:
+   1. It returns the URL to the file serving endpoint for the frontend.
+   2. OR it serves the file directly if called with proper headers/response type.
+   
+   To keep frontend simple, let's keep this as "Get File URL" (JSON).
+   The frontend will then use that URL in an iframe/image tag.
 ----------------------------------------- */
 export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -195,324 +163,107 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
     const request = await PrintRequest.findById(id);
     if (!request) throw new ApiError(404, "Print request not found");
 
-    // Organization Check
     if (request.organization.toString() !== req.user.organizationId) {
         throw new ApiError(403, "Access denied");
     }
 
-    // Role Access Check
     let canAccess = false;
     if (role === "ADMIN" || role === "PRINTING") canAccess = true;
     else if (role === "EMPLOYEE" && request.employee.toString() === userId) canAccess = true;
 
     if (!canAccess) throw new ApiError(403, "Access denied");
 
-    if (request.cloudinaryId) {
-        // STANDARD SECURE URL GENERATION
+    // Construct the Serving URL
+    // This URL will point to a new route: GET /api/print-requests/:id/file
+    // OR we can misuse this same route but check Accept header? No, duplicate route is cleaner.
+    // For now, let's assume we create a route "/:id/file".
 
-        // OPTIMIZATION: If the stored URL is already an 'authenticated' Signed URL 
-        // (which is returned by Cloudinary during upload), just use it!
-        // This avoids signature mismatch issues due to parameter guessing.
-        if (request.fileUrl.includes('/authenticated/') && request.fileUrl.includes('/s--')) {
-            return res.json({ success: true, url: request.fileUrl });
-        }
+    // Actually, to make it super simple for the existing frontend:
+    // The frontend expects { url: "..." }. 
+    // We return a URL that points to our backend file serving endpoint.
+    // The frontend will invoke that URL with the auth token (Cookie/Header).
 
-        // GENERATION FALLBACK (For older files or if URL structure changes)
+    // NOTE: Sending a File via API in <img> tag or <iframe> requires Cookies (since we can't add headers easily).
+    // If the app relies on Authorization Header, <iframe> won't work easily.
+    // WORKAROUND: Short-lived token in query param? Or just relying on Cookies.
 
-        // 1. Extract Version (Critical for invalidating cache/valid signature)
-        let version = undefined;
-        const versionMatch = request.fileUrl.match(/\/v(\d+)\//);
-        if (versionMatch && versionMatch[1]) {
-            version = versionMatch[1];
-        }
+    const serverUrl = `${req.protocol}://${req.get('host')}`;
+    const fileServeUrl = `${serverUrl}/api/print-requests/${id}/file`;
 
-        // 2. Determine Resource Type
-        // We extract this from the stored URL because Cloudinary's "auto" upload 
-        // might store PDFs as 'image' or 'raw' unpredictably.
-        let resourceType = 'raw'; // fallback
-        if (request.fileUrl.includes('/image/')) {
-            resourceType = 'image';
-        } else if (request.fileUrl.includes('/video/')) {
-            resourceType = 'video';
-        }
-
-        // 3. Generate Signed URL
-        const options = {
-            resource_type: resourceType,
-            type: 'authenticated',
-            sign_url: true,
-            secure: true,
-            version: version
-        };
-
-        const signedUrl = cloudinary.url(request.cloudinaryId, options);
-
-        return res.json({ success: true, url: signedUrl });
-    }
-
-    // Local files not supported for external viewers
-    throw new ApiError(400, "Local files cannot be viewed externally");
+    return res.json({ success: true, url: fileServeUrl });
 });
 
+/* ----------------------------------------
+   SERVE FILE CONTENT (Stream)
+   GET /api/print-requests/:id/file
+----------------------------------------- */
+export const servePrintFile = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    // Auth is handled by middleware, user is populated
+    const { role, userId } = req.user;
+
+    const request = await PrintRequest.findById(id);
+    if (!request) return res.status(404).send("File not found");
+
+    if (request.organization.toString() !== req.user.organizationId) return res.status(403).send("Denied");
+
+    let canAccess = false;
+    if (role === "ADMIN" || role === "PRINTING") canAccess = true;
+    else if (role === "EMPLOYEE" && request.employee.toString() === userId) canAccess = true;
+
+    if (!canAccess) return res.status(403).send("Denied");
+
+    // Legacy Cloudinary Handover
+    if (request.fileUrl.startsWith('http')) {
+        return res.redirect(request.fileUrl);
+    }
+
+    const filePath = path.resolve(request.fileUrl);
+    if (!fs.existsSync(filePath)) return res.status(404).send("File missing on disk");
+
+    // Set correct content type
+    res.setHeader('Content-Type', request.fileType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `inline; filename="${request.originalName}"`);
+
+    res.sendFile(filePath);
+});
 
 /* ----------------------------------------
-   DELETE PRINT REQUEST (Admin & employee)
+   DELETE PRINT REQUEST
 ----------------------------------------- */
-import fs from "fs";
-
 export const deletePrintRequest = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { role, userId } = req.user;
 
     const request = await PrintRequest.findById(id);
+    if (!request) throw new ApiError(404, "Print request not found");
 
-    if (!request) {
-        throw new ApiError(404, "Print request not found");
-    }
+    if (request.organization.toString() !== req.user.organizationId) throw new ApiError(403, "Access denied");
 
-    // Authorization Check with Status Rules
     let canDelete = false;
-
-    if (role === "EMPLOYEE" && request.employee.toString() === userId) {
-        // Employee can delete: PENDING, REJECTED, COMPLETED
-        // Employee CANNOT delete: APPROVED, IN_PROGRESS (Printing dept needs it)
-        if (["PENDING", "REJECTED", "COMPLETED"].includes(request.status)) {
-            canDelete = true;
-        } else {
-            throw new ApiError(403, "Cannot delete file while it is being processed by Printing Dept");
-        }
-    } else if (role === "ADMIN") {
-        // Admin can delete: APPROVED, IN_PROGRESS, COMPLETED, REJECTED
-        // Admin CANNOT delete: PENDING (Must approve/reject first)
-        if (request.status !== "PENDING") {
-            canDelete = true;
-        } else {
-            throw new ApiError(403, "Cannot delete Pending request. Please Approve or Reject it first.");
-        }
+    if (role === "ADMIN") canDelete = true;
+    else if (role === "EMPLOYEE" && request.employee.toString() === userId) {
+        if (["PENDING", "REJECTED", "COMPLETED"].includes(request.status)) canDelete = true;
     }
 
-    if (!canDelete) {
-        throw new ApiError(403, "Not authorized to delete this request");
-    }
+    if (!canDelete) throw new ApiError(403, "Not authorized to delete this request");
 
-    // Delete File from Cloudinary
-    if (request.cloudinaryId) {
-        try {
-            await cloudinary.uploader.destroy(request.cloudinaryId);
-            console.log(`✅ Deleted file from Cloudinary: ${request.cloudinaryId}`);
-        } catch (err) {
-            console.error('⚠️  Failed to delete file from Cloudinary:', err);
-            // Continue with request deletion even if Cloudinary deletion fails
-        }
-    } else {
-        // Backward compatibility: Delete local file if no cloudinaryId
-        const filePath = `./src${request.fileUrl}`;
+    // Delete Local File
+    if (request.fileUrl && !request.fileUrl.startsWith('http')) {
+        const filePath = path.resolve(request.fileUrl);
         if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            try {
+                fs.unlinkSync(filePath);
+            } catch (err) {
+                console.error("Failed to delete local file:", err);
+            }
         }
     }
 
-    // Delete Record
     await request.deleteOne();
 
     res.json({
         success: true,
-        message: "Print request deleted successfully",
+        message: "Print request deleted successfully"
     });
-});
-
-
-/* ----------------------------------------
-   GET PRINT REQUESTS (Role-based)
------------------------------------------ */
-export const getPrintRequests = asyncHandler(async (req, res) => {
-    // Securely get role and userId from token (req.user is set by auth middleware)
-    const { role, userId } = req.user;
-
-    // Optional query overrides ONLY for Admin
-    // const { role: queryRole, userId: queryUserId } = req.query;
-
-    let filter = {};
-
-    if (role === "EMPLOYEE" && (filter.employee = userId));
-
-    if (role === "PRINTING") {
-        filter.status = { $in: ["APPROVED", "IN_PROGRESS"] };
-    }
-
-    // Admins see all by default, or can filter if needed (future feature)
-    // ALWAYS filter by organization for data isolation
-    filter.organization = req.user.organizationId;
-
-    const requests = await PrintRequest.find(filter)
-        .populate("employee", "name email")
-        .sort({ createdAt: -1 });
-
-    res.json({
-        success: true,
-        data: requests,
-    });
-});
-
-
-/* ----------------------------------------
-   APPROVE PRINT REQUEST (Admin)
------------------------------------------ */
-export const approvePrintRequest = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    const request = await PrintRequest.findById(id);
-
-    if (!request) {
-        throw new ApiError(404, "Print request not found");
-    }
-
-    request.status = "APPROVED";
-    await request.save();
-
-
-    const io = getIO();
-
-    // Notify employee
-    // Notify employee - Targeted
-    // In a real app we might join user-specific rooms "user_ID"
-    // For now, if we emit to Org room, everyone in Org gets it, but frontend filters?
-    // BETTER: Emit to organization room, let frontend decide or backend smarts.
-    // Ideally: io.to(request.employee.toString()).emit(...) 
-    // BUT we are keeping it simple: Emit to ORG room.
-
-    // Notify EVERYONE in the ORG (Employee + Admin + Printing)
-    io.to(req.user.organizationId).emit("notify_employee", {
-        type: "APPROVED",
-        requestId: request._id,
-        message: "Your print request has been approved",
-    });
-
-    // Notify Printing Department (Also in the same Org Room)
-    io.to(req.user.organizationId).emit("notify_printing", {
-        type: "NEW_JOB",
-        requestId: request._id,
-        message: "A new print request is ready for processing",
-    });
-
-    res.json({
-        success: true,
-        message: "Print request approved",
-        data: request,
-    });
-});
-
-/* ----------------------------------------
-   REJECT PRINT REQUEST (Admin)
------------------------------------------ */
-export const rejectPrintRequest = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    const request = await PrintRequest.findById(id);
-
-    if (!request) {
-        throw new ApiError(404, "Print request not found");
-    }
-
-    request.status = "REJECTED";
-    await request.save();
-
-    // Notificaton Only Employee
-    const io = getIO();
-
-    io.to(req.user.organizationId).emit("notify_employee", {
-        type: "REJECTED",
-        requestId: request._id,
-        message: "Your print request has been rejected",
-    });
-
-
-    res.json({
-        success: true,
-        message: "Print request rejected",
-        data: request,
-    });
-});
-
-
-/* ----------------------------------------
-   UPDATE PRINT STATUS (Printing Department)
------------------------------------------ */
-export const updatePrintStatus = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const allowedStatuses = ["IN_PROGRESS", "COMPLETED"];
-
-    if (!allowedStatuses.includes(status)) {
-        throw new ApiError(400, "Invalid status update");
-    }
-
-    const request = await PrintRequest.findById(id);
-
-    if (!request) {
-        throw new ApiError(404, "Print request not found");
-    }
-
-    if (request.status !== "APPROVED" && request.status !== "IN_PROGRESS") {
-        throw new ApiError(400, "Status update not allowed for this request");
-    }
-
-    request.status = status;
-    await request.save();
-
-    // Notification Only Employee
-
-    const io = getIO();
-
-    io.to(req.user.organizationId).emit("notify_employee", {
-        type: "STATUS_UPDATE",
-        requestId: request._id,
-        status: request.status,
-        message: `${request.status === "COMPLETED" ? "Your printing request has been completed" : "Your printing request is being processed"}`,
-    });
-
-
-    res.json({
-        success: true,
-        message: `Print request status updated to ${status}`,
-        data: request,
-    });
-});
-
-
-/* ----------------------------------------
-   DOWNLOAD FILE (Printing Department)
------------------------------------------ */
-export const downloadPrintFile = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    const request = await PrintRequest.findById(id).populate(
-        "employee",
-        "name email"
-    );
-
-    if (!request) {
-        throw new ApiError(404, "Print request not found");
-    }
-
-    // Notification Only Employee
-    const io = getIO();
-
-    io.to(req.user.organizationId).emit("notify_employee", {
-        type: "FILE_DOWNLOADED",
-        requestId: request._id,
-        message: "Your document has been downloaded by the printing department",
-    });
-
-    // Cloudinary files: Redirect to Cloudinary URL with download disposition
-    if (request.cloudinaryId) {
-        // Add download flag to Cloudinary URL
-        const downloadUrl = request.fileUrl.replace('/upload/', '/upload/fl_attachment/');
-        return res.redirect(downloadUrl);
-    }
-
-    // Backward compatibility: Serve local file
-    const filePath = `./src${request.fileUrl}`;
-    res.download(filePath);
 });
