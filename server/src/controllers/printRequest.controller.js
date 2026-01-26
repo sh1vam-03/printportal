@@ -21,9 +21,6 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Missing required fields");
     }
 
-    // Normalized path for storage (relative to project root)
-    // multer stores in 'uploads/', so req.file.path is relative.
-
     const newRequest = await PrintRequest.create({
         employee: req.user.userId,
         organization: req.user.organizationId,
@@ -110,28 +107,73 @@ export const getPrintRequestById = asyncHandler(async (req, res) => {
 });
 
 /* ----------------------------------------
-   UPDATE STATUS (Admin/Printing)
+   APPROVE PRINT REQUEST (Admin)
 ----------------------------------------- */
-export const updatePrintRequestStatus = asyncHandler(async (req, res) => {
+export const approvePrintRequest = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const request = await PrintRequest.findById(id);
+    if (!request) throw new ApiError(404, "Print request not found");
+    if (request.organization.toString() !== req.user.organizationId) throw new ApiError(403, "Access denied");
+
+    request.status = "APPROVED";
+    await request.save();
+
+    const io = getIO();
+    io.to(req.user.organizationId).emit("notify_employee", {
+        type: "APPROVED",
+        requestId: request._id,
+        message: "Your print request has been approved",
+    });
+
+    // Notify Printing Dept
+    io.to(req.user.organizationId).emit("notify_printing", {
+        type: "NEW_JOB",
+        requestId: request._id,
+        message: "A new print request is ready for processing",
+    });
+
+    res.json({ success: true, message: "Print request approved", request });
+});
+
+/* ----------------------------------------
+   REJECT PRINT REQUEST (Admin)
+----------------------------------------- */
+export const rejectPrintRequest = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const request = await PrintRequest.findById(id);
+    if (!request) throw new ApiError(404, "Print request not found");
+    if (request.organization.toString() !== req.user.organizationId) throw new ApiError(403, "Access denied");
+
+    request.status = "REJECTED";
+    await request.save();
+
+    const io = getIO();
+    io.to(req.user.organizationId).emit("notify_employee", {
+        type: "REJECTED",
+        requestId: request._id,
+        message: "Your print request has been rejected",
+    });
+
+    res.json({ success: true, message: "Print request rejected", request });
+});
+
+/* ----------------------------------------
+   UPDATE STATUS (Printing Department)
+----------------------------------------- */
+export const updatePrintStatus = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     const { role } = req.user;
 
-    if (role !== "ADMIN" && role !== "PRINTING") {
-        throw new ApiError(403, "Not authorized to update status");
-    }
+    if (role !== "ADMIN" && role !== "PRINTING") throw new ApiError(403, "Not authorized");
 
     const request = await PrintRequest.findById(id);
     if (!request) throw new ApiError(404, "Print request not found");
-
-    if (request.organization.toString() !== req.user.organizationId) {
-        throw new ApiError(403, "Access denied");
-    }
+    if (request.organization.toString() !== req.user.organizationId) throw new ApiError(403, "Access denied");
 
     request.status = status;
     await request.save();
 
-    // Notifications...
     const io = getIO();
     io.to(req.user.organizationId).emit("notify_employee", {
         type: "STATUS_UPDATE",
@@ -140,21 +182,11 @@ export const updatePrintRequestStatus = asyncHandler(async (req, res) => {
         message: `Your print request status is now: ${status}`,
     });
 
-    res.json({
-        success: true,
-        message: "Status updated successfully",
-        request,
-    });
+    res.json({ success: true, message: `Print request status updated to ${status}`, request });
 });
 
 /* ----------------------------------------
-   GET PREVIEW URL / SERVE FILE
-   This endpoint now serves two purposes:
-   1. It returns the URL to the file serving endpoint for the frontend.
-   2. OR it serves the file directly if called with proper headers/response type.
-   
-   To keep frontend simple, let's keep this as "Get File URL" (JSON).
-   The frontend will then use that URL in an iframe/image tag.
+   GET PREVIEW URL / SERVE FILE MAPPER
 ----------------------------------------- */
 export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -173,20 +205,6 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
 
     if (!canAccess) throw new ApiError(403, "Access denied");
 
-    // Construct the Serving URL
-    // This URL will point to a new route: GET /api/print-requests/:id/file
-    // OR we can misuse this same route but check Accept header? No, duplicate route is cleaner.
-    // For now, let's assume we create a route "/:id/file".
-
-    // Actually, to make it super simple for the existing frontend:
-    // The frontend expects { url: "..." }. 
-    // We return a URL that points to our backend file serving endpoint.
-    // The frontend will invoke that URL with the auth token (Cookie/Header).
-
-    // NOTE: Sending a File via API in <img> tag or <iframe> requires Cookies (since we can't add headers easily).
-    // If the app relies on Authorization Header, <iframe> won't work easily.
-    // WORKAROUND: Short-lived token in query param? Or just relying on Cookies.
-
     const serverUrl = `${req.protocol}://${req.get('host')}`;
     const fileServeUrl = `${serverUrl}/api/print-requests/${id}/file`;
 
@@ -195,11 +213,9 @@ export const getPrintFileSignedUrl = asyncHandler(async (req, res) => {
 
 /* ----------------------------------------
    SERVE FILE CONTENT (Stream)
-   GET /api/print-requests/:id/file
 ----------------------------------------- */
 export const servePrintFile = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    // Auth is handled by middleware, user is populated
     const { role, userId } = req.user;
 
     const request = await PrintRequest.findById(id);
@@ -213,7 +229,6 @@ export const servePrintFile = asyncHandler(async (req, res) => {
 
     if (!canAccess) return res.status(403).send("Denied");
 
-    // Legacy Cloudinary Handover
     if (request.fileUrl.startsWith('http')) {
         return res.redirect(request.fileUrl);
     }
@@ -221,11 +236,32 @@ export const servePrintFile = asyncHandler(async (req, res) => {
     const filePath = path.resolve(request.fileUrl);
     if (!fs.existsSync(filePath)) return res.status(404).send("File missing on disk");
 
-    // Set correct content type
     res.setHeader('Content-Type', request.fileType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `inline; filename="${request.originalName}"`);
 
     res.sendFile(filePath);
+});
+
+/* ----------------------------------------
+   DOWNLOAD FILE (Printing Dept)
+----------------------------------------- */
+export const downloadPrintFile = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const request = await PrintRequest.findById(id);
+    if (!request) throw new ApiError(404, "Not found");
+    if (request.organization.toString() !== req.user.organizationId) throw new ApiError(403, "Denied");
+
+    const filePath = path.resolve(request.fileUrl);
+    if (!fs.existsSync(filePath)) throw new ApiError(404, "File missing");
+
+    const io = getIO();
+    io.to(req.user.organizationId).emit("notify_employee", {
+        type: "FILE_DOWNLOADED",
+        requestId: request._id,
+        message: "Printing dept downloaded your file",
+    });
+
+    res.download(filePath, request.originalName);
 });
 
 /* ----------------------------------------
@@ -248,7 +284,6 @@ export const deletePrintRequest = asyncHandler(async (req, res) => {
 
     if (!canDelete) throw new ApiError(403, "Not authorized to delete this request");
 
-    // Delete Local File
     if (request.fileUrl && !request.fileUrl.startsWith('http')) {
         const filePath = path.resolve(request.fileUrl);
         if (fs.existsSync(filePath)) {
