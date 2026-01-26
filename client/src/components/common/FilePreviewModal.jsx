@@ -2,10 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Modal from "../ui/Modal";
 import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
-import { Document, Page, pdfjs } from 'react-pdf';
-// Vite-compatible worker loader
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-// Import react-pdf styles if needed, but we used custom styles.
+
 
 const FilePreviewModal = ({
     isOpen,
@@ -24,14 +21,7 @@ const FilePreviewModal = ({
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
 
-    // PDF State
-    const [numPages, setNumPages] = useState(null);
-    const [pageNumber, setPageNumber] = useState(1);
 
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages);
-        setPageNumber(1);
-    }
 
 
 
@@ -129,10 +119,9 @@ const FilePreviewModal = ({
                     // ...
                     .finally(() => { if (active) setLoading(false); });
             } else if (fileType === "application/pdf") {
-                // MICROSOFT OFFICE VIEWER STRATEGY (Requested by User)
-                // Reliable iframe-based viewer for Office documents AND PDFs.
-                // WE NOW USE "Exhaustive Discovery" on the backend to guarantee a working Public URL.
-                // This solves the "We can't process this request" error by ensuring the URL is actually accessible.
+                // DIRECT PDF STRATEGY
+                // Use native browser PDF viewer via iframe. 
+                // This is the most reliable method for modern browsers.
 
                 const fetchSignedUrl = async () => {
                     if (requestData?._id) {
@@ -229,9 +218,8 @@ const FilePreviewModal = ({
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
                                 <div className="w-full h-full bg-gray-100 flex justify-center items-center">
-                                    {/* Use Microsoft Office Viewer for PDF (Consistent with DOCX/PPT) */}
                                     <iframe
-                                        src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(blobUrl)}`}
+                                        src={blobUrl}
                                         className="w-full h-full border-0"
                                         title="PDF Preview"
                                     >
