@@ -3,6 +3,7 @@ import Modal from "../ui/Modal";
 import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
 import * as mammoth from "mammoth";
+import JSZip from "jszip";
 
 const FilePreviewModal = ({
     isOpen,
@@ -123,6 +124,10 @@ const FilePreviewModal = ({
                     const isDocx = fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
                         lowerName.endsWith(".docx");
 
+                    // POWERPOINT (PPTX)
+                    const isPptx = fileType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+                        lowerName.endsWith(".pptx");
+
                     if (isTextFile) {
                         try {
                             const textText = await blob.text();
@@ -134,12 +139,53 @@ const FilePreviewModal = ({
                     } else if (isDocx) {
                         try {
                             const arrayBuffer = await blob.arrayBuffer();
-                            // Convert DOCX to HTML using Mammoth
                             const result = await mammoth.convertToHtml({ arrayBuffer });
                             if (active) setHtmlContent(result.value);
                         } catch (err) {
                             console.error("Docx conversion failed", err);
                             if (active) setError("Failed to render Word document.");
+                        }
+                    } else if (isPptx) {
+                        try {
+                            const zip = await JSZip.loadAsync(blob);
+                            const slideFiles = Object.keys(zip.files).filter(name => name.startsWith("ppt/slides/slide") && name.endsWith(".xml"));
+
+                            // Sort naturally: slide1, slide2, slide10
+                            slideFiles.sort((a, b) => {
+                                const numA = parseInt(a.match(/slide(\d+)\.xml/)[1]);
+                                const numB = parseInt(b.match(/slide(\d+)\.xml/)[1]);
+                                return numA - numB;
+                            });
+
+                            let finalHtml = "";
+                            if (slideFiles.length === 0) {
+                                finalHtml = "<p class='text-gray-500 italic'>No slides found or legacy PPT format.</p>";
+                            }
+
+                            for (let i = 0; i < slideFiles.length; i++) {
+                                const slideName = slideFiles[i];
+                                const slideXml = await zip.file(slideName).async("string");
+
+                                // Simple regex to extract text within <a:t> tags
+                                const matches = slideXml.match(/<a:t[^>]*>(.*?)<\/a:t>/g);
+                                let slideText = "";
+                                if (matches) {
+                                    slideText = matches.map(tag => tag.replace(/<\/?a:t[^>]*>/g, "")).join(" ");
+                                }
+
+                                finalHtml += `
+                                    <div class="mb-8 p-6 bg-gray-50 border border-gray-200 shadow-sm rounded-lg break-words">
+                                        <h4 class="font-bold text-gray-400 uppercase text-xs mb-4 select-none">Slide ${i + 1}</h4>
+                                        <p class="text-gray-800 whitespace-pre-wrap leading-relaxed">${slideText || "<span class='text-gray-400 italic'>No text content</span>"}</p>
+                                    </div>
+                                `;
+                            }
+
+                            if (active) setHtmlContent(finalHtml);
+
+                        } catch (err) {
+                            console.error("PPTX conversion failed", err);
+                            if (active) setError("Failed to extract text from PowerPoint.");
                         }
                     }
                 }
