@@ -27,6 +27,11 @@ export const createPrintRequest = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Missing required fields");
     }
 
+    // DEBUG: Inspect Cloudinary Upload Response
+    console.log("------------------------------------------------");
+    console.log("CLOUDINARY UPLOAD DEBUG:");
+    console.log(JSON.stringify(req.file, null, 2));
+    console.log("------------------------------------------------");
 
     const newRequest = await PrintRequest.create({
         employee: req.user.userId,
