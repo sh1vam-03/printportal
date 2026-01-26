@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Modal from "../ui/Modal";
 import api from "../../services/api";
 import StatusBadge from "../StatusBadge";
-
+import * as mammoth from "mammoth";
 
 const FilePreviewModal = ({
     isOpen,
@@ -19,6 +19,7 @@ const FilePreviewModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [textContent, setTextContent] = useState(null);
+    const [htmlContent, setHtmlContent] = useState(null);
 
     // Helper to format file size
     const formatFileSize = (bytes) => {
@@ -85,6 +86,7 @@ const FilePreviewModal = ({
                 setLoading(true);
                 setError(null);
                 setTextContent(null);
+                setHtmlContent(null);
                 setSecureUrl(null);
 
                 // Use relative path directly to ensure API instance handles it with Auth headers
@@ -93,7 +95,6 @@ const FilePreviewModal = ({
                 if (active) {
                     console.log("[Preview] Fetching blob from:", fileEndpoint);
 
-                    // 1. Fetch the File Content as BLOB (Authenticated)
                     const blobRes = await api.get(fileEndpoint, {
                         responseType: 'blob'
                     });
@@ -108,12 +109,19 @@ const FilePreviewModal = ({
                     const objectUrl = window.URL.createObjectURL(blob);
                     setSecureUrl(objectUrl);
 
-                    // 2. Text Content Handling
+                    // Content Type Logic
+                    const lowerName = originalName?.toLowerCase() || "";
+
+                    // TEXT FILES
                     const isTextFile = fileType === "text/plain" || fileType === "text/csv" || fileType === "text/markdown" ||
                         fileType?.startsWith("text/") ||
-                        originalName?.toLowerCase().endsWith(".md") ||
-                        originalName?.toLowerCase().endsWith(".txt") ||
-                        originalName?.toLowerCase().endsWith(".csv");
+                        lowerName.endsWith(".md") ||
+                        lowerName.endsWith(".txt") ||
+                        lowerName.endsWith(".csv");
+
+                    // WORD DOCUMENTS (DOCX)
+                    const isDocx = fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+                        lowerName.endsWith(".docx");
 
                     if (isTextFile) {
                         try {
@@ -123,11 +131,20 @@ const FilePreviewModal = ({
                             console.error("Text read failed", err);
                             if (active) setError("Failed to read text content");
                         }
+                    } else if (isDocx) {
+                        try {
+                            const arrayBuffer = await blob.arrayBuffer();
+                            // Convert DOCX to HTML using Mammoth
+                            const result = await mammoth.convertToHtml({ arrayBuffer });
+                            if (active) setHtmlContent(result.value);
+                        } catch (err) {
+                            console.error("Docx conversion failed", err);
+                            if (active) setError("Failed to render Word document.");
+                        }
                     }
                 }
             } catch (err) {
                 console.error("Preview setup failed:", err);
-                // Try to parse blob error as JSON
                 if (err.response?.data instanceof Blob && err.response.data.type === "application/json") {
                     try {
                         const jsonText = await err.response.data.text();
@@ -229,7 +246,7 @@ const FilePreviewModal = ({
                                             </p>
                                             <a
                                                 href={secureUrl}
-                                                download={originalName || "document.pdf"}
+                                                download={originalName || "document.pdf"} // Use "document.pdf" as fallback name
                                                 className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
                                             >
                                                 Download PDF
@@ -245,6 +262,10 @@ const FilePreviewModal = ({
                                 <div className="w-full h-full overflow-y-auto p-4 lg:p-8">
                                     <pre className="text-sm font-mono whitespace-pre-wrap text-left w-full h-auto text-gray-800 bg-white rounded-lg shadow-sm p-6 border border-gray-200">{textContent}</pre>
                                 </div>
+                            ) : (htmlContent) ? (
+                                <div className="w-full h-full overflow-y-auto p-4 lg:p-12 bg-white flex justify-center">
+                                    <div className="prose max-w-3xl w-full shadow-sm p-8 bg-white border border-gray-100 min-h-full" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                                </div>
                             ) : (
                                 // OFFICE / OTHER FILES
                                 // Local files cannot be previewed by external viewers.
@@ -253,10 +274,12 @@ const FilePreviewModal = ({
                                     <div className="text-gray-400 flex flex-col items-center p-6 text-center">
                                         <svg className="w-16 h-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                         <span className="font-medium text-lg text-gray-500 mb-1">
-                                            No Preview Available
+                                            Preview Not Available
                                         </span>
-                                        <span className="text-sm text-gray-400 mb-4">
-                                            This file type cannot be previewed directly in browser.
+                                        <span className="text-sm text-gray-400 mb-4 max-w-xs">
+                                            {fileType?.includes("powerpoint") || originalName?.toLowerCase().includes("ppt")
+                                                ? "PowerPoint functionality is currently limited to download only."
+                                                : "This file type cannot be previewed directly in browser."}
                                         </span>
                                         <a href={secureUrl} download={originalName} target="_blank" rel="noreferrer" className="px-4 py-2 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-lg text-sm font-semibold transition-colors">
                                             Download to View
