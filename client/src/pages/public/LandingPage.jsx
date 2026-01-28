@@ -329,10 +329,10 @@ const LandingPage = () => {
                     <p className="text-gray-500 font-semibold uppercase tracking-widest mb-8">Trusted by Education Leaders</p>
                     <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale">
                         {/* Mock Logos */}
-                        <div className="text-2xl font-black text-gray-800">EDU<span className="text-brand-600">CORP</span></div>
-                        <div className="text-2xl font-serif font-bold text-gray-800">EMP<span className="italic">TRACK</span></div>
-                        <div className="text-2xl font-mono font-bold text-gray-800">TAS<span className="text-brand-600">KEY</span></div>
-                        <div className="text-2xl font-bold text-gray-800 tracking-tighter">FUTURE<span className="font-light">ACADEMY</span></div>
+                        <div className="text-2xl font-serif font-bold text-gray-800">EDU<span className="italic">CORP</span></div>
+                        <div className="text-2xl font-black text-gray-800">TAS<span className="text-brand-600">KEY</span></div>
+                        <div className="text-2xl font-bold text-gray-800 tracking-tighter">EMP<span className="font-light">TRACK</span></div>
+                        <div className="text-2xl font-mono font-bold text-gray-800">FUTURE<span className="text-brand-600">ACADEMY</span></div>
                     </div>
                 </div>
             </section>
