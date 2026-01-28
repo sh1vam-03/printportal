@@ -330,9 +330,8 @@ const LandingPage = () => {
                     <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale">
                         {/* Mock Logos */}
                         <div className="text-2xl font-black text-gray-800">EDU<span className="text-brand-600">CORP</span></div>
-                        <div className="text-2xl font-serif font-bold text-gray-800">Uni<span className="italic">Tech</span></div>
-                        <div className="text-2xl font-black text-gray-800">TAB<span className="text-brand-600">SYE</span></div>
-                        <div className="text-2xl font-mono font-bold text-gray-800">Global<span className="text-brand-600">School</span></div>
+                        <div className="text-2xl font-serif font-bold text-gray-800">EMP<span className="italic">TRACK</span></div>
+                        <div className="text-2xl font-mono font-bold text-gray-800">TAS<span className="text-brand-600">KEY</span></div>
                         <div className="text-2xl font-bold text-gray-800 tracking-tighter">FUTURE<span className="font-light">ACADEMY</span></div>
                     </div>
                 </div>
