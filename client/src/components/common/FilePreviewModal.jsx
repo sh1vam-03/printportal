@@ -279,6 +279,39 @@ const FilePreviewModal = ({
                 className="flex flex-col lg:flex-row h-[100dvh] lg:h-[700px] w-full bg-white lg:rounded-2xl overflow-y-auto lg:overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
+                {/* Mobile Header (Title + Status + Close + Tabs) */}
+                <div className="lg:hidden flex flex-col bg-white border-b border-gray-100 absolute top-0 left-0 right-0 z-30 w-full shadow-sm">
+                    <div className="flex items-center justify-between px-4 py-3">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            <h2 className="text-sm font-bold text-gray-900 truncate max-w-[180px]">
+                                {requestData?.title || "Untitled Job"}
+                            </h2>
+                            <StatusBadge status={requestData?.status} size="sm" />
+                        </div>
+                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-all active:scale-95 shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    {/* Mobile Tabs */}
+                    <div className="flex px-4 pb-0 gap-6">
+                        <button
+                            onClick={() => setActiveTab('preview')}
+                            className={`pb-2.5 text-sm font-semibold transition-all relative ${activeTab === 'preview' ? 'text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Preview
+                            {activeTab === 'preview' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('details')}
+                            className={`pb-2.5 text-sm font-semibold transition-all relative ${activeTab === 'details' ? 'text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Details
+                            {activeTab === 'details' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />}
+                        </button>
+                    </div>
+                </div>
+
                 {/* LEFT: File Preview Area */}
                 <div className={`min-h-[40vh] lg:h-auto lg:flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 pt-28 lg:pt-0 shrink-0 ${activeTab === 'preview' ? 'block' : 'hidden lg:flex'}`}>
                     {loading && (
@@ -288,38 +321,7 @@ const FilePreviewModal = ({
                         </div>
                     )}
 
-                    {/* Mobile Header (Title + Status + Close + Tabs) */}
-                    <div className="lg:hidden flex flex-col bg-white border-b border-gray-100 absolute top-0 left-0 right-0 z-30 w-full shadow-sm">
-                        <div className="flex items-center justify-between px-4 py-3">
-                            <div className="flex items-center gap-3 overflow-hidden">
-                                <h2 className="text-sm font-bold text-gray-900 truncate max-w-[180px]">
-                                    {requestData?.title || "Untitled Job"}
-                                </h2>
-                                <StatusBadge status={requestData?.status} size="sm" />
-                            </div>
-                            <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-all active:scale-95 shrink-0">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
 
-                        {/* Mobile Tabs */}
-                        <div className="flex px-4 pb-0 gap-6">
-                            <button
-                                onClick={() => setActiveTab('preview')}
-                                className={`pb-2.5 text-sm font-semibold transition-all relative ${activeTab === 'preview' ? 'text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                Preview
-                                {activeTab === 'preview' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />}
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('details')}
-                                className={`pb-2.5 text-sm font-semibold transition-all relative ${activeTab === 'details' ? 'text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                Details
-                                {activeTab === 'details' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />}
-                            </button>
-                        </div>
-                    </div>
 
                     {error && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 p-8 text-center text-red-500">
