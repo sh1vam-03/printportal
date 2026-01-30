@@ -76,10 +76,12 @@ const FilePreviewModal = ({
     // State for the secure file URL fetched from backend
     const [secureUrl, setSecureUrl] = useState(null);
     const [directDownloadUrl, setDirectDownloadUrl] = useState(null);
+    const [activeTab, setActiveTab] = useState('preview'); // 'preview' | 'details'
 
     // Reset state when file changes
     useEffect(() => {
         let active = true;
+        setActiveTab('preview');
 
         const fetchSecureUrl = async () => {
             if (!requestData?._id) return;
@@ -278,7 +280,7 @@ const FilePreviewModal = ({
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* LEFT: File Preview Area */}
-                <div className="min-h-[40vh] lg:h-auto lg:flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 pt-14 lg:pt-0 shrink-0">
+                <div className={`min-h-[40vh] lg:h-auto lg:flex-1 bg-gray-900/5 lg:bg-gray-100 relative flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 pt-28 lg:pt-0 shrink-0 ${activeTab === 'preview' ? 'block' : 'hidden lg:flex'}`}>
                     {loading && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
                             <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-brand-200 border-t-brand-600"></div>
@@ -286,17 +288,37 @@ const FilePreviewModal = ({
                         </div>
                     )}
 
-                    {/* Mobile Header (Title + Status + Close) */}
-                    <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 absolute top-0 left-0 right-0 z-30 w-full shadow-sm">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                            <h2 className="text-sm font-bold text-gray-900 truncate max-w-[180px]">
-                                {requestData?.title || "Untitled Job"}
-                            </h2>
-                            <StatusBadge status={requestData?.status} size="sm" />
+                    {/* Mobile Header (Title + Status + Close + Tabs) */}
+                    <div className="lg:hidden flex flex-col bg-white border-b border-gray-100 absolute top-0 left-0 right-0 z-30 w-full shadow-sm">
+                        <div className="flex items-center justify-between px-4 py-3">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                <h2 className="text-sm font-bold text-gray-900 truncate max-w-[180px]">
+                                    {requestData?.title || "Untitled Job"}
+                                </h2>
+                                <StatusBadge status={requestData?.status} size="sm" />
+                            </div>
+                            <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-all active:scale-95 shrink-0">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
                         </div>
-                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-all active:scale-95 shrink-0">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+
+                        {/* Mobile Tabs */}
+                        <div className="flex px-4 pb-0 gap-6">
+                            <button
+                                onClick={() => setActiveTab('preview')}
+                                className={`pb-2.5 text-sm font-semibold transition-all relative ${activeTab === 'preview' ? 'text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                                Preview
+                                {activeTab === 'preview' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('details')}
+                                className={`pb-2.5 text-sm font-semibold transition-all relative ${activeTab === 'details' ? 'text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                                Details
+                                {activeTab === 'details' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />}
+                            </button>
+                        </div>
                     </div>
 
                     {error && (
@@ -406,7 +428,7 @@ const FilePreviewModal = ({
                 </div>
 
                 {/* RIGHT: Details & Actions Panel */}
-                <div className="w-full lg:w-96 flex flex-col border-l border-gray-100 bg-white shrink-0 z-10 h-auto rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative">
+                <div className={`w-full lg:w-96 flex-col border-l border-gray-100 bg-white shrink-0 z-10 h-auto lg:h-full rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:shadow-none translate-y-0 relative lg:flex ${activeTab === 'details' ? 'flex pt-28 lg:pt-0' : 'hidden lg:flex'}`}>
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100 relative">
                         {/* Desktop Close Button */}
