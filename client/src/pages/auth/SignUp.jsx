@@ -129,7 +129,7 @@ const SignUp = () => {
                     <input
                         name="email"
                         type="email"
-                        placeholder="headmaster@hogwarts.edu"
+                        placeholder="principal@hogwarts.edu"
                         className="w-full rounded-xl border-gray-200 bg-gray-50/30 px-4 py-3.5 text-base shadow-sm ring-1 ring-transparent transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 hover:bg-gray-50"
                         required
                     />
