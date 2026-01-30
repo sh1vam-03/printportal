@@ -286,9 +286,15 @@ const FilePreviewModal = ({
                         </div>
                     )}
 
-                    {/* Mobile Header (Close Button Only) */}
-                    <div className="lg:hidden flex items-center justify-end px-4 py-3 bg-transparent absolute top-0 right-0 z-30 w-full pointer-events-none">
-                        <button onClick={onClose} className="pointer-events-auto p-2 text-white hover:text-gray-200 bg-black/20 backdrop-blur-md rounded-full shadow-sm transition-all active:scale-95">
+                    {/* Mobile Header (Title + Status + Close) */}
+                    <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 absolute top-0 left-0 right-0 z-30 w-full shadow-sm">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            <h2 className="text-sm font-bold text-gray-900 truncate max-w-[180px]">
+                                {requestData?.title || "Untitled Job"}
+                            </h2>
+                            <StatusBadge status={requestData?.status} size="sm" />
+                        </div>
+                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-all active:scale-95 shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
@@ -413,7 +419,7 @@ const FilePreviewModal = ({
                         </button>
 
                         <div className="flex flex-col gap-4">
-                            <h2 className="text-2xl font-bold text-gray-900 leading-tight break-words">{requestData?.title || "Untitled Job"}</h2>
+                            <h2 className="hidden lg:block text-2xl font-bold text-gray-900 leading-tight break-words">{requestData?.title || "Untitled Job"}</h2>
 
                             <div className="flex flex-row items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 min-w-0">
@@ -426,7 +432,7 @@ const FilePreviewModal = ({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-center justify-center shrink-0">
+                                <div className="hidden lg:flex flex-col items-center justify-center shrink-0">
                                     <StatusBadge status={requestData?.status} />
                                     <span className="text-xs text-gray-400 mt-1 font-medium text-center">
                                         {new Date(requestData?.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
