@@ -75,6 +75,7 @@ const FilePreviewModal = ({
 
     // State for the secure file URL fetched from backend
     const [secureUrl, setSecureUrl] = useState(null);
+    const [directDownloadUrl, setDirectDownloadUrl] = useState(null);
 
     // Reset state when file changes
     useEffect(() => {
@@ -89,9 +90,21 @@ const FilePreviewModal = ({
                 setTextContent(null);
                 setHtmlContent(null);
                 setSecureUrl(null);
+                setDirectDownloadUrl(null);
 
+                // 1. Fetch Blob for Preview (Text, Image, Desktop PDF)
                 // Use relative path directly to ensure API instance handles it with Auth headers
                 const fileEndpoint = `/print-requests/${requestData._id}/file`;
+
+                // 2. Also Fetch Direct Download URL (For Mobile PDF / Download Button)
+                // We do this in parallel or sequence. 
+                api.get(`/print-requests/${requestData._id}/download?json=true`)
+                    .then(res => {
+                        if (active && res.data && res.data.downloadUrl) {
+                            setDirectDownloadUrl(res.data.downloadUrl);
+                        }
+                    })
+                    .catch(err => console.log("Direct download URL fetch failed (likely local file)", err));
 
                 if (active) {
                     console.log("[Preview] Fetching blob from:", fileEndpoint);
@@ -226,10 +239,22 @@ const FilePreviewModal = ({
     };
 
     const handleDownload = () => {
+        // Prefer direct URL if available (Cloudinary)
+        if (directDownloadUrl) {
+            const link = document.createElement("a");
+            link.href = directDownloadUrl;
+            link.setAttribute('download', originalName || "download");
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+        }
+
+        // Fallback to blob download
         if (!secureUrl) return;
         const link = document.createElement("a");
-        link.href = secureUrl + "?download=true"; // Append param if backend supported it, or just rely on Content-Disposition
-        // Actually, backend sends inline. We rely on <a download> attribute.
+        link.href = secureUrl;
         link.setAttribute('download', originalName || "download");
         link.target = "_blank";
         document.body.appendChild(link);
@@ -313,7 +338,7 @@ const FilePreviewModal = ({
                                             Mobile browsers often struggle to display embedded PDFs. Tap below to view the file.
                                         </p>
                                         <a
-                                            href={secureUrl}
+                                            href={directDownloadUrl || secureUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all active:scale-95"

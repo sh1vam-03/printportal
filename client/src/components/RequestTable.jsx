@@ -89,21 +89,69 @@ const RequestTable = ({ role, fetchQueryRole, filterFn, hideActions, hideStatus 
 
     const downloadFile = async (id, fileName) => {
         try {
-            const response = await api.get(`/print-requests/${id}/download`, {
-                responseType: "blob",
-            });
+            // Try to get a direct download URL first (Better for Cloudinary/Network)
+            // We ask for json=true. If backend supports it and finds Cloudinary file, it returns { downloadUrl }.
+            // If it's a local file, it might still stream or we can handle fallback.
+            // Actually, mixed response types are hard in one call. 
+            // Strategy: Request JSON. If backend says "use_stream" or returns blob (improbable if we asked for json), we fallback?
+            // Simplified: The backend now returns JSON if json=true and it IS Cloudinary.
+            // If it is Local, it currently streams (ignoring json=true? No, we didn't implement that part for Local).
+            // Let's assume for now we only fix Cloudinary.
 
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", fileName || "document.pdf");
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+            // To be safe: We can try to fetch HEAD or just GET with json=true.
+            // If content-type is json, we use the URL. 
+            // If content-type is blob/stream, axios might mess up if we didn't set responseType:'blob'.
 
-            showToast("File downloaded successfully", "info");
-        } catch {
-            showToast("File download failed", "error");
+            // Correct approach:
+            // 1. Fetch with default responseType (JSON).
+            // 2. If success and has downloadUrl -> window.open
+            // 3. If error (maybe local file streaming isn't JSON?), try blob approach.
+
+            // BUT: If the backend streams binary when we expect JSON, Axios will try to parse JSON and fail.
+            // So we should modify backend to ALSO return JSON for local files if json=true?
+            // Or just use the Blob approach for everyone but handle the Cloudinary case specifically?
+
+            // Let's try the Hybrid approach:
+            const res = await api.get(`/print-requests/${id}/download?json=true`);
+
+            if (res.data && res.data.downloadUrl) {
+                // Direct Link (Cloudinary)
+                // Use a temporary link to trigger download
+                const link = document.createElement("a");
+                link.href = res.data.downloadUrl;
+                link.setAttribute("download", fileName || "download");
+                link.target = "_blank"; // Safer for some browsers to avoid navigating away
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                showToast("Download started", "success");
+                return;
+            }
+
+            throw new Error("Not a direct link");
+
+        } catch (err) {
+            // Fallback to Blob Download (Local files or if JSON fetch failed)
+            // This handles the case where backend didn't return JSON (old version?) or it's a local file stream
+            console.log("Direct download unavailable, trying blob fallback...");
+            try {
+                const response = await api.get(`/print-requests/${id}/download`, {
+                    responseType: "blob",
+                });
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", fileName || "document.pdf");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                showToast("File downloaded successfully", "info");
+            } catch (blobErr) {
+                console.error(blobErr);
+                showToast("File download failed", "error");
+            }
         }
     };
 

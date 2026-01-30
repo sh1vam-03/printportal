@@ -352,6 +352,10 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
             message: "Printing dept downloaded your file",
         });
 
+        if (req.query.json === 'true') {
+            return res.json({ success: true, downloadUrl: url });
+        }
+
         return res.redirect(url);
     }
 
