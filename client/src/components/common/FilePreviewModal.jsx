@@ -280,10 +280,11 @@ const FilePreviewModal = ({
                     {!loading && !error && secureUrl && (
                         <div className="w-full h-full bg-neutral-100/50 backdrop-blur-sm">
                             {fileType === "application/pdf" ? (
-                                <div className="w-full h-full bg-gray-100 flex justify-center items-center">
+                                <div className="w-full h-full bg-gray-100 flex flex-col justify-center items-center">
+                                    {/* Desktop: Embedded Iframe */}
                                     <iframe
                                         src={secureUrl}
-                                        className="w-full h-full border-0"
+                                        className="hidden lg:block w-full h-full border-0"
                                         title="PDF Preview"
                                     >
                                         <div className="flex flex-col items-center justify-center h-full p-6 text-center">
@@ -292,13 +293,37 @@ const FilePreviewModal = ({
                                             </p>
                                             <a
                                                 href={secureUrl}
-                                                download={originalName || "document.pdf"} // Use "document.pdf" as fallback name
+                                                download={originalName || "document.pdf"}
                                                 className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
                                             >
                                                 Download PDF
                                             </a>
                                         </div>
                                     </iframe>
+
+                                    {/* Mobile/Tablet: Direct Open Button (Iframes are buggy on mobile) */}
+                                    <div className="lg:hidden flex flex-col items-center justify-center p-8 text-center max-w-sm mx-auto">
+                                        <div className="mb-6 p-4 bg-red-50 rounded-full ring-4 ring-red-50/50">
+                                            <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-900 mb-2">PDF Document</h3>
+                                        <p className="text-sm text-gray-500 mb-8 leading-relaxed">
+                                            Mobile browsers often struggle to display embedded PDFs. Tap below to view the file.
+                                        </p>
+                                        <a
+                                            href={secureUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all active:scale-95"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                            Open PDF
+                                        </a>
+                                    </div>
                                 </div>
                             ) : (fileType?.startsWith("image/") || fileType === "image/svg+xml") ? (
                                 <div className="w-full h-full overflow-y-auto flex items-center justify-center p-4">

@@ -320,8 +320,44 @@ export const downloadPrintFile = asyncHandler(async (req, res) => {
     if (!request) throw new ApiError(404, "Not found");
     if (request.organization.toString() !== req.user.organizationId) throw new ApiError(403, "Denied");
 
+    // Check if it's a Cloudinary file
+    if (request.cloudinaryId) {
+        // Generate Signed URL with 'attachment' flag to force download
+        // We need to infer resource_type. Default to 'image' (which covers PDF often), but check fileType.
+        let resourceType = 'image';
+        if (!request.fileType.startsWith('image/') && request.fileType !== 'application/pdf') {
+            resourceType = 'raw';
+        }
+        // If it looks like a raw file from URL
+        if (request.fileUrl && request.fileUrl.includes('/raw/')) {
+            resourceType = 'raw';
+        }
+
+        const url = cloudinary.url(request.cloudinaryId, {
+            resource_type: resourceType,
+            type: 'private',
+            sign_url: true,
+            secure: true,
+            expires_in: 3600,
+            flags: "attachment" // Force download
+        });
+
+        console.log(`[Download] Redirecting to Cloudinary: ${url}`);
+
+        // Notify before redirecting (optional, but good for tracking)
+        const io = getIO();
+        io.to(req.user.organizationId).emit("notify_employee", {
+            type: "FILE_DOWNLOADED",
+            requestId: request._id,
+            message: "Printing dept downloaded your file",
+        });
+
+        return res.redirect(url);
+    }
+
+    // Local File Fallback
     const filePath = path.resolve(request.fileUrl);
-    if (!fs.existsSync(filePath)) throw new ApiError(404, "File missing");
+    if (!fs.existsSync(filePath)) throw new ApiError(404, "File missing on server");
 
     const io = getIO();
     io.to(req.user.organizationId).emit("notify_employee", {
